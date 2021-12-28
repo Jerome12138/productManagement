@@ -199,19 +199,18 @@
                 <FormItem>
                   <div slot="label">
                     <span>{{functionType.typeName + (functionType.desc ? `(${functionType.desc})` : '')}}</span>
-                    <Poptip placement="right" width="400">
+                    <!-- <Poptip placement="right" width="400">
                       <Icon type="ios-help-circle" size="16" color="#888888" @click="showHelp(index)"/>
                         <div slot="content">
                           <img :src="qqFans" alt="" height="400px">
                         </div>
-                    </Poptip>
+                    </Poptip> -->
                   </div>
                   <div :is="!!functionType.isMultiple?'CheckboxGroup':'RadioGroup'" v-model="functionIdList[index]" clearable>
                     <div :is="!!functionType.isMultiple?'Checkbox':'Radio'"
-                      v-for="(item,index) in getFunctionListByType(functionType.typeKey)"
+                      v-for="item in getFunctionListByType(functionType.typeKey)"
                       :key="item.id"
                       :label="item.id"
-                      v-if="index<20"
                     >
                       <span>{{item.functionName}}</span>
                     </div>

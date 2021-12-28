@@ -1,131 +1,8 @@
 <template>
   <div>
     <Button v-if="accessAddTask" type="primary" size="default" @click="showAddTaskModal">新建任务</Button>
-    <Modal
-      :styles="modalStyles"
-      v-model="modal1"
-      title="添加任务"
-      @on-ok="ok"
-      @on-cancel="cancel"
-      mask
-      :mask-closable=false
-      :loading="loading">
-      <Spin size="large" fix v-if="spinShow"></Spin>
-      <Form ref="taskManage" :model="taskData" label-position="left" :rules="taskRuleValidate" :label-width="75">
-        <Row :gutter="1">
-          <Col span="24">
-            <FormItem label="标题:" prop="title">
-              <Input v-model="taskData.title" maxlength="50" placeholder="请输入50个字符以内的任务标题" autosize></Input>
-            </FormItem>
-          </Col>
-        </Row>
-        <Row :gutter="0">
-          <Col span="24">
-            <FormItem label="内容:" prop="content">
-              <Input v-model="taskData.content" type="textarea" maxlength="500" placeholder="请输入500个字符以内的任务内容"
-                     autosize></Input>
-            </FormItem>
-          </Col>
-        </Row>
-        <Row :gutter="1">
-          <Col span="12">
-            <FormItem label="产品类型:" prop="productType">
-              <Select v-model="taskData.productType" placeholder="请选择产品类型" clearable not-found-text="暂无产品类型"
-                      @on-change="changeProductType">
-                <Option v-for="item in allProductType" :value="item.code" :key="item.code">{{ item.value }}</Option>
-              </Select>
-            </FormItem>
-          </Col>
-          <Col span="12">
-            <FormItem label="产品型号:" prop="productModel">
-              <Select v-model="taskData.productModel" placeholder="请选择产品类型" clearable
-                      not-found-text="请先选择产品类型，并确认已选类型有产品">
-                <Option v-for="item in allProductModel[taskData.productType]" :value="item.model" :key="item.model">
-                  {{ item.model }}
-                </Option>
-              </Select>
-            </FormItem>
-          </Col>
-        </Row>
-        <Row :gutter="1">
-          <Col span="12">
-            <FormItem label="产品功能:">
-              <Select v-model="taskData.productFunctionType" placeholder="请选择产品功能" clearable multiple
-                      not-found-text="请先选择产品类型，并确认已选类型有功能选项">
-                <Option v-for="item in productTypeToFunctionList[taskData.productType]" :value="item.id" :key="item.id">
-                  {{ item.functionName }}
-                </Option>
-              </Select>
-            </FormItem>
-          </Col>
-          <Col span="12">
-            <FormItem label="产品场景:">
-              <Select v-model="taskData.productScenarioType" placeholder="请选择产品场景" clearable multiple
-                      not-found-text="请先选择产品类型，并确认已选类型有场景选项">
-                <Option v-for="item in productTypeToScenarioList[taskData.productType]" :value="item.id" :key="item.id">
-                  {{ item.scenarioName }}
-                </Option>
-              </Select>
-            </FormItem>
-          </Col>
-        </Row>
-        <Row :gutter="1">
-          <Col span="12">
-            <FormItem label="传感器:">
-              <Select v-model="taskData.productSensorType" placeholder="请选择产品传感器" clearable multiple
-                      not-found-text="请先选择产品类型，并确认已选类型有传感器选项">
-                <Option v-for="item in productTypeToSensorList[taskData.productType]" :value="item.id" :key="item.id">
-                  {{ item.sensorName }}
-                </Option>
-              </Select>
-            </FormItem>
-          </Col>
-          <Col span="12">
-            <FormItem label="语音功能:">
-              <Select v-model="taskData.productVoiceFunctionType" placeholder="请选择产品语音功能" clearable multiple
-                      not-found-text="暂无可选项，请确认是否有语音功能选项">
-                <Option v-for="item in allVoiceFunctionList" :value="item.id" :key="item.id">{{ item.name }}</Option>
-              </Select>
-            </FormItem>
-          </Col>
-        </Row>
-        <Row :gutter="1">
-          <Col span="12">
-            <FormItem label="生态入口:">
-              <Select v-model="taskData.productEcologyEntranceType" placeholder="请选择产品生态入口" clearable multiple
-                      not-found-text="暂无可选项，请确认是否有生态入口选项">
-                <Option v-for="item in allEcologyEntranceList" :value="item.id" :key="item.id">{{ item.name }}</Option>
-              </Select>
-            </FormItem>
-          </Col>
-        </Row>
-        <Row :gutter="1">
-          <Col span="24">
-            <FormItem label="审核组:" prop="auditGroupId">
-              <span style="max-width: 100%; display: inline-block; overflow-wrap: break-word;text-align: left;">
-                {{ groupIdToUserName[taskData.auditGroupId] }}
-              </span>
-              <Select clearable v-model="taskData.auditGroupId" placeholder="请选择审核组">
-                <Option v-for="item in auditGroupList" :value="item.id" :key="item.id">{{ item.groupName }}</Option>
-              </Select>
-            </FormItem>
-          </Col>
-        </Row>
-        <Row :gutter="32">
-          <Col span="24">
-            <FormItem label="执行人:" prop="actorUserId">
-              <Select clearable v-model="taskData.actorUserId" placeholder="请选择执行人">
-                <Option v-for="item in allUser" :value="item.id" :key="item.id">{{ item.userName }}</Option>
-              </Select>
-            </FormItem>
-          </Col>
-        </Row>
-      </Form>
-      <div slot="footer">
-        <Button @click="cancel">取消</Button>
-        <Button type="primary" :loading="loading" @click="saveTaskData">确定</Button>
-      </div>
-    </Modal>
+    <modalAddTask v-model="modal1" :propTaskData="taskData" @setAddProductModal="setAddProductModal($event)"></modalAddTask>
+    <modalAddProduct v-model="showAddProductModal" :propTaskData="taskData" :productType="addProductType"></modalAddProduct>
     <Drawer
       title="任务详情"
       v-model="taskDetailDrawer"
@@ -134,7 +11,7 @@
       :styles="styles"
       :loading="handleTaskLoading"
       @on-close="closeTaskDetail">
-      <Spin size="large" fix v-if="spinDrawerShow"></Spin>
+      <!-- <Spin size="large" fix v-if="spinDrawerShow"></Spin> -->
       <Form ref="taskEditManage" :model="taskDetailData" :rules="taskRuleValidate">
         <Row :gutter="10">
           <Col span="3">
@@ -150,7 +27,7 @@
         <Row :gutter="10" v-if="taskDetailData.status==='audit_fail_confirming' && isSponsor">
           <Col span="24">
             <FormItem v-if="taskDetailData.status==='audit_fail_confirming' && isSponsor" label="任务内容：" prop="content">
-              <Input v-model="taskDetailData.content" type="textarea" maxlength="500" placeholder="请输入500个字符以内的任务内容"
+              <Input v-model="taskDetailData.content" type="textarea" :maxlength="500" placeholder="请输入500个字符以内的任务内容"
                      autosize></Input>
             </FormItem>
             <FormItem v-else label="" :rules="{}">
@@ -387,7 +264,7 @@
             <Col span="24">
               <FormItem label="意见：" prop="handleOpinion">
                 <Input type="textarea" v-model="taskDetailData.handleOpinion" :autosize="opinionSize"
-                       placeholder="请输入500个字符以内的内容。" maxlength="500" style="width: 613px"></Input>
+                       placeholder="请输入500个字符以内的内容。" :maxlength="500" style="width: 613px"></Input>
               </FormItem>
             </Col>
           </Row>
@@ -448,11 +325,15 @@ import {
 import store from '@/store'
 import { getToken, setToken } from '@/libs/util'
 import { hasOneOf } from '@/libs/tools'
+import modalAddTask from './components/modalAddTask.vue'
+import modalAddProduct from './components/modalAddProduct.vue'
 
 export default {
   name: 'taskManage',
   components: {
-    Tables
+    Tables,
+    modalAddTask,
+    modalAddProduct
   },
   data () {
     return {
@@ -488,11 +369,11 @@ export default {
         auditGroupId: '',
         auditGroupUserIds: '',
         productType: '',
-        productFunctionType: [],
-        productScenarioType: [],
-        productSensorType: [],
-        productVoiceFunctionType: [],
-        productEcologyEntranceType: [],
+        // productFunctionType: [],
+        // productScenarioType: [],
+        // productSensorType: [],
+        // productVoiceFunctionType: [],
+        // productEcologyEntranceType: [],
         productModel: ''
       },
       taskDetailData: {
@@ -585,7 +466,9 @@ export default {
       allProductType: [],
       allVoiceFunctionList: [],
       allEcologyEntranceList: [],
-      allProductModel: {}
+      allProductModel: {},
+      showAddProductModal: false,
+      addProductType: '',
     }
   },
   methods: {
@@ -1108,12 +991,12 @@ export default {
       this.taskData.auditGroupId = ''
       this.taskData.actorUserId = ''
       this.taskData.createUserId = ''
-      this.taskData.productEcologyEntranceType = []
-      this.taskData.productFunctionType = []
-      this.taskData.productScenarioType = []
-      this.taskData.productSensorType = []
+      // this.taskData.productEcologyEntranceType = []
+      // this.taskData.productFunctionType = []
+      // this.taskData.productScenarioType = []
+      // this.taskData.productSensorType = []
       this.taskData.productType = []
-      this.taskData.productVoiceFunctionType = []
+      // this.taskData.productVoiceFunctionType = []
       this.taskData.productModel = ''
       this.loading = false
     },
@@ -1140,7 +1023,11 @@ export default {
       } else if (name === 'handledList') {
         this.getHandledTaskList()
       }
-    }
+    },
+    setAddProductModal(productType) {
+      this.showAddProductModal=true
+      this.addProductType=productType
+    },
   },
   mounted () {
     let userId = this.$store.state.user.userId

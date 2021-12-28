@@ -17,7 +17,7 @@ export default {
    * @description api请求基础路径
    */
   baseUrl: {
-    dev: 'http://localhost:8090/pm/',
+    dev: 'http://localhost:8000/pm/',
     // dev: 'http://121.43.198.225:8080/',
     pro: '/pm/'
   },
