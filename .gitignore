@@ -1,0 +1,41 @@
+##ignore this file##
+__pycache__/
+.classpath
+.vscode/
+.project
+.settings
+file_storage/    
+##filter databfile、sln file##
+db.sqlite3
+*.mdb  
+*.ldb  
+*.sln    
+##class file##
+*.com  
+*$py.class  
+*.dll  
+*.exe  
+*.o  
+*.so  
+*.py[cod]
+# compression file
+*.7z  
+*.dmg  
+*.gz  
+*.iso  
+*.jar  
+*.rar  
+*.tar  
+*.zip  
+*.via
+*.tmp
+*.err 
+# OS generated files #  
+.DS_Store  
+.DS_Store?  
+._*  
+.Spotlight-V100  
+.Trashes  
+Icon?  
+ehthumbs.db  
+Thumbs.db  

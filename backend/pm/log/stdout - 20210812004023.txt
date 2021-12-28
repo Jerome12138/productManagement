@@ -1,0 +1,10 @@
+
+> weex-kh-widgets@0.0.1 build-e2 C:\DATA\Code\Git\weex-kh-widgets
+> npm run clean:e2 && cross-env CATE_NAME=T0xE2 webpack --env.NODE_ENV=production && node configs/publish-e2.js
+
+
+> weex-kh-widgets@0.0.1 clean:e2 C:\DATA\Code\Git\weex-kh-widgets
+> rimraf ./.temp && rimraf ./dist/T0xE2 && rimraf ./publish/T0xE2
+
+T0xE2 é¡¹ç›®å¯åŠ¨ä¸­ â€¦â€¦
+ÖÕÖ¹Åú´¦Àí²Ù×÷Âğ(Y/N)? ÖÕÖ¹Åú´¦Àí²Ù×÷Âğ(Y/N)? 
