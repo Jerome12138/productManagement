@@ -24,6 +24,7 @@ Markdown==3.3.3
 markdownify==0.6.0
 packaging==21.0
 Pillow @ file:///Users/jerome/Downloads/Pillow-8.4.0-cp38-cp38-macosx_11_0_arm64.whl
+PyMySQL==1.0.2
 pyparsing==2.4.7
 pytz==2021.1
 PyYAML==5.4.1
