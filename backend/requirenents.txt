@@ -9,4 +9,4 @@ django_crontab
 Pillow
 django
 django-cors-headers
-gitpythons
+gitpython
