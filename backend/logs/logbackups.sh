@@ -1,12 +1,12 @@
 #!/bin/bash
 # 自动备份日志
-BASEDIR="/home/ubuntu/git/django_project"
+BASEDIR="/home/ubuntu/git/backend"
 
 DATE=`date -d "yesterday" +"%Y-%m-%d"`
 
 MONTH=${DATE%-*}
 
-NEWDIR="/home/ubuntu/git/django_project/logs"
+NEWDIR="/home/ubuntu/git/backend/logs"
 
 mkdir -p ${NEWDIR}/${MONTH}
 
