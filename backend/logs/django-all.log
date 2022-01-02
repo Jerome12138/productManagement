@@ -328,3 +328,6 @@
 [2022-01-02 10:56:03] [INFO] Watching for file changes with StatReloader
 [2022-01-02 10:56:45] [INFO] Watching for file changes with StatReloader
 [2022-01-02 13:10:42] [INFO] Watching for file changes with StatReloader
+[2022-01-02 13:16:15] [INFO] Watching for file changes with StatReloader
+[2022-01-02 13:16:22] [WARNING] "GET / HTTP/1.1" 404 2190
+[2022-01-02 13:16:22] [WARNING] "GET /favicon.ico HTTP/1.1" 404 2241
