@@ -6,6 +6,39 @@ from .func import codeSettingHandler
 
 # Create your views here.
 
+def login(request):
+    ret = {'errorCode': '-1', 'error': None, 'result': None}
+    try:
+        if request.method == "POST":
+            ret['errorCode'] = '0'
+            ret['token'] = 'admin'
+    except Exception as e:
+        print('Exception:', e)
+        ret['errorCode'] = '-1'
+        ret['error'] = '遇到异常'+e
+    finally:
+        return JsonResponse(ret)
+
+def getUserInfo(request):
+    ret = {'errorCode': '-1', 'error': None, 'result': None}
+    try:
+        if request.method == "GET":
+            ret['errorCode'] = '0'
+            ret = {
+                **ret,
+                "name": 'admin',
+                "user_id": '2',
+                "access": ['admin'],
+                "token": 'admin',
+                "avator": 'https://avatars0.githubusercontent.com/u/20942571?s=460&v=4'
+            }
+    except Exception as e:
+        print('Exception:', e)
+        ret['errorCode'] = '-1'
+        ret['error'] = '遇到异常'+e
+    finally:
+        return JsonResponse(ret)
+
 def getFunctionByType(request):
     ret = {'errorCode': '-1', 'error': None, 'result': None}
     try:
