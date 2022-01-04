@@ -14,7 +14,8 @@ Router.prototype.push = function push (location) {
 Vue.use(Router)
 const router = new Router({
   routes,
-  mode: 'history'
+  mode: 'history',
+  base: '/pm/'
 })
 const LOGIN_PAGE_NAME = 'login'
 
