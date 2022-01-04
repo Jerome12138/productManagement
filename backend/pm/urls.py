@@ -5,6 +5,7 @@ from pm import views
 
 urlpatterns = [
     path('login', views.login),
+    path('logout', views.logout),
     path('get_info', views.getUserInfo),
     path('function/getFunctionByType', views.getFunctionByType),
     path('product/saveProduct', views.saveProduct),
