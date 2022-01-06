@@ -24,6 +24,7 @@ class FunctionTypeData(models.Model):
     isRequired = models.IntegerField()  # 是否必选
     isMultiple = models.IntegerField()  # 是否多选
     productType = models.CharField(max_length=16)    # 产品类型
+    functionType = models.CharField(max_length=16)  # 功能类型，object，boolean, array, number
     create_time = models.DateTimeField(auto_now_add=True, null=True)
     update_time = models.DateTimeField(auto_now=True, null=True)
     create_user_id = models.CharField(max_length=16, null=True)

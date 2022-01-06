@@ -163,7 +163,7 @@
                 <Col span="12">
                   <FormItem label="热水量显示" label-position="top">
                     <Select v-model="productData.scenarioIds" placeholder="请选择热水量显示类型" multiple>
-                      <Option v-for="item in getFunctionListByType('hotWaterType、')" :value="item.id" :key="item.id">{{ item.scenarioName }}</Option>
+                      <Option v-for="item in getFunctionListByType('hotWaterType')" :value="item.id" :key="item.id">{{ item.scenarioName }}</Option>
                     </Select>
                   </FormItem>
                 </Col>

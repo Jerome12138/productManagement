@@ -28,6 +28,7 @@ def queryProduct(**condition):
     for item in productData:
         if item.get('functionIds'):
             item['functionIds'] = eval(item['functionIds'])
+            item['functionsName'] = getFunctionNamesByIds(item['functionIds'])
     # print(productData)
     return list(productData)
 
@@ -66,6 +67,16 @@ def getFunctionList(productType):
     functionData = models.FunctionData.objects.filter(productType=productType).values()
     # print(functionData)
     return list(functionData)
+
+# 获取功能列表
+def getFunctionNamesByIds(ids):
+    functionData = models.FunctionData.objects.filter(id__in=ids).values('functionName')
+    functionObjList = list(functionData)
+    functionNames = []
+    for item in functionObjList:
+        functionNames.append(item['functionName'])
+    # print(functionData)
+    return ",".join(functionNames)
 
 # 保存功能数据
 def saveFunction(functionData):

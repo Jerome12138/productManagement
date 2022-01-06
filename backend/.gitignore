@@ -39,3 +39,6 @@ db.sqlite3
 Icon?  
 ehthumbs.db  
 Thumbs.db  
+
+uwsgi.log
+uwsgi.pid
