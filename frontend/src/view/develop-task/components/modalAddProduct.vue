@@ -213,6 +213,7 @@
                       :label="item.id"
                     >
                       <span>{{item.functionName}}</span>
+                      <span v-if="item.functionDesc" class="func-desc">({{item.functionDesc}})</span>
                     </div>
                   </div>
                   <!-- <Select v-model="functionIdList[index*2]" :placeholder="`请选择${colList[0].typeName}`" :multiple="!!colList[0].isMultiple" filterable clearable transfer>
@@ -614,7 +615,7 @@ export default {
       }
     },
     getFunctionListByType (typeKey) {
-      return this.functionList.filter(item => item.typeKey == typeKey)
+      return this.functionList.filter(item => item.typeKey == typeKey && !item.isDisable)
     },
     changeProductType () {
       this.taskData.productFunctionType = []
@@ -803,5 +804,8 @@ export default {
 </script>
 
 <style scoped>
-
+.func-desc {
+  color: #666666;
+  font-size: 0.8em;
+}
 </style>

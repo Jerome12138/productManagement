@@ -152,6 +152,12 @@ export default {
           key: 'functionName'
         })
         this.columns.push({
+          title: '功能描述',
+          align: 'center',
+          editable: true,
+          key: 'functionDesc'
+        })
+        this.columns.push({
           title: '功能键名',
           align: 'center',
           editable: true,

@@ -6,10 +6,12 @@ from django.db import models
 class FunctionData(models.Model):
     # id = models.CharField(max_length=8, unique=True, primary_key=True)  # 功能id
     functionName = models.CharField(max_length=32)    # 功能名称
-    functionKey = models.CharField(max_length=16)  # 功能键名
-    typeKey = models.CharField(max_length=16)    # 功能类型（键名）
-    productType = models.CharField(max_length=16)    # 产品类型
-    isDefault = models.IntegerField()  # 是否默认功能
+    functionDesc = models.CharField(max_length=32, null=True)    # 功能描述
+    functionKey = models.CharField(max_length=32)  # 功能键名
+    typeKey = models.CharField(max_length=32)    # 功能类型（键名）
+    productType = models.CharField(max_length=32)    # 产品类型
+    isDefault = models.IntegerField(default=0)  # 是否默认功能
+    isDisable = models.IntegerField(default=0)  # 是否禁用
     create_time = models.DateTimeField(auto_now_add=True, null=True)
     update_time = models.DateTimeField(auto_now=True, null=True)
     create_user_id = models.CharField(max_length=16, null=True)
@@ -18,13 +20,13 @@ class FunctionData(models.Model):
 # 功能类型
 class FunctionTypeData(models.Model):
     typeName = models.CharField(max_length=32)    # 功能类型名称
-    typeKey = models.CharField(max_length=16)    # 功能类型键名
+    typeKey = models.CharField(max_length=32)    # 功能类型键名
     desc = models.CharField(max_length=32)    # 功能类型描述
     priority = models.IntegerField()   # 功能显示优先级
     isRequired = models.IntegerField()  # 是否必选
     isMultiple = models.IntegerField()  # 是否多选
-    productType = models.CharField(max_length=16)    # 产品类型
-    functionType = models.CharField(max_length=16)  # 功能类型，object，boolean, array, number
+    productType = models.CharField(max_length=32)    # 产品类型
+    dataType = models.CharField(max_length=16, default="String")  #    功能类型，Object，Boolean, Array, Number, Srting
     create_time = models.DateTimeField(auto_now_add=True, null=True)
     update_time = models.DateTimeField(auto_now=True, null=True)
     create_user_id = models.CharField(max_length=16, null=True)
@@ -35,7 +37,7 @@ class ElectricBoardFunctionData(models.Model):
     functionName = models.CharField(max_length=32)    # 电控功能名称
     functionKey = models.CharField(max_length=16)  # 电控功能键名
     typeKey = models.CharField(max_length=16)    # 电控功能类型（键名）
-    productType = models.CharField(max_length=16)    # 产品类型
+    productType = models.CharField(max_length=32)    # 产品类型
     isDefault = models.IntegerField()  # 是否默认电控功能
     create_time = models.DateTimeField(auto_now_add=True, null=True)
     update_time = models.DateTimeField(auto_now=True, null=True)
@@ -50,7 +52,7 @@ class ElectricBoardFunctionTypeData(models.Model):
     priority = models.IntegerField()   # 显示优先级
     isRequired = models.IntegerField()  # 是否必选
     isMultiple = models.IntegerField()  # 是否多选
-    productType = models.CharField(max_length=16)    # 产品类型
+    productType = models.CharField(max_length=32)    # 产品类型
     create_time = models.DateTimeField(auto_now_add=True,null=True)
     update_time = models.DateTimeField(auto_now=True,null=True)
     create_user_id = models.CharField(max_length=16, null=True)
@@ -90,7 +92,7 @@ class TaskData(models.Model):
     actorUserId = models.CharField(max_length=128)
     auditGroupId = models.CharField(max_length=128)
     auditGroupUserIds = models.CharField(max_length=128)
-    productType = models.CharField(max_length=16)
+    productType = models.CharField(max_length=32)
     productModel = models.CharField(max_length=128)
     create_time = models.DateTimeField(auto_now_add=True, null=True)
     update_time = models.DateTimeField(auto_now=True, null=True)
