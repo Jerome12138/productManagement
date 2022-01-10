@@ -3,7 +3,7 @@ import os, time
 import subprocess
 from . import DBHandler
 
-weex_path = "/Users/jerome/Git/weex-kh-widgets"
+weex_path = "/home/lighthouse/weex-kh-widgets"
 
 # ========== 配置文件处理 ==========
 
