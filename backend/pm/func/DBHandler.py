@@ -6,10 +6,10 @@ from pm import models
 def getProductType():
     # functionData = models.FunctionData.objects.filter(productType=productType).values()
     # print(functionData)
-    return [{
-        "code": 'electric_heater',
-        "value": '电热水器'
-    }]
+    return [
+        { "code": 'electric_heater', "value": '电热水器' },
+        { "code": 'gas_heater_stove', "value": '燃气热水器' },
+    ]
 
 # ========== 产品 ==========
 
@@ -52,6 +52,29 @@ def saveProduct(productData):
     except Exception as e:
         print(e)
         return False
+
+def getEcologyEntrance():
+    return [
+        { "id": 0, "name": '美居'},
+        { "id": 1, "name": '华为鸿蒙'},
+    ]
+
+def getProductBranch():
+    return [
+        { "code": 'midea', "value": '美的'},
+        { "code": 'colmo', "value": 'COLMO'},
+        { "code": 'wahin', "value": '华凌'},
+        { "code": 'comfee', "value": 'COMFEE'},
+        { "code": 'little_swan', "value": '小天鹅'},
+    ]
+
+def getHeatingTubeType():
+    heatingTubeTypeData = models.HeatingTubeTypeData.objects.values()
+    return list(heatingTubeTypeData)
+
+def getWifiModuleType():
+    wifiModuleType = models.WifiModuleTypeData.objects.values()
+    return list(wifiModuleType)
 
 # ========== 功能类型 ==========
 

@@ -1,12 +1,12 @@
 #!/bin/bash
 # 自动备份日志
-BASEDIR="/home/ubuntu/git/backend"
+BASEDIR="/home/lighthouse/productManagement/backend"
 
 DATE=`date -d "yesterday" +"%Y-%m-%d"`
 
 MONTH=${DATE%-*}
 
-NEWDIR="/home/ubuntu/git/backend/logs"
+NEWDIR="/home/lighthouse/productManagement/backend/logs"
 
 mkdir -p ${NEWDIR}/${MONTH}
 

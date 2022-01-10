@@ -3,6 +3,8 @@ from django.http.response import JsonResponse
 import json
 from .func import DBHandler
 from .func import codeSettingHandler
+# from .func import autoScript
+import re
 
 # Create your views here.
 
@@ -139,4 +141,76 @@ def getTaskDetailById(request):
         ret['errorCode'] = '0'
         taskId = request.GET.get('taskId')
         ret['result'] = DBHandler.getTaskDetailById(taskId)
+    return ret
+    
+@decoRet
+def getEcologyEntrance(request):
+    ret = {}
+    if request.method == "POST":
+        ret['errorCode'] = '0'
+        ret['result'] = DBHandler.getEcologyEntrance()
+    return ret
+
+@decoRet
+def getProductBranch(request):
+    ret = {}
+    if request.method == "POST":
+        ret['errorCode'] = '0'
+        ret['result'] = DBHandler.getProductBranch()
+    return ret
+
+@decoRet
+def getHeatingTubeType(request):
+    ret = {}
+    if request.method == "POST":
+        ret['errorCode'] = '0'
+        ret['result'] = DBHandler.getHeatingTubeType()
+    return ret
+
+@decoRet
+def getWifiModuleType(request):
+    ret = {}
+    if request.method == "POST":
+        ret['errorCode'] = '0'
+        ret['result'] = DBHandler.getWifiModuleType()
+    return ret
+
+# 文件上传
+@decoRet
+def uploadFile(request):
+    ret = {}
+    if request.method == 'POST':
+        obj = request.FILES.get('file')
+
+        #  上传文件类型过滤
+        file_type = re.match(r'.*\.js', obj.name)
+        if not file_type:
+            ret['errorCode'] = 2
+            ret['result'] = '文件类型不匹配, 请重新上传'
+            return ret
+        with open('./pm/upload/'+obj.name, 'wb+') as f:
+            for chunk in obj.chunks():
+                f.write(chunk)
+            f.close()
+        ret['errorCode'] = '0'
+    return ret
+
+@decoRet
+def parseJs2Excel(request):
+    ret = {}
+    if request.method == 'POST':
+        obj = request.FILES.get('file')
+
+        #  上传文件类型过滤
+        file_type = re.match(r'.*\.js', obj.name)
+        if not file_type:
+            ret['errorCode'] = 2
+            ret['result'] = '文件类型不匹配, 请重新上传'
+            return ret
+        with open('./pm/upload/'+obj.name, 'wb+') as f:
+            for chunk in obj.chunks():
+                f.write(chunk)
+            f.close()
+        # autoScript.parseJs2Excel(obj)
+        ret['errorCode'] = '0'
     return ret

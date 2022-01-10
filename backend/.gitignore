@@ -42,3 +42,5 @@ Thumbs.db
 
 uwsgi.log
 uwsgi.pid
+
+/logs/202*/
