@@ -721,14 +721,27 @@ export default [
         component: () => import('@/view/config-manage/user-manage.vue')
       }
     ]
-  }/*,
+  },
   {
-    path: '富文本编辑器',
-    name: '富文本编辑器',
+    path: '/auto',
+    name: '自动化',
+    component: Main,
     meta: {
-      icon: 'ios-create',
-      title: '富文本编辑器'
+      access: ['super_admin', 'admin', 'user_manage'],
+      title: '自动化',
+      icon: 'md-contact'
     },
-    component: () => import('@/view/components/editor/editor.vue')
-  } */
+    children: [
+      {
+        path: 'user',
+        name: '语言翻译自动化',
+        meta: {
+          title: '语言翻译自动化',
+          icon: 'md-contact',
+          access: ['super_admin', 'admin', 'user_manage']
+        },
+        component: () => import('@/view/auto-script/parseJs2Excel.vue')
+      }
+    ]
+  }
 ]

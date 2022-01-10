@@ -363,7 +363,7 @@ export default {
       groupIdToUserIds: {},
       auditGroupList: [],
       taskData: {
-        title: '',
+        title: 'XXXX新品开发任务',
         content: '',
         actorUserId: '',
         auditGroupId: '',

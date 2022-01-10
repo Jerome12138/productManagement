@@ -327,3 +327,17 @@ export const getFunctionType = productType => {
     method: 'post'
   })
 }
+
+export const getHeatingTubeType = () => {
+  return axios.request({
+    url: 'function/getHeatingTubeType',
+    method: 'post'
+  })
+}
+
+export const getWifiModuleType = () => {
+  return axios.request({
+    url: 'function/getWifiModuleType',
+    method: 'post'
+  })
+}

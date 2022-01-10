@@ -24,29 +24,29 @@
         </Col>
       </Row>
       <Row :gutter="8">
-        <Col span="12">
+        <Col span="10">
           <FormItem label="产品类型:" prop="productType">
             <Select v-model="taskData.productType" placeholder="请选择产品类型" clearable not-found-text="暂无产品类型" @on-change="changeProductType">
               <Option v-for="item in allProductType" :value="item.code" :key="item.code">{{ item.value }}</Option>
             </Select>
           </FormItem>
         </Col>
-        <Col span="10">
+        <Col span="12">
           <FormItem label="产品型号:" prop="productModel">
-            <Select v-model="taskData.productModel" placeholder="请选择产品型号" clearable not-found-text="请先选择产品类型，并确认已选类型有产品" @on-change="changeProductModel">
+            <Select v-model="taskData.productModel" placeholder="请选择产品型号，新产品请先创建" multiple filterable clearable not-found-text="请先选择产品类型，并确认已选类型有产品" @on-change="changeProductModel">
               <Option v-for="item in allProductModel[taskData.productType]" :value="item.model" :label="item.model" :key="item.model" >
-                <span>{{ item.model }}</span>
-                <span style="float:right;color:#ccc">{{ item.sN8 }}</span>
+                <span>{{ item.model }} ({{ item.sN8 }})</span>
+                <span style="float:right;color:#ccc;margin-right:16px">{{ item.lifecycleStage }}</span>
               </Option>
             </Select>
           </FormItem>
         </Col>
         <Col span="2" :gutter="0" style="margin-top:4px">
-          <Button shape="circle" size="small" @click="setAddProductModal">添加产品</Button>
+          <Button shape="circle" size="small" @click="setAddProductModal">创建产品</Button>
         </Col>
       </Row>
       <!-- todo: 后期扩展 -->
-      <Row :gutter="8" v-if="false">
+      <Row :gutter="8">
         <Col span="6">
           <FormItem label="项目经理:">
             <Input v-model="taskData.pm" :maxlength="50" placeholder="填写项目经理姓名" clearable></Input>
@@ -68,7 +68,7 @@
           </FormItem>
         </Col>
       </Row>
-      <Row :gutter="8">
+      <Row :gutter="8" v-if="false">
         <Col span="12">
           <FormItem label="审核组:" prop="auditGroupId">
             <span style="max-width: 100%; display: inline-block; overflow-wrap: break-word;text-align: left;">
@@ -575,8 +575,9 @@ export default {
       this.taskData.productModel = ''
       this.loading = false
     },
-    setAddProductModal() {
+    setAddProductModal () {
       if (!this.taskData.productType) {
+        this.$Message.warning('请先选择产品类型！');
         return
       }
       this.$emit('setAddProductModal', this.taskData.productType)
