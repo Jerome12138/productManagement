@@ -4,8 +4,6 @@ from pm import models
 
 # 获取产品类型列表
 def getProductType():
-    # functionData = models.FunctionData.objects.filter(productType=productType).values()
-    # print(functionData)
     return [
         { "code": 'electric_heater', "value": '电热水器' },
         { "code": 'gas_heater_stove', "value": '燃气热水器' },
@@ -15,27 +13,51 @@ def getProductType():
 
 # 获取产品列表
 def queryProduct(**condition):
-    print(condition)
-    # if condition.get('productType'):
-    #     condition['productType__in'] = condition['productType']
-    #     condition.pop('productType')
-    # if condition.get('model'):
-    #     condition['model__in'] = condition['model']
-    #     condition.pop('model')
-    # if condition.get('functionIds'):
-    #     condition.pop('functionIds')
+    print("queryProduct查询条件: %s"%condition)
+    # 传进来的空字段先删除
+    condition = { key: item for key, item in condition.items() if item }
+    if 'productType' in condition.keys():
+        condition['productType__in'] = condition['productType']
+        condition.pop('productType')
+    if 'ecologyEntrance' in condition.keys():
+        condition.pop('ecologyEntrance')
+    if 'id' in condition.keys(): # 只接受数字，暂时用不到先屏蔽
+        condition.pop('id')
+    if 'function' in condition.keys():
+        condition.pop('function')
+    if 'scenario' in condition.keys():
+        condition.pop('scenario')
+    if 'voiceFunction' in condition.keys():
+        condition.pop('voiceFunction')
+    if 'sensor' in condition.keys():
+        condition.pop('sensor')
+    if 'pageSize' in condition.keys():
+        condition.pop('pageSize')
+    if 'pageNumber' in condition.keys():
+        condition.pop('pageNumber')
+    if 'productModel' in condition.keys():
+        condition['model'] = condition['productModel']
+        condition.pop('productModel')
+    if 'productSN8' in condition.keys():
+        condition['sn8'] = condition['productSN8']
+        condition.pop('productSN8')
+    if 'productCode' in condition.keys():
+        condition['code'] = condition['productCode']
+        condition.pop('productCode')
+    print("queryProduct转化后的条件: %s"%condition)
     # productData = list(models.ProductData.objects.filter().values())
     # for item in productData:
     #     if item.get('functionIds'):
     #         item['functionIds'] = eval(item['functionIds'])
     #         item['functionsName'] = getFunctionNamesByIds(item['functionIds'])
 
-    productData = models.FmProductInfo.objects.filter(product_type='water_purification').values()[:10]
+    productData = models.FmProductInfo.objects.filter(**condition).values()[:10]
     for item in productData:
-        productFunctionData = models.FmProductFunction.objects.filter(product_sn8=item['sn8']).values('id')
-        item['functionIds'] = [ func_item['id'] for func_item in productFunctionData]
+        productFunctionData = models.FmProductFunction.objects.filter(productSn8=item['sn8'], productCode=item['code']).values('functionId')
+        # print("queryProduct联动产品功能查询结果: %s"%list(productFunctionData))
+        item['functionIds'] = [ func_item['functionId'] for func_item in productFunctionData]
         item['functionsName'] = getFunctionNamesByIds(item['functionIds'])
-    print(list(productData))
+    # print("queryProduct查询结果: %s"%list(productData))
     return list(productData)
 
 def saveProduct(productData):
@@ -99,30 +121,30 @@ def getFunctionList(productType):
 
 # 获取功能列表
 def getFunctionNamesByIds(ids):
-    functionData = models.FunctionData.objects.filter(id__in=ids).values('functionName')
-    functionObjList = list(functionData)
-    functionNames = []
-    for item in functionObjList:
-        functionNames.append(item['functionName'])
-    # print(functionData)
+    # print(ids)
+    functionData = models.FmFunction.objects.filter(id__in=ids).values('functionName')
+    # print(list(functionData))
+    functionNames = [ item['functionName'] for item in functionData]
+    # print(functionNames)
     return ",".join(functionNames)
 
 # 保存功能数据
 def saveFunction(functionData):
     # print(functionData)
     try:
-        if functionData.get('id') == "":
-            functionData['id'] = -1
-        obj = models.FunctionData.objects.filter(
-            id=functionData.get('id')).first()
-        if obj:
-            obj.__dict__.update(functionData)
-            obj.save()
-            print('数据已更新:%s' % functionData['functionName'])
-        else:
-            functionData.pop('id')
-            models.FunctionData.objects.create(**functionData)
-            print('数据已添加：%s' % functionData['functionName'])
+        # todo: 待修改数据库指向
+        # if functionData.get('id') == "":
+        #     functionData['id'] = -1
+        # obj = models.FunctionData.objects.filter(
+        #     id=functionData.get('id')).first()
+        # if obj:
+        #     obj.__dict__.update(functionData)
+        #     obj.save()
+        #     print('数据已更新:%s' % functionData['functionName'])
+        # else:
+        #     functionData.pop('id')
+        #     models.FunctionData.objects.create(**functionData)
+        #     print('数据已添加：%s' % functionData['functionName'])
         return True
     except Exception as e:
         print(e)
