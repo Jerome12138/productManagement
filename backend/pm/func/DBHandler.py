@@ -108,7 +108,7 @@ def getWifiModuleType():
 
 # 获取功能类型列表
 def getFunctionTypeList(productType):
-    functionTypeData = models.FunctionTypeData.objects.filter(productType=productType).values()
+    functionTypeData = models.FmFunctionType.objects.filter(productType=productType).values()
     return list(functionTypeData)
 
 # ========== 功能 ==========

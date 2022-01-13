@@ -123,6 +123,24 @@ class FmFunction(models.Model):
         db_table = 'fm_function'
 
 
+# 功能类型
+class FmFunctionType(models.Model):
+    typeName = models.CharField(max_length=255, db_column="type_name")    # 功能类型名称
+    typeKey = models.CharField(max_length=255, db_column="type_key")    # 功能类型键名
+    desc = models.CharField(max_length=255)    # 功能类型描述
+    priority = models.IntegerField()   # 功能显示优先级
+    isRequired = models.IntegerField(db_column="is_required")  # 是否必选
+    isMultiple = models.IntegerField(db_column="is_multiple")  # 是否多选
+    productType = models.CharField(max_length=255, db_column="product_type")    # 产品类型
+    dataType = models.CharField(max_length=16, default="String", db_column="data_type")  # 功能类型，Object，Boolean, Array, Number, Srting
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
+
+    class Meta:
+        # managed = False
+        db_table = 'fm_function_type'
+
+
 class FmProductEcologyEntrance(models.Model):
     ecologyEntranceId = models.IntegerField(blank=True, null=True, db_column="ecology_entrance_id")
     productCode = models.CharField(max_length=255, blank=True, null=True, db_column="product_code")
@@ -266,7 +284,7 @@ class FmVoiceFunction(models.Model):
 
 # ========== 自己创建的 ============
 
-# 功能
+# 功能，可废弃
 class FunctionData(models.Model):
     # id = models.CharField(max_length=8, unique=True, primary_key=True)  # 功能id
     functionName = models.CharField(max_length=32)    # 功能名称
