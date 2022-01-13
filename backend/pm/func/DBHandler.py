@@ -16,20 +16,26 @@ def getProductType():
 # 获取产品列表
 def queryProduct(**condition):
     print(condition)
-    if condition.get('productType'):
-        condition['productType__in'] = condition['productType']
-        condition.pop('productType')
-    if condition.get('model'):
-        condition['model__in'] = condition['model']
-        condition.pop('model')
-    if condition.get('functionIds'):
-        condition.pop('functionIds')
-    productData = list(models.ProductData.objects.filter().values())
+    # if condition.get('productType'):
+    #     condition['productType__in'] = condition['productType']
+    #     condition.pop('productType')
+    # if condition.get('model'):
+    #     condition['model__in'] = condition['model']
+    #     condition.pop('model')
+    # if condition.get('functionIds'):
+    #     condition.pop('functionIds')
+    # productData = list(models.ProductData.objects.filter().values())
+    # for item in productData:
+    #     if item.get('functionIds'):
+    #         item['functionIds'] = eval(item['functionIds'])
+    #         item['functionsName'] = getFunctionNamesByIds(item['functionIds'])
+
+    productData = models.FmProductInfo.objects.filter(product_type='water_purification').values()[:10]
     for item in productData:
-        if item.get('functionIds'):
-            item['functionIds'] = eval(item['functionIds'])
-            item['functionsName'] = getFunctionNamesByIds(item['functionIds'])
-    # print(productData)
+        productFunctionData = models.FmProductFunction.objects.filter(product_sn8=item['sn8']).values('id')
+        item['functionIds'] = [ func_item['id'] for func_item in productFunctionData]
+        item['functionsName'] = getFunctionNamesByIds(item['functionIds'])
+    print(list(productData))
     return list(productData)
 
 def saveProduct(productData):
@@ -87,8 +93,8 @@ def getFunctionTypeList(productType):
 
 # 获取功能列表
 def getFunctionList(productType):
-    functionData = models.FunctionData.objects.filter(productType=productType).values()
-    # print(functionData)
+    functionData = models.FmFunction.objects.filter(typeCode=productType).values()
+    print(list(functionData))
     return list(functionData)
 
 # 获取功能列表

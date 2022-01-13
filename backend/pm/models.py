@@ -13,10 +13,10 @@ from django.db import models
 
 
 class FmAuthorization(models.Model):
-    auth_code = models.CharField(max_length=255, blank=True, null=True)
-    auth_name = models.CharField(max_length=255, blank=True, null=True)
-    create_date_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    update_date_time = models.DateTimeField(auto_now=True, blank=True, null=True)
+    authCode = models.CharField(max_length=255, blank=True, null=True, db_column="auth_code")
+    authName = models.CharField(max_length=255, blank=True, null=True, db_column="auth_name")
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
     class Meta:
         # managed = False
@@ -24,24 +24,24 @@ class FmAuthorization(models.Model):
 
 
 class FmDevelopTask(models.Model):
-    actor_user_id = models.IntegerField(blank=True, null=True)
-    audit_user_ids = models.CharField(max_length=255, blank=True, null=True)
+    actorUserId = models.IntegerField(blank=True, null=True, db_column="actor_user_id")
+    auditUserIds = models.CharField(max_length=255, blank=True, null=True, db_column="audit_user_ids")
     content = models.CharField(max_length=255, blank=True, null=True)
-    current_handle_finish_user_id = models.CharField(max_length=255, blank=True, null=True)
-    current_handle_user_id = models.CharField(max_length=255, blank=True, null=True)
-    current_handler_role = models.CharField(max_length=255, blank=True, null=True)
-    product_ecology_entrance_ids = models.CharField(max_length=255, blank=True, null=True)
-    product_function_ids = models.CharField(max_length=255, blank=True, null=True)
-    product_model = models.CharField(max_length=255, blank=True, null=True)
-    product_scenario_ids = models.CharField(max_length=255, blank=True, null=True)
-    product_sensor_ids = models.CharField(max_length=255, blank=True, null=True)
-    product_voice_function_ids = models.CharField(max_length=255, blank=True, null=True)
-    sponsor_time = models.DateTimeField(blank=True, null=True)
-    sponsor_user_id = models.IntegerField(blank=True, null=True)
+    currentHandleFinishUserId = models.CharField(max_length=255, blank=True, null=True, db_column="current_handle_finish_user_id")
+    currentHandleUserId = models.CharField(max_length=255, blank=True, null=True, db_column="current_handle_user_id")
+    currentHandlerRole = models.CharField(max_length=255, blank=True, null=True, db_column="current_handler_role")
+    productEcologyEntranceIds = models.CharField(max_length=255, blank=True, null=True, db_column="product_ecology_entrance_ids")
+    productFunctionIds = models.CharField(max_length=255, blank=True, null=True, db_column="product_function_ids")
+    productModel = models.CharField(max_length=255, blank=True, null=True, db_column="product_model")
+    productScenarioIds = models.CharField(max_length=255, blank=True, null=True, db_column="product_scenario_ids")
+    productSensorIds = models.CharField(max_length=255, blank=True, null=True, db_column="product_sensor_ids")
+    productVoiceFunctionIds = models.CharField(max_length=255, blank=True, null=True, db_column="product_voice_function_ids")
+    sponsorTime = models.DateTimeField(blank=True, null=True, db_column="sponsor_time")
+    sponsorUserId = models.IntegerField(blank=True, null=True, db_column="sponsor_user_id")
     status = models.CharField(max_length=255, blank=True, null=True)
     title = models.CharField(max_length=255, blank=True, null=True)
-    create_date_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    update_date_time = models.DateTimeField(auto_now=True, blank=True, null=True)
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
     class Meta:
         # managed = False
@@ -49,10 +49,10 @@ class FmDevelopTask(models.Model):
 
 
 class FmDevelopTaskAuditGroup(models.Model):
-    create_user_id = models.IntegerField(blank=True, null=True)
-    group_name = models.CharField(max_length=255, blank=True, null=True)
-    create_date_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    update_date_time = models.DateTimeField(auto_now=True, blank=True, null=True)
+    createUserId = models.IntegerField(blank=True, null=True, db_column="create_user_id")
+    groupName = models.CharField(max_length=255, blank=True, null=True, db_column="group_name")
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
     class Meta:
         # managed = False
@@ -60,10 +60,10 @@ class FmDevelopTaskAuditGroup(models.Model):
 
 
 class FmDevelopTaskAuditGroupUser(models.Model):
-    audit_group_id = models.IntegerField(blank=True, null=True)
-    user_id = models.IntegerField(blank=True, null=True)
-    create_date_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    update_date_time = models.DateTimeField(auto_now=True, blank=True, null=True)
+    auditGroupId = models.IntegerField(blank=True, null=True, db_column="audit_group_id")
+    userId = models.IntegerField(blank=True, null=True, db_column="user_id")
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
     class Meta:
         # managed = False
@@ -71,13 +71,13 @@ class FmDevelopTaskAuditGroupUser(models.Model):
 
 
 class FmDevelopTaskProcessContent(models.Model):
-    develop_task_id = models.IntegerField(blank=True, null=True)
+    developTaskId = models.IntegerField(blank=True, null=True, db_column="develop_task_id")
     operation = models.CharField(max_length=255, blank=True, null=True)
     opinion = models.CharField(max_length=255, blank=True, null=True)
     role = models.CharField(max_length=255, blank=True, null=True)
-    user_id = models.IntegerField(blank=True, null=True)
-    create_date_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    update_date_time = models.DateTimeField(auto_now=True, blank=True, null=True)
+    userId = models.IntegerField(blank=True, null=True, db_column="user_id")
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
     class Meta:
         # managed = False
@@ -85,12 +85,12 @@ class FmDevelopTaskProcessContent(models.Model):
 
 
 class FmDictionary(models.Model):
-    key_code = models.CharField(max_length=255, blank=True, null=True)
-    key_name = models.CharField(max_length=255, blank=True, null=True)
-    value_code = models.CharField(max_length=255, blank=True, null=True)
-    value_name = models.CharField(max_length=255, blank=True, null=True)
-    create_date_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    update_date_time = models.DateTimeField(auto_now=True, blank=True, null=True)
+    keyCode = models.CharField(max_length=255, blank=True, null=True, db_column="key_code")
+    keyName = models.CharField(max_length=255, blank=True, null=True, db_column="key_name")
+    valueCode = models.CharField(max_length=255, blank=True, null=True, db_column="value_code")
+    valueName = models.CharField(max_length=255, blank=True, null=True, db_column="value_name")
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
     class Meta:
         # managed = False
@@ -99,8 +99,8 @@ class FmDictionary(models.Model):
 
 class FmEncologyEntrance(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
-    create_date_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    update_date_time = models.DateTimeField(auto_now=True, blank=True, null=True)
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
     class Meta:
         # managed = False
@@ -108,10 +108,15 @@ class FmEncologyEntrance(models.Model):
 
 
 class FmFunction(models.Model):
-    function_name = models.CharField(max_length=255, blank=True, null=True)
-    type_code = models.CharField(max_length=255, blank=True, null=True)
-    create_date_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    update_date_time = models.DateTimeField(auto_now=True, blank=True, null=True)
+    functionName = models.CharField(max_length=255, blank=True, null=True, db_column="function_name")
+    typeCode = models.CharField(max_length=255, blank=True, null=True, db_column="type_code")
+    functionDesc = models.CharField(max_length=255, null=True, db_column="function_desc")    # 功能描述
+    functionKey = models.CharField(max_length=255, null=True, db_column="function_key")  # 功能键名
+    typeKey = models.CharField(max_length=255, null=True, db_column="type_key")    # 功能类型（键名）
+    isDefault = models.IntegerField(default=0, db_column="is_default")  # 是否默认功能
+    isDisable = models.IntegerField(default=0, db_column="is_disable")  # 是否禁用
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
     class Meta:
         # managed = False
@@ -119,12 +124,12 @@ class FmFunction(models.Model):
 
 
 class FmProductEcologyEntrance(models.Model):
-    ecology_entrance_id = models.IntegerField(blank=True, null=True)
-    product_code = models.CharField(max_length=255, blank=True, null=True)
-    product_sn8 = models.CharField(max_length=255, blank=True, null=True)
-    product_version = models.CharField(max_length=255, blank=True, null=True)
-    create_date_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    update_date_time = models.DateTimeField(auto_now=True, blank=True, null=True)
+    ecologyEntranceId = models.IntegerField(blank=True, null=True, db_column="ecology_entrance_id")
+    productCode = models.CharField(max_length=255, blank=True, null=True, db_column="product_code")
+    productSn8 = models.CharField(max_length=255, blank=True, null=True, db_column="product_sn8")
+    productVersion = models.CharField(max_length=255, blank=True, null=True, db_column="product_version")
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
     class Meta:
         # managed = False
@@ -132,12 +137,12 @@ class FmProductEcologyEntrance(models.Model):
 
 
 class FmProductFunction(models.Model):
-    function_id = models.IntegerField(blank=True, null=True)
-    product_code = models.CharField(max_length=255, blank=True, null=True)
-    product_sn8 = models.CharField(max_length=255, blank=True, null=True)
-    product_version = models.CharField(max_length=255, blank=True, null=True)
-    create_date_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    update_date_time = models.DateTimeField(auto_now=True, blank=True, null=True)
+    functionId = models.IntegerField(blank=True, null=True, db_column="function_id")
+    productCode = models.CharField(max_length=255, blank=True, null=True, db_column="product_code")
+    productSn8 = models.CharField(max_length=255, blank=True, null=True, db_column="product_sn8")
+    productVersion = models.CharField(max_length=255, blank=True, null=True, db_column="product_version")
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
     class Meta:
         # managed = False
@@ -147,17 +152,17 @@ class FmProductFunction(models.Model):
 class FmProductInfo(models.Model):
     branch = models.CharField(max_length=255, blank=True, null=True)
     code = models.CharField(max_length=255, blank=True, null=True)
-    lifecycle_stage = models.CharField(max_length=255, blank=True, null=True)
+    lifecycleStage = models.CharField(max_length=255, blank=True, null=True, db_column="lifecycle_stage")
     model = models.CharField(max_length=255, blank=True, null=True)
-    product_category = models.CharField(max_length=255, blank=True, null=True)
-    product_type = models.CharField(max_length=255, blank=True, null=True)
-    sale_channel = models.CharField(max_length=255, blank=True, null=True)
+    productCategory = models.CharField(max_length=255, blank=True, null=True, db_column="product_category")
+    productType = models.CharField(max_length=255, blank=True, null=True, db_column="product_type")
+    saleChannel = models.CharField(max_length=255, blank=True, null=True, db_column="sale_channel")
     sn8 = models.CharField(max_length=255, blank=True, null=True)
     pic = models.CharField(max_length=255, blank=True, null=True)
-    product_version = models.CharField(max_length=255, blank=True, null=True)
-    dishwasher_property = models.CharField(max_length=5000, blank=True, null=True)
-    create_date_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    update_date_time = models.DateTimeField(auto_now=True, blank=True, null=True)
+    productVersion = models.CharField(max_length=255, blank=True, null=True, db_column="product_version")
+    dishwasherProperty = models.CharField(max_length=5000, blank=True, null=True, db_column="dishwasher_property")
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
     class Meta:
         # managed = False
@@ -165,12 +170,12 @@ class FmProductInfo(models.Model):
 
 
 class FmProductScenario(models.Model):
-    product_code = models.CharField(max_length=255, blank=True, null=True)
-    scenario_id = models.IntegerField(blank=True, null=True)
-    product_sn8 = models.CharField(max_length=255, blank=True, null=True)
-    product_version = models.CharField(max_length=255, blank=True, null=True)
-    create_date_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    update_date_time = models.DateTimeField(auto_now=True, blank=True, null=True)
+    productCode = models.CharField(max_length=255, blank=True, null=True, db_column="product_code")
+    scenarioId = models.IntegerField(blank=True, null=True, db_column="scenario_id")
+    productSn8 = models.CharField(max_length=255, blank=True, null=True, db_column="product_sn8")
+    productVersion = models.CharField(max_length=255, blank=True, null=True, db_column="product_version")
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
     class Meta:
         # managed = False
@@ -178,12 +183,12 @@ class FmProductScenario(models.Model):
 
 
 class FmProductSensor(models.Model):
-    product_code = models.CharField(max_length=255, blank=True, null=True)
-    sensor_id = models.IntegerField(blank=True, null=True)
-    product_sn8 = models.CharField(max_length=255, blank=True, null=True)
-    product_version = models.CharField(max_length=255, blank=True, null=True)
-    create_date_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    update_date_time = models.DateTimeField(auto_now=True, blank=True, null=True)
+    productCode = models.CharField(max_length=255, blank=True, null=True, db_column="product_code")
+    sensorId = models.IntegerField(blank=True, null=True, db_column="sensor_id")
+    productSn8 = models.CharField(max_length=255, blank=True, null=True, db_column="product_sn8")
+    productVersion = models.CharField(max_length=255, blank=True, null=True, db_column="product_version")
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
     class Meta:
         # managed = False
@@ -191,12 +196,12 @@ class FmProductSensor(models.Model):
 
 
 class FmProductVoiceFunction(models.Model):
-    product_code = models.CharField(max_length=255, blank=True, null=True)
-    voice_function_id = models.IntegerField(blank=True, null=True)
-    product_sn8 = models.CharField(max_length=255, blank=True, null=True)
-    product_version = models.CharField(max_length=255, blank=True, null=True)
-    create_date_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    update_date_time = models.DateTimeField(auto_now=True, blank=True, null=True)
+    productCode = models.CharField(max_length=255, blank=True, null=True, db_column="product_code")
+    voiceFunction_id = models.IntegerField(blank=True, null=True, db_column="voice_function_id")
+    productSn8 = models.CharField(max_length=255, blank=True, null=True, db_column="product_sn8")
+    productVersion = models.CharField(max_length=255, blank=True, null=True, db_column="product_version")
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
     class Meta:
         # managed = False
@@ -204,10 +209,10 @@ class FmProductVoiceFunction(models.Model):
 
 
 class FmScenario(models.Model):
-    scenario_name = models.CharField(max_length=255, blank=True, null=True)
-    type_code = models.CharField(max_length=255, blank=True, null=True)
-    create_date_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    update_date_time = models.DateTimeField(auto_now=True, blank=True, null=True)
+    scenarioName = models.CharField(max_length=255, blank=True, null=True, db_column="scenario_name")
+    typeCode = models.CharField(max_length=255, blank=True, null=True, db_column="type_code")
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
     class Meta:
         # managed = False
@@ -215,10 +220,10 @@ class FmScenario(models.Model):
 
 
 class FmSensor(models.Model):
-    sensor_name = models.CharField(max_length=255, blank=True, null=True)
-    type_code = models.CharField(max_length=255, blank=True, null=True)
-    create_date_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    update_date_time = models.DateTimeField(auto_now=True, blank=True, null=True)
+    sensorName = models.CharField(max_length=255, blank=True, null=True, db_column="sensor_name")
+    typeCode = models.CharField(max_length=255, blank=True, null=True, db_column="type_code")
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
     class Meta:
         # managed = False
@@ -229,9 +234,9 @@ class FmUser(models.Model):
     avator = models.CharField(max_length=255, blank=True, null=True)
     password = models.CharField(max_length=1024, blank=True, null=True)
     token = models.CharField(max_length=255, blank=True, null=True)
-    user_name = models.CharField(max_length=255, blank=True, null=True)
-    create_date_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    update_date_time = models.DateTimeField(auto_now=True, blank=True, null=True)
+    userName = models.CharField(max_length=255, blank=True, null=True, db_column="user_name")
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
     class Meta:
         # managed = False
@@ -239,10 +244,10 @@ class FmUser(models.Model):
 
 
 class FmUserAuthorization(models.Model):
-    auth_id = models.IntegerField(blank=True, null=True)
-    user_id = models.IntegerField(blank=True, null=True)
-    create_date_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    update_date_time = models.DateTimeField(auto_now=True, blank=True, null=True)
+    authId = models.IntegerField(blank=True, null=True, db_column="auth_id")
+    userId = models.IntegerField(blank=True, null=True, db_column="user_id")
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
     class Meta:
         # managed = False
@@ -251,8 +256,8 @@ class FmUserAuthorization(models.Model):
 
 class FmVoiceFunction(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
-    create_date_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    update_date_time = models.DateTimeField(auto_now=True, blank=True, null=True)
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
     class Meta:
         # managed = False
