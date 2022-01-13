@@ -48,6 +48,19 @@ class FmDevelopTask(models.Model):
         db_table = 'fm_develop_task'
 
 
+class FmDevelopTaskPruduct(models.Model):
+    developTaskId = models.IntegerField(blank=True, null=True, db_column="develop_task_id")
+    productType = models.CharField(max_length=255, null=True, db_column="product_type")
+    productCode = models.CharField(max_length=255, blank=True, null=True, db_column="product_code")
+    productSn8 = models.CharField(max_length=255, blank=True, null=True, db_column="product_sn8")
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
+
+    class Meta:
+        # managed = False
+        db_table = 'fm_develop_task_product'
+
+
 class FmDevelopTaskAuditGroup(models.Model):
     createUserId = models.IntegerField(blank=True, null=True, db_column="create_user_id")
     groupName = models.CharField(max_length=255, blank=True, null=True, db_column="group_name")
@@ -132,7 +145,7 @@ class FmFunctionType(models.Model):
     isRequired = models.IntegerField(db_column="is_required")  # 是否必选
     isMultiple = models.IntegerField(db_column="is_multiple")  # 是否多选
     productType = models.CharField(max_length=255, db_column="product_type")    # 产品类型
-    dataType = models.CharField(max_length=16, default="String", db_column="data_type")  # 功能类型，Object，Boolean, Array, Number, Srting
+    dataType = models.CharField(max_length=16, default="String", db_column="data_type")  # 数据类型，Object，Boolean, Array, Number, Srting
     createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
     updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
@@ -299,7 +312,7 @@ class FunctionData(models.Model):
     create_user_id = models.CharField(max_length=16, null=True)
     update_user_id = models.CharField(max_length=16, null=True)
 
-# 功能类型
+# 功能类型, 已迁移，可废弃
 class FunctionTypeData(models.Model):
     typeName = models.CharField(max_length=32)    # 功能类型名称
     typeKey = models.CharField(max_length=32)    # 功能类型键名
@@ -320,11 +333,22 @@ class ElectricBoardFunctionData(models.Model):
     functionKey = models.CharField(max_length=16)  # 电控功能键名
     typeKey = models.CharField(max_length=16)    # 电控功能类型（键名）
     productType = models.CharField(max_length=32)    # 产品类型
+    dataType = models.CharField(max_length=16, default="String", db_column="data_type")  # 数据类型，Object，Boolean, Array, Number, Srting
     isDefault = models.IntegerField()  # 是否默认电控功能
     create_time = models.DateTimeField(auto_now_add=True, null=True)
     update_time = models.DateTimeField(auto_now=True, null=True)
     create_user_id = models.CharField(max_length=16, null=True)
     update_user_id = models.CharField(max_length=16, null=True)
+    # 电控功能
+    # powerBoardCode = models.CharField(max_length=32, null=True)
+    # displayBoardCode = models.CharField(max_length=32, null=True)
+    # wifiModuleCode = models.CharField(max_length=32, null=True)
+    # networkingMode = models.CharField(max_length=32, null=True)
+
+    # hasBuzzer = models.IntegerField(default=0, verbose_name='是否有蜂鸣器')  # 是否有蜂鸣器
+    # hasFlowSensor = models.IntegerField(default=0)  # 是否有流量传感器
+    # hasElectricLeakageProtect = models.IntegerField(default=0)  # 是否有漏电断电保护
+    # heatingTubeType = models.IntegerField(null=True)  # 加热管配置
 
 # 电控板功能类型
 class ElectricBoardFunctionTypeData(models.Model):
@@ -374,7 +398,7 @@ class ProductData(models.Model):
     create_user_id = models.CharField(max_length=16, null=True)
     update_user_id = models.CharField(max_length=16, null=True)
 
-# 任务数据
+# 任务数据, 已迁移，可废弃
 class TaskData(models.Model):
     title = models.CharField(max_length=50)
     content = models.TextField(max_length=500)
