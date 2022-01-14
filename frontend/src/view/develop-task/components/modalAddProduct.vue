@@ -566,7 +566,7 @@ export default {
       }
     },
     getFunctionListByType (typeKey) {
-      return this.functionList.filter(item => item.typeKey == typeKey && !item.isDisable)
+      return this.functionList.filter(item => item.functionKey == typeKey && !item.isDisable)
     },
     changeProductType () {
       this.taskData.productFunctionType = []
