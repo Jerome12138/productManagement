@@ -141,10 +141,12 @@ class FmFunctionType(models.Model):
     typeName = models.CharField(max_length=255, db_column="type_name")    # 功能类型名称
     typeKey = models.CharField(max_length=255, db_column="type_key")    # 功能类型键名
     desc = models.CharField(max_length=255)    # 功能类型描述
-    priority = models.IntegerField()   # 功能显示优先级
-    isRequired = models.IntegerField(db_column="is_required")  # 是否必选
-    isMultiple = models.IntegerField(db_column="is_multiple")  # 是否多选
+    displayPriority = models.IntegerField(default=0, db_column="display_priority")   # 功能显示优先级
+    insertPriority = models.IntegerField(default=0, db_column="insert_priority")   # 功能插入代码的优先级
+    isRequired = models.IntegerField(default=0, db_column="is_required")  # 是否必选
+    isMultiple = models.IntegerField(default=0, db_column="is_multiple")  # 是否多选
     productType = models.CharField(max_length=255, db_column="product_type")    # 产品类型
+    insertTemplate = models.CharField(max_length=255, null=True, db_column="insert_template")    # 功能插入代码的模板，用于添加前缀后缀
     dataType = models.CharField(max_length=16, default="String", db_column="data_type")  # 数据类型，Object，Boolean, Array, Number, String
     createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
     updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")

@@ -7,6 +7,15 @@ def getProductType():
     productTypeObjs = models.FmDictionary.objects.filter(keyCode="product_type").values()
     return [ {"code": item['valueCode'], 'value': item['valueName']} for item in productTypeObjs ]
 
+
+def getEcologyEntrance():
+    ecologyObjs = models.FmEncologyEntrance.objects.values()
+    return list(ecologyObjs)
+
+def getProductBranch():
+    productBranchObjs = models.FmDictionary.objects.filter(keyCode="branch").values()
+    return [ {"code": item['valueCode'], 'value': item['valueName']} for item in productBranchObjs ]
+
 # ========== 产品 ==========
 
 # 获取产品列表
@@ -66,32 +75,32 @@ def queryProduct(**condition):
 
 def saveProduct(productData):
     try:
-        if productData.get('id'):
-            productData['id'] = int(productData['id'])
-        elif productData.get('id') == "":
-            productData['id'] = -1
-        obj = models.ProductData.objects.filter(
-            id=productData.get('id')).first()
-        if obj:
-            obj.__dict__.update(productData)
-            obj.save()
-            print('数据已更新:%s' % productData['sN8'])
-        else:
-            productData.pop('id')
-            models.ProductData.objects.create(**productData)
-            print('数据已添加：%s' % productData['sN8'])
+        # if productData.get('id'):
+        #     productData['id'] = int(productData['id'])
+        # elif productData.get('id') == "":
+        #     productData['id'] = -1
+        # obj = models.ProductData.objects.filter(
+        #     id=productData.get('id')).first()
+        # if obj:
+        #     obj.__dict__.update(productData)
+        #     obj.save()
+        #     print('数据已更新:%s' % productData['sN8'])
+        # else:
+        #     productData.pop('id')
+        #     models.ProductData.objects.create(**productData)
+        #     print('数据已添加：%s' % productData['sN8'])
         return True
     except Exception as e:
         print(e)
         return False
 
-def getEcologyEntrance():
-    ecologyObjs = models.FmEncologyEntrance.objects.values()
-    return list(ecologyObjs)
 
-def getProductBranch():
-    productBranchObjs = models.FmDictionary.objects.filter(keyCode="branch").values()
-    return [ {"code": item['valueCode'], 'value': item['valueName']} for item in productBranchObjs ]
+# ========== 功能类型 ==========
+
+# 获取功能类型列表
+def getFunctionTypeList(productType, orderBy="displayPriority"):
+    functionTypeData = models.FmFunctionType.objects.filter(productType=productType).order_by(orderBy).values()
+    return list(functionTypeData)
 
 def getHeatingTubeType():
     heatingTubeTypeData = models.HeatingTubeTypeData.objects.values()
@@ -100,13 +109,6 @@ def getHeatingTubeType():
 def getWifiModuleType():
     wifiModuleType = models.WifiModuleTypeData.objects.values()
     return list(wifiModuleType)
-
-# ========== 功能类型 ==========
-
-# 获取功能类型列表
-def getFunctionTypeList(productType):
-    functionTypeData = models.FmFunctionType.objects.filter(productType=productType).values()
-    return list(functionTypeData)
 
 # ========== 功能 ==========
 

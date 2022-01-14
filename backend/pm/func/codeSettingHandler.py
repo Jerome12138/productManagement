@@ -55,54 +55,54 @@ def handleSetting(productData={}):
     model = productData.get('model')
     sn8 = productData.get('sN8')
     functionIds = productData.get('functionIds')
+    # 查询功能列表和类型列表
     functionList = DBHandler.getFunctionList('electric_heater')
+    functionTypeList = DBHandler.getFunctionTypeList('electric_heater')
+    # 初始化参数
     func_list_key = []
     func_list_name = []
     ctrl_list = []
-    appointType = ''
-    mbReport = ''
-    lxReport = ''
-    ndReport = ''
-    xhdReport = ''
-    hotWaterType = ''
-    for func in functionList:
-        if func.get('id') in functionIds:
-            if func.get('typeKey') == 'function':
-                func_list_key.append(func['functionKey'])
-                func_list_name.append(func['functionName'])
-            elif func.get('typeKey') == 'controlFunc':
-                ctrl_list.append(func['functionKey'])
-            elif func.get('typeKey') == 'appoint':
-                appointType = func['functionKey']
-            elif func.get('typeKey') == 'consumableMb':
-                mb_value_dict = {
-                    "mbElectronic": '0',
-                    "mbPercent": '1',
-                    "mbCloud": '2',
-                    "mbAC": '3',
-                }
-                mbReport = mb_value_dict.get(func['functionKey'])
-            elif func.get('typeKey') == 'consumableFilter':
-                lx_value_dict = {
-                    "filterElec": '1',
-                    "filterCloud": '2',
-                }
-                lxReport = lx_value_dict.get(func['functionKey'])
-            elif func.get('typeKey') == 'consumableTank':
-                nd_value_dict = {
-                    "tankNoClean": '0',
-                    "tankElecDay": '1',
-                    "tankFresh": '1',
-                    "tankFreshTds": '1',
-                    "tankCloud": '3',
-                }
-                ndReport = nd_value_dict.get(func['functionKey'])
-                if func['functionKey'] == "tankFresh":
-                    xhdReport = '1'
-                elif func['functionKey'] == "tankFreshTds":
-                    xhdReport = '2'
-            elif func.get('typeKey') == 'hotWaterType':
-                hotWaterType = func['functionKey']
+    setting = []
+    typeKeyDict = { item['typeKey']: item for item in functionTypeList }
+    # # todo: 先从functionList将所有对应类型的功能值归类
+    # selected_dict = {}
+    # for func in functionList:
+    #     functionKey = func['functionKey']
+    #     functionValue = func['functionValue']
+    #     if functionValue and func.get('id') in functionIds and functionKey == functionTypeItem['typeKey']:
+    #         value_list.append(functionValue)
+    #         selected_dict
+    # 遍历功能类型
+    for functionTypeItem in functionTypeList:
+        value_list = []
+        # 从functionList中查找所有对应类型的功能值
+        for func in functionList:
+            functionKey = func['functionKey']
+            functionValue = func['functionValue']
+            if functionValue and func.get('id') in functionIds and functionKey == functionTypeItem['typeKey']:
+                value_list.append(functionValue)
+        # 组装插入字符串
+        insertTemplate = functionTypeItem['insertTemplate'] or "%s"
+        if functionTypeItem['dataType'] == 'Array':
+            # 数组类型
+            if len(value_list) == 0 and functionTypeItem['typeKey'] not in ['funcList']: continue # funcList为空也要写，不然会报错
+            functionTypeItem['value'] = insertTemplate % "','".join(value_list)
+        elif functionTypeItem['typeKey'] == 'config':
+            pass
+        elif len(value_list) == 1:
+            if functionTypeItem['typeKey'] == 'ndReport':
+                functionTypeItem['value'] = 1
+                if value_list[0] == "tankFresh":
+                    setting.append({ "value": 1, **typeKeyDict['xhdReport'] })
+                elif value_list[0] == "tankFreshTds":
+                    setting.append({ "value": 2, **typeKeyDict['xhdReport'] })
+            elif functionTypeItem['dataType'] == 'String':
+                functionTypeItem['value'] = '"%s"' % value_list[0]
+            else:
+                functionTypeItem['value'] = value_list[0]
+        # 如果非空就加入setting
+        if functionTypeItem.get('value'):
+            setting.append(functionTypeItem)
 
     new_line_list = []
     # 型号注释
@@ -111,28 +111,15 @@ def handleSetting(productData={}):
     new_line_list.append("  '%s'(){return{\n" % sn8)
     # 协议配置
     new_line_list.append('    isNew: true, // 是否采用0214新分段协议\n')
-    # 耗材配置
-    new_line_list.append('    // ===耗材配置=== \n')
-    if mbReport:
-        new_line_list.append('    mbReport: %s,\n' % mbReport)
-    if lxReport:
-        new_line_list.append('    lxReport: %s,\n' % lxReport)
-    if ndReport:
-        new_line_list.append('    ndReport: %s,\n' % ndReport)
-    if xhdReport:
-        new_line_list.append('    xhdReport: %s,\n' % xhdReport)
-    # 功能配置
-    new_line_list.append('    // ===功能配置=== >> %s\n' % '、'.join(func_list_name))
-    new_line_list.append("    funcList: getFuncList(['%s']),\n" % "','".join(func_list_key))
-    # 控制栏配置
-    if ctrl_list:
-        new_line_list.append('    controlFunc: '+str(ctrl_list)+",\n")
-    # 热水量配置
-    if hotWaterType:
-        new_line_list.append('    hotWaterType: "%s",\n' % hotWaterType)
-    # 预约配置
-    if appointType:
-        new_line_list.append('    appointType: "%s",\n' % appointType)
+    # 
+    setting = sorted(setting, key = lambda i: i['insertPriority'])
+    # print(setting)
+    for settingItem in setting:
+        new_line_list.append('    %s: %s,\n' % (settingItem['typeKey'], settingItem['value']))
+    # # 耗材配置
+    # new_line_list.append('    // ===耗材配置=== \n')
+    # # 功能配置
+    # new_line_list.append('    // ===功能配置=== >> %s\n' % '、'.join(func_list_name))
     # （配置尾）
     new_line_list.append("  }},\n")
     return new_line_list

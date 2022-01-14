@@ -1,6 +1,7 @@
 from django.shortcuts import render, HttpResponse
 from django.http.response import JsonResponse
 import json
+import traceback
 from .func import DBHandler
 from .func import codeSettingHandler
 # from .func import autoScript
@@ -16,7 +17,7 @@ def decoRet(func):
             i = func(request, *args, **kwargs)   # 运行原函数
             ret.update(i)
         except Exception as e:
-            print('Exception: ', e)
+            print(traceback.print_exc())
             ret['errorCode'] = '-1'
             ret['error'] = '遇到异常: '+e
         finally:
