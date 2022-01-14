@@ -4,14 +4,18 @@ from pm import models
 
 # 获取产品类型列表
 def getProductType():
-    return [
-        { "code": 'electric_heater', "value": '电热水器' },
-        { "code": 'gas_heater_stove', "value": '燃气热水器' },
-    ]
+    productTypeObjs = models.FmDictionary.objects.filter(keyCode="product_type").values()
+    return [ {"code": item['valueCode'], 'value': item['valueName']} for item in productTypeObjs ]
 
 # ========== 产品 ==========
 
 # 获取产品列表
+def getProductModel():
+    productDataObjs = models.FmProductInfo.objects.filter().values()
+    return list(productDataObjs)
+
+
+# 根据条件查询产品全信息
 def queryProduct(**condition):
     print("queryProduct查询条件: %s"%condition)
     # 传进来的空字段先删除
@@ -82,19 +86,12 @@ def saveProduct(productData):
         return False
 
 def getEcologyEntrance():
-    return [
-        { "id": 0, "name": '美居'},
-        { "id": 1, "name": '华为鸿蒙'},
-    ]
+    ecologyObjs = models.FmEncologyEntrance.objects.values()
+    return list(ecologyObjs)
 
 def getProductBranch():
-    return [
-        { "code": 'midea', "value": '美的'},
-        { "code": 'colmo', "value": 'COLMO'},
-        { "code": 'wahin', "value": '华凌'},
-        { "code": 'comfee', "value": 'COMFEE'},
-        { "code": 'little_swan', "value": '小天鹅'},
-    ]
+    productBranchObjs = models.FmDictionary.objects.filter(keyCode="branch").values()
+    return [ {"code": item['valueCode'], 'value': item['valueName']} for item in productBranchObjs ]
 
 def getHeatingTubeType():
     heatingTubeTypeData = models.HeatingTubeTypeData.objects.values()
@@ -116,7 +113,7 @@ def getFunctionTypeList(productType):
 # 获取功能列表
 def getFunctionList(productType):
     functionData = models.FmFunction.objects.filter(typeCode=productType).values()
-    print(list(functionData))
+    # print(list(functionData))
     return list(functionData)
 
 # 获取功能列表
@@ -174,7 +171,7 @@ def saveTask(taskData):
 
 def queryUnhandledTaskList(userId):
     print(userId)
-    taskList = models.TaskData.objects.filter().values()
+    taskList = models.FmDevelopTask.objects.filter(currentHandleUserId=userId).exclude(currentHandleFinishUserId=userId).order_by('-updateDateTime').values()
     return list(taskList)
 
 def getTaskDetailById(taskId):

@@ -124,8 +124,8 @@ class FmFunction(models.Model):
     functionName = models.CharField(max_length=255, blank=True, null=True, db_column="function_name")
     typeCode = models.CharField(max_length=255, blank=True, null=True, db_column="type_code")
     functionDesc = models.CharField(max_length=255, null=True, db_column="function_desc")    # 功能描述
-    functionKey = models.CharField(max_length=255, null=True, db_column="function_key")  # 功能键名
-    typeKey = models.CharField(max_length=255, null=True, db_column="type_key")    # 功能类型（键名）
+    functionValue = models.CharField(max_length=255, null=True, db_column="function_value")  # 功能值
+    functionKey = models.CharField(max_length=255, null=True, db_column="function_key")    # 功能键名（类型）
     isDefault = models.IntegerField(default=0, db_column="is_default")  # 是否默认功能
     isDisable = models.IntegerField(default=0, db_column="is_disable")  # 是否禁用
     createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
@@ -145,7 +145,7 @@ class FmFunctionType(models.Model):
     isRequired = models.IntegerField(db_column="is_required")  # 是否必选
     isMultiple = models.IntegerField(db_column="is_multiple")  # 是否多选
     productType = models.CharField(max_length=255, db_column="product_type")    # 产品类型
-    dataType = models.CharField(max_length=16, default="String", db_column="data_type")  # 数据类型，Object，Boolean, Array, Number, Srting
+    dataType = models.CharField(max_length=16, default="String", db_column="data_type")  # 数据类型，Object，Boolean, Array, Number, String
     createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
     updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
@@ -293,6 +293,49 @@ class FmVoiceFunction(models.Model):
     class Meta:
         # managed = False
         db_table = 'fm_voice_function'
+
+
+# # 电控板功能
+# class FmElectricBoardInfo(models.Model):
+#     infoName = models.CharField(max_length=32)    # 电控信息名称
+#     infoKey = models.CharField(max_length=16)  # 电控信息键名
+#     infoValue = models.CharField(max_length=255) # 电控信息值
+#     typeKey = models.CharField(max_length=16)    # 电控信息类型（键名）
+#     productType = models.CharField(max_length=32)    # 产品类型
+#     isDefault = models.IntegerField()  # 是否默认电控功能
+#     createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+#     updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
+#     # 电控功能
+#     # powerBoardCode = models.CharField(max_length=32, null=True)
+#     # displayBoardCode = models.CharField(max_length=32, null=True)
+#     # wifiModuleCode = models.CharField(max_length=32, null=True)
+#     # networkingMode = models.CharField(max_length=32, null=True)
+
+#     # hasBuzzer = models.IntegerField(default=0, verbose_name='是否有蜂鸣器')  # 是否有蜂鸣器
+#     # hasFlowSensor = models.IntegerField(default=0)  # 是否有流量传感器
+#     # hasElectricLeakageProtect = models.IntegerField(default=0)  # 是否有漏电断电保护
+#     # heatingTubeType = models.IntegerField(null=True)  # 加热管配置
+#     class Meta:
+#         # managed = False
+#         db_table = 'fm_electric_board_info'
+
+
+# # 电控信息类型
+# class FmElectricBoardInfoType(models.Model):
+#     typeName = models.CharField(max_length=255, db_column="type_name")    # 功能类型名称
+#     typeKey = models.CharField(max_length=255, db_column="type_key")    # 功能类型键名
+#     desc = models.CharField(max_length=255)    # 功能类型描述
+#     priority = models.IntegerField()   # 功能显示优先级
+#     isRequired = models.IntegerField(db_column="is_required")  # 是否必选
+#     isMultiple = models.IntegerField(db_column="is_multiple")  # 是否多选
+#     productType = models.CharField(max_length=255, db_column="product_type")    # 产品类型
+#     dataType = models.CharField(max_length=16, default="String", db_column="data_type")  # 数据类型，Object，Boolean, Array, Number, String
+#     createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+#     updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
+
+#     class Meta:
+#         # managed = False
+#         db_table = 'fm_electric_board_info_type'
 
 
 # ========== 自己创建的 ============
