@@ -90,12 +90,15 @@ def handleSetting(productData={}):
         elif functionTypeItem['typeKey'] == 'config':
             pass
         elif len(value_list) == 1:
-            if functionTypeItem['typeKey'] == 'ndReport':
-                functionTypeItem['value'] = 1
+            if functionTypeItem['typeKey'] == 'ndReport': # 特殊处理，内胆鲜活度
                 if value_list[0] == "tankFresh":
+                    functionTypeItem['value'] = 1
                     setting.append({ "value": 1, **typeKeyDict['xhdReport'] })
                 elif value_list[0] == "tankFreshTds":
+                    functionTypeItem['value'] = 1
                     setting.append({ "value": 2, **typeKeyDict['xhdReport'] })
+                else:
+                    functionTypeItem['value'] = value_list[0]
             elif functionTypeItem['dataType'] == 'String':
                 functionTypeItem['value'] = '"%s"' % value_list[0]
             else:
