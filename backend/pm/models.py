@@ -333,7 +333,7 @@ class FmElectricBoardInfo(models.Model):
         db_table = 'fm_electric_board_info'
 
 # 预选项类型
-class FmSelection(models.Model):
+class FmSelectOption(models.Model):
     key = models.CharField(max_length=255, db_column="key")    # 选项键名
     value = models.CharField(max_length=255, db_column="value")    # 选项值
     label = models.CharField(max_length=255, db_column="label")    # 选项显示标签
@@ -345,7 +345,7 @@ class FmSelection(models.Model):
 
     class Meta:
         # managed = False
-        db_table = 'fm_selection'
+        db_table = 'fm_select_option'
 
 # ========== 自己创建的 ============
 
