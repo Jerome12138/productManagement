@@ -332,6 +332,20 @@ class FmElectricBoardInfo(models.Model):
         # managed = False
         db_table = 'fm_electric_board_info'
 
+# 预选项类型
+class FmSelection(models.Model):
+    key = models.CharField(max_length=255, db_column="key")    # 选项键名
+    value = models.CharField(max_length=255, db_column="value")    # 选项值
+    label = models.CharField(max_length=255, db_column="label")    # 选项显示标签
+    desc = models.CharField(max_length=255, db_column="desc")    # 选项描述
+    productType = models.CharField(max_length=255, db_column="product_type")    # 产品类型
+    # dataType = models.CharField(max_length=16, default="String", db_column="data_type")  # 数据类型，Object，Boolean, Array, Number, String
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
+
+    class Meta:
+        # managed = False
+        db_table = 'fm_selection'
 
 # ========== 自己创建的 ============
 
