@@ -176,6 +176,15 @@ def getWifiModuleType(request):
         ret['result'] = DBHandler.getWifiModuleType()
     return ret
 
+@decoRet
+def getElectricBoardInfo(request):
+    ret = {}
+    if request.method == "POST":
+        ret['errorCode'] = '0'
+        productType = request.GET.get('productType')
+        ret['result'] = DBHandler.getDataByDBName('FmElectricBoardInfo', **{"productType":productType})
+    return ret
+
 # 文件上传
 @decoRet
 def uploadFile(request):

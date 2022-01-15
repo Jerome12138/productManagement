@@ -10,6 +10,7 @@ urlpatterns = [
     path('function/getFunctionByType', views.getFunctionByType),
     path('product/saveProduct', views.saveProduct),
     path('function/saveFunction', views.saveFunction),
+
     path('dict/getProductType', views.getProductType),
     path('dict/getProductBranch', views.getProductBranch),
     path('function/getFunctionType', views.getFunctionType),
@@ -21,6 +22,7 @@ urlpatterns = [
     path('task/queryUnhandledTaskList', views.queryUnhandledTaskList),
     path('task/getTaskDetailById', views.getTaskDetailById),
     path('ecologyEntrance/getEcologyEntrance', views.getEcologyEntrance),
+    path('electricBoardInfo/getElectricBoardInfo', views.getElectricBoardInfo),
     # 自动化脚本
     path('autoScript/uploadFile', views.uploadFile),
     path('autoScript/parseJs2Excel', views.parseJs2Excel),

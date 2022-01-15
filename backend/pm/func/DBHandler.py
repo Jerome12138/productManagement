@@ -1,5 +1,15 @@
 from pm import models
 
+
+# 通用方法，获取db数据
+def getDataByDBName(db_name, **condition):
+    if hasattr(models, db_name):
+        functionData = getattr(models, db_name).objects.filter(**condition).values()
+        return list(functionData)
+    else:
+        return None
+
+
 # ========== 产品类型 ==========
 
 # 获取产品类型列表
