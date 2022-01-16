@@ -341,3 +341,17 @@ export const getWifiModuleType = () => {
     method: 'post'
   })
 }
+
+export const getElectricBoardInfo = productType => {
+  return axios.request({
+    url: 'electricBoardInfo/getElectricBoardInfo?productType=' + productType,
+    method: 'post'
+  })
+}
+
+export const getSelectOption = productType => {
+  return axios.request({
+    url: `selectOption/getSelectOption?productType=${productType}`,
+    method: 'post'
+  })
+}

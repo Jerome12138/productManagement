@@ -34,7 +34,7 @@
         <Col span="12">
           <FormItem label="产品型号:" prop="productModel">
             <Select v-model="taskData.productModel" placeholder="请选择产品型号，新产品请先创建" multiple filterable clearable not-found-text="请先选择产品类型，并确认已选类型有产品" @on-change="changeProductModel">
-              <Option v-for="item in allProductModel[taskData.productType]" :value="item.model" :label="item.model" :key="item.model" >
+              <Option v-for="item in allProductModel[taskData.productType]" :value="item.model" :label="item.model" :key="item.id" >
                 <span>{{ item.model }} ({{ item.sN8 }})</span>
                 <span style="float:right;color:#ccc;margin-right:16px">{{ item.lifecycleStage }}</span>
               </Option>

@@ -31,7 +31,7 @@
             <Row :gutter="16">
               <Col span="12">
                 <FormItem label="SN8">
-                  <Input :disabled="isUpdate" v-model="productData.sN8" :maxlength="50" placeholder="请输入产品SN8，8个字符" clearable></Input>
+                  <Input :disabled="isUpdate" v-model="productData.sn8" :maxlength="50" placeholder="请输入产品SN8，8个字符" clearable></Input>
                 </FormItem>
               </Col>
               <Col span="12">
@@ -54,68 +54,28 @@
           </Tab-pane>
           <Tab-pane label="电控信息">
             <Row :gutter="16">
-              <Col span="12">
-                <FormItem label="电源板编码">
-                  <Input :disabled="isUpdate" v-model="productData.powerBoardCode" :maxlength="50" placeholder="请输入电源板编码" clearable></Input>
-                </FormItem>
-              </Col>
-              <Col span="12">
-                <FormItem label="显示板编码">
-                  <Input :disabled="isUpdate" v-model="productData.displayBoardCode" :maxlength="50" placeholder="请输入显示板编码" clearable></Input>
-                </FormItem>
-              </Col>
-            </Row>
-            <Row :gutter="16">
-              <Col span="12">
-                <FormItem label="WiFi模块编码">
-                  <Select v-model="productData.wifiModuleCode" placeholder="请选择WiFi模块编码" transfer @on-change="wifiModuleCodeSelected">
-                    <Option v-for="item in allWifiModuleTypeList" :value="item.code" :key="item.code">
-                      {{item.code}}
-                      <span style="float:right;color:#ccc"> {{item.networkingMode}}</span>
-                      <span v-if="item.desc" style="color: #666666"> ({{item.desc}})</span>
+              <Col span="12" v-for="(electricBoardInfo,index) in allElectricBoardInfoList" :key="index">
+                <FormItem :label="electricBoardInfo.typeName">
+                  <!-- 选择 -->
+                  <Select
+                    v-if="electricBoardInfo.componentType=='Select'"
+                    v-model="productData[electricBoardInfo.typeKey]"
+                    :placeholder="electricBoardInfo.desc"
+                    transfer
+                    clearable
+                    @on-change="wifiModuleCodeSelected"
+                  >
+                    <Option
+                      v-for="item in allSelectOptionList.filter(op=>op.key == electricBoardInfo.typeKey)"
+                      :value="item.value"
+                      :key="item.id"
+                    >
+                      {{ item.label }}
+                      <span style="float:right;color:#ccc"> {{item.desc}}</span>
                     </Option>
                   </Select>
-                </FormItem>
-              </Col>
-              <Col span="12">
-              <!-- 待处理，WiFi模块单独维护 -->
-                <FormItem label="配网方式">
-                  <Input :disabled="true" v-model="productData.networkingMode" :maxlength="50" placeholder="输入WiFi模块编码后将自动匹配配网方式" clearable></Input>
-                </FormItem>
-              </Col>
-            </Row>
-            <Row :gutter="16">
-              <Col span="12">
-                <FormItem label="蜂鸣器">
-                  <Select v-model="productData.hasBuzzer" placeholder="请选择是否有蜂鸣器" transfer clearable>
-                    <Option :value="1">有</Option>
-                    <Option :value="0">无</Option>
-                  </Select>
-                </FormItem>
-              </Col>
-              <Col span="12">
-                <FormItem label="流量传感器">
-                  <Select v-model="productData.hasFlowSensor" placeholder="请选择是否有流量传感器" transfer>
-                    <Option :value="1">有</Option>
-                    <Option :value="0">无</Option>
-                  </Select>
-                </FormItem>
-              </Col>
-            </Row>
-            <Row :gutter="16">
-              <Col span="12">
-                <FormItem label="漏电断电">
-                  <Select v-model="productData.hasElectricLeakageProtect" placeholder="请选择是否有漏电断电保护" transfer>
-                    <Option :value="1">有</Option>
-                    <Option :value="0">无</Option>
-                  </Select>
-                </FormItem>
-              </Col>
-              <Col span="12">
-                <FormItem label="加热管">
-                  <Select v-model="productData.heatingTubeType" placeholder="请选择加热管配置" transfer>
-                    <Option v-for="item in allHeatingTubeTypeList" :value="item.id" :key="item.id">{{ item.name }}</Option>
-                  </Select>
+                  <!-- 文本输入框 -->
+                  <Input v-else v-model="productData[electricBoardInfo.typeKey]" :placeholder="electricBoardInfo.desc"></Input>
                 </FormItem>
               </Col>
             </Row>
@@ -127,11 +87,11 @@
                 <Button type="primary" @click="showCopyModal=true">从现有产品复制功能</Button>
               </Col>
             </Row>
-            <Row :gutter="16" v-for="(functionType,index) in functionTypeList" :key="index">
-              <Col span="24">
+            <Row :gutter="16">
+              <Col :span="functionType.componentType=='Select'?12:24" v-for="(functionType,index) in functionTypeList" :key="index">
                 <FormItem style="margin-bottom: 12px">
                   <div slot="label">
-                    <span>{{functionType.typeName + (functionType.desc ? `(${functionType.desc})` : '')}}</span>
+                    <span>{{functionType.typeName}}</span>
                     <!-- <Poptip placement="right" width="400">
                       <Icon type="ios-help-circle" size="16" color="#888888" @click="showHelp(index)"/>
                         <div slot="content">
@@ -140,20 +100,20 @@
                     </Poptip> -->
                   </div>
                   <!-- 多选 -->
-                  <CheckboxGroup v-if="functionType.isMultiple" v-model="functionIdList[index]" clearable>
+                  <CheckboxGroup v-if="functionType.componentType=='Checkbox'" v-model="functionIdList[index]" clearable>
                     <Checkbox
-                      v-for="item in getFunctionListByType(functionType.typeKey)"
+                      v-for="item in functionList.filter(item => item.functionKey == functionType.typeKey && !item.isDisable)"
                       :key="item.id"
                       :label="item.id"
                     >
                       <span>{{item.functionName}}</span>
-                      <span v-if="item.functionDesc" style="color: #666666; font-size: 0.8em;">({{item.functionDesc}})</span>
+                      <span v-if="item.functionDesc" style="color: #999999; font-size: 0.6em;">({{item.functionDesc}})</span>
                     </Checkbox>
                   </CheckboxGroup>
                   <!-- 单选 -->
-                  <RadioGroup v-else v-model="functionIdList[index]" clearable>
+                  <RadioGroup v-else-if="functionType.componentType=='Radio'" v-model="functionIdList[index]" clearable>
                     <Radio
-                      v-for="item in getFunctionListByType(functionType.typeKey)"
+                      v-for="item in functionList.filter(item => item.functionKey == functionType.typeKey && !item.isDisable)"
                       :key="item.id"
                       :label="item.id"
                     >
@@ -161,6 +121,24 @@
                       <span>{{item.functionDesc}}</span>
                     </Radio>
                   </RadioGroup>
+                  <!-- 选择器 -->
+                  <Select
+                    v-else-if="functionType.componentType=='Select'"
+                    v-model="functionIdList[index]"
+                    :placeholder="functionType.desc"
+                    transfer
+                    clearable
+                  >
+                    <Option
+                      v-for="item in functionList.filter(item => item.functionKey == functionType.typeKey && !item.isDisable)"
+                      :value="item.id"
+                      :key="item.id"
+                    >
+                      {{ item.functionDesc }}
+                    </Option>
+                  </Select>
+                  <!-- 文本输入框 -->
+                  <Input v-else v-model="functionIdList[index]" clearable></Input>
                 </FormItem>
               </Col>
             </Row>
@@ -184,8 +162,8 @@
       mask
       :mask-closable=false>
       <Select v-model="appCopySn8" placeholder="选择产品" filterable transfer>
-        <Option v-for="item in allProductModel[productType]" :value="item.sN8" :label="item.model" :key="item.model" >
-          <span>{{ item.model }} ({{ item.sN8 }})</span>
+        <Option v-for="item in allProductModel[productType]" :value="item.sn8" :label="item.model" :key="item.model" >
+          <span>{{ item.model }} ({{ item.sn8 }})</span>
           <span style="float:right;color:#ccc;margin-right:16px">{{ item.lifecycleStage }}</span>
         </Option>
       </Select>
@@ -210,8 +188,8 @@ import {
   getProductModel,
   getAllUserIdAndName,
   queryAuditGroupByUserId,
-  getHeatingTubeType,
-  getWifiModuleType
+  getElectricBoardInfo,
+  getSelectOption,
 } from '@/api/data'
 import { hasOneOf } from '@/libs/tools'
 import store from '@/store'
@@ -285,7 +263,7 @@ export default {
         branch: '',
         code: '',
         model: '',
-        sN8: '',
+        sn8: '',
         lifecycleStage: '草稿',
         saleChannel: '',
         functionIds: [],
@@ -300,10 +278,10 @@ export default {
       functionList: [],
       scenarioList: [],
       allSensorList: [],
+      allElectricBoardInfoList: [],
+      allSelectOptionList: [],
       allVoiceFunctionList: [],
       allEcologyEntranceList: [],
-      allHeatingTubeTypeList: [],
-      allWifiModuleTypeList: [],
       drawerTitle: '添加产品',
       productTypeToAuth: {
         electric_heater: 'product_electric_heater',
@@ -370,9 +348,13 @@ export default {
     }
   },
   watch: {
-    value (val) {
-      this.visible = val
-    }
+    value (nV, oV) {
+      this.visible = nV
+      if (nV && !oV) {
+        // 类型根据传过来的数据赋值
+        this.initProductTypeData()
+      }
+    },
   },
   computed: {
     modalTitle () {
@@ -488,7 +470,7 @@ export default {
                   branch: '',
                   code: '',
                   model: '',
-                  sN8: '',
+                  sn8: '',
                   lifecycleStage: '',
                   saleChannel: '',
                   functionIds: [],
@@ -531,7 +513,7 @@ export default {
         branch: '',
         code: '',
         model: '',
-        sN8: '',
+        sn8: '',
         lifecycleStage: '',
         saleChannel: '',
         functionIds: [],
@@ -554,7 +536,7 @@ export default {
         branch: '',
         code: '',
         model: '',
-        sN8: '',
+        sn8: '',
         lifecycleStage: '',
         saleChannel: '',
         functionIds: [],
@@ -587,7 +569,7 @@ export default {
             branch: '',
             code: '',
             model: '',
-            sN8: '',
+            sn8: '',
             lifecycleStage: '',
             saleChannel: '',
             functionIds: [],
@@ -665,17 +647,39 @@ export default {
           }
         }
       })
+      // 获取电控信息
+      getElectricBoardInfo(this.productType).then(res => {
+        if (res.data.errorCode === '0') {
+          this.allElectricBoardInfoList = res.data.result
+          if (this.allElectricBoardInfoList) {
+            // this.allElectricBoardInfoList.forEach(value => {
+            //   this.sensorNameToId[value.sensorName] = value.id
+            // })
+          }
+        }
+      })
+      // 获取电控信息
+      getSelectOption(this.productType).then(res => {
+        if (res.data.errorCode === '0') {
+          this.allSelectOptionList = res.data.result
+          if (this.allSelectOptionList) {
+            // this.allSelectOptionList.forEach(value => {
+            //   this.sensorNameToId[value.sensorName] = value.id
+            // })
+          }
+        }
+      })
     },
     copyFunctionFromProduct () {
       if (!this.appCopySn8) return
-      let copyItem = this.allProductModel[this.productType].find(item => item.sN8 === this.appCopySn8)
+      let copyItem = this.allProductModel[this.productType].find(item => item.sn8 === this.appCopySn8)
       console.log(this.appCopySn8)
       this.productData.functionIds = copyItem.functionIds
       console.log(this.productData.functionIds)
     },
     wifiModuleCodeSelected () {
-      let selectedItem = this.allWifiModuleTypeList.find(item => item.code === this.productData.wifiModuleCode)
-      this.productData.networkingMode = selectedItem.networkingMode
+      // let selectedItem = this.allWifiModuleTypeList.find(item => item.code === this.productData.wifiModuleCode)
+      // this.productData.networkingMode = selectedItem.networkingMode
     },
   },
   created () {
@@ -711,8 +715,6 @@ export default {
         this.allProductType = res.data.result
       }
     })
-    // 类型根据传过来的数据赋值
-    this.initProductTypeData()
     // 获取品牌
     getBranchList().then(result => {
       if (result.data.result) {
@@ -740,28 +742,6 @@ export default {
         if (this.allEcologyEntranceList) {
           this.allEcologyEntranceList.forEach(value => {
             this.ecologyEntranceNameToId[value.name] = value.id
-          })
-        }
-      }
-    })
-    // 获取加热管类型
-    getHeatingTubeType().then(res => {
-      if (res.data.errorCode === '0') {
-        this.allHeatingTubeTypeList = res.data.result
-        if (this.allHeatingTubeTypeList) {
-          this.allHeatingTubeTypeList.forEach(value => {
-            this.heatingTubeNameToId[value.name] = value.id
-          })
-        }
-      }
-    })
-    // 获取加热管类型
-    getWifiModuleType().then(res => {
-      if (res.data.errorCode === '0') {
-        this.allWifiModuleTypeList = res.data.result
-        if (this.allWifiModuleTypeList) {
-          this.allWifiModuleTypeList.forEach(value => {
-            this.wifiModuleCodeToId[value.code] = value.id
           })
         }
       }
