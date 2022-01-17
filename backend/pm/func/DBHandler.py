@@ -133,15 +133,15 @@ def saveProduct(productData):
         # 保存功能
         saveProductFunction(productInfo, productData.get('functionIds'))
         # 保存场景
-        # saveProductFunction(productVO)
+        saveProductScenario(productInfo, productData.get('scenarioIds'))
         # 保存电控信息
-        saveProductElectricBoardInfo(productInfo, productData['electricBoardInfo'])
+        saveProductElectricBoardInfo(productInfo, productData.get('electricBoardInfo'))
         # 保存产品语音功能
-        # saveVoiceFunctions(productVO);
+        saveProductVoiceFunctions(productInfo, productData.get('voiceFunctionIds'))
         # 保存产品生态入口
-        # saveEcologyEntrance(productVO);
+        saveProductEcologyEntrance(productInfo, productData.get('ecologyEntranceIds'))
         # 保存产品传感器
-        # saveSensor(productVO);
+        saveProductSensor(productInfo, productData.get('sensorIds'))
         return True
     except Exception as e:
         print(e)
@@ -179,6 +179,40 @@ def saveProductFunction(productInfo, functionIds):
         models.FmProductFunction.objects.create(**newProdFunc)
         print('已添加产品功能：%s' % funcId)
     print('--------done: saveProductFunction--------')
+    return True
+
+
+@decoRet
+def saveProductScenario(productInfo, scenarioIds):
+    print('--------start: saveProductScenario--------')
+    condition = {
+        'productSn8': productInfo.get('sn8'),
+        'productCode': productInfo.get('code')
+    }
+    if productInfo.get('productVersion'):
+        condition['productVersion'] = productInfo['productVersion']
+    # 查询已存在的功能
+    existFuncs = getDataObjByDBName('FmProductScenario', **condition)
+    allFuncs = getDataByDBName('FmScenario', **{"typeCode": productInfo.get('productType')})
+    allFuncIds = [ item['id'] for item in allFuncs ]
+    for prodFuncObj in existFuncs:
+        funcId = prodFuncObj.scenarioId
+        if funcId in scenarioIds: # 对于列表中已存在的id从列表中删除
+            scenarioIds.remove(funcId)
+        else: # 对于列表中不存在的id将prodFuncObj数据删除
+            print('已删除产品场景功能：%s' % funcId)
+            prodFuncObj.delete()
+    for funcId in scenarioIds:
+        if funcId not in allFuncIds:
+            print("存在非法场景功能id: %s, 请核查" % funcId)
+            continue
+        newProdFunc = {
+            **condition,
+            'scenarioId': funcId,
+        }
+        models.FmProductScenario.objects.create(**newProdFunc)
+        print('已添加产品场景功能：%s' % funcId)
+    print('--------done: saveProductScenario--------')
     return True
 
 
@@ -221,6 +255,108 @@ def saveProductElectricBoardInfo(productInfo, electricBoardInfo):
         models.FmProductElectricBoardInfo.objects.create(**newProdElecInfo)
         print('已添加产品电控信息：%s -> %s' % (infoKey, productInfo[infoKey]))
     print('--------done: saveProductElectricBoardInfo--------')
+    return True
+
+
+@decoRet
+def saveProductEcologyEntrance(productInfo, ecologyEntranceIds):
+    print('--------start: saveProductEcologyEntrance--------')
+    condition = {
+        'productSn8': productInfo.get('sn8'),
+        'productCode': productInfo.get('code')
+    }
+    if productInfo.get('productVersion'):
+        condition['productVersion'] = productInfo['productVersion']
+    # 查询已存在的功能
+    existFuncs = getDataObjByDBName('FmProductEcologyEntrance', **condition)
+    allFuncs = getDataByDBName('FmEncologyEntrance')
+    allFuncIds = [ item['id'] for item in allFuncs ]
+    for prodFuncObj in existFuncs:
+        funcId = prodFuncObj.ecologyEntranceId
+        if funcId in ecologyEntranceIds: # 对于列表中已存在的id从列表中删除
+            ecologyEntranceIds.remove(funcId)
+        else: # 对于列表中不存在的id将prodFuncObj数据删除
+            print('已删除产品生态入口：%s' % funcId)
+            prodFuncObj.delete()
+    for funcId in ecologyEntranceIds:
+        if funcId not in allFuncIds:
+            print("存在非法生态入口id: %s, 请核查" % funcId)
+            continue
+        newProdFunc = {
+            **condition,
+            'ecologyEntranceId': funcId,
+        }
+        models.FmProductEcologyEntrance.objects.create(**newProdFunc)
+        print('已添加产品生态入口：%s' % funcId)
+    print('--------done: saveProductEcologyEntrance--------')
+    return True
+
+
+@decoRet
+def saveProductVoiceFunctions(productInfo, voiceFunctionIds):
+    print('--------start: saveProductVoiceFunctions--------')
+    condition = {
+        'productSn8': productInfo.get('sn8'),
+        'productCode': productInfo.get('code')
+    }
+    if productInfo.get('productVersion'):
+        condition['productVersion'] = productInfo['productVersion']
+    # 查询已存在的功能
+    existFuncs = getDataObjByDBName('FmProductVoiceFunction', **condition)
+    allFuncs = getDataByDBName('FmVoiceFunction')
+    allFuncIds = [ item['id'] for item in allFuncs ]
+    for prodFuncObj in existFuncs:
+        funcId = prodFuncObj.voiceFunctionId
+        if funcId in voiceFunctionIds: # 对于列表中已存在的id从列表中删除
+            voiceFunctionIds.remove(funcId)
+        else: # 对于列表中不存在的id将prodFuncObj数据删除
+            print('已删除产品语音功能：%s' % funcId)
+            prodFuncObj.delete()
+    for funcId in voiceFunctionIds:
+        if funcId not in allFuncIds:
+            print("存在非法语音功能id: %s, 请核查" % funcId)
+            continue
+        newProdFunc = {
+            **condition,
+            'voiceFunctionId': funcId,
+        }
+        models.FmProductVoiceFunction.objects.create(**newProdFunc)
+        print('已添加产品语音功能：%s' % funcId)
+    print('--------done: saveProductVoiceFunctions--------')
+    return True
+
+
+@decoRet
+def saveProductSensor(productInfo, sensorIds):
+    print('--------start: saveProductSensor--------')
+    condition = {
+        'productSn8': productInfo.get('sn8'),
+        'productCode': productInfo.get('code')
+    }
+    if productInfo.get('productVersion'):
+        condition['productVersion'] = productInfo['productVersion']
+    # 查询已存在的功能
+    existFuncs = getDataObjByDBName('FmProductSensor', **condition)
+    allFuncs = getDataByDBName('FmSensor', **{"typeCode": productInfo.get('productType')})
+    allFuncIds = [ item['id'] for item in allFuncs ]
+    for prodFuncObj in existFuncs:
+        funcId = prodFuncObj.sensorId
+        if funcId in sensorIds: # 对于列表中已存在的id从列表中删除
+            sensorIds.remove(funcId)
+        else: # 对于列表中不存在的id将prodFuncObj数据删除
+            print('已删除产品传感器：%s' % funcId)
+            prodFuncObj.delete()
+    for funcId in sensorIds:
+        if funcId not in allFuncIds:
+            print("存在非法传感器id: %s, 请核查" % funcId)
+            continue
+        newProdFunc = {
+            **condition,
+            'sensorId': funcId,
+        }
+        models.FmProductSensor.objects.create(**newProdFunc)
+        print('已添加产品传感器：%s' % funcId)
+    print('--------done: saveProductSensor--------')
     return True
 
 

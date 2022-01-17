@@ -231,7 +231,7 @@ class FmProductSensor(models.Model):
 
 class FmProductVoiceFunction(models.Model):
     productCode = models.CharField(max_length=255, blank=True, null=True, db_column="product_code")
-    voiceFunction_id = models.IntegerField(blank=True, null=True, db_column="voice_function_id")
+    voiceFunctionId = models.IntegerField(blank=True, null=True, db_column="voice_function_id")
     productSn8 = models.CharField(max_length=255, blank=True, null=True, db_column="product_sn8")
     productVersion = models.CharField(max_length=255, blank=True, null=True, db_column="product_version")
     createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
