@@ -59,7 +59,7 @@
                   <!-- 选择 -->
                   <Select
                     v-if="electricBoardInfo.componentType=='Select'"
-                    v-model="productData[electricBoardInfo.typeKey]"
+                    v-model="productData.electricBoardInfo[electricBoardInfo.typeKey]"
                     :placeholder="electricBoardInfo.desc"
                     transfer
                     clearable
@@ -75,7 +75,7 @@
                     </Option>
                   </Select>
                   <!-- 文本输入框 -->
-                  <Input v-else v-model="productData[electricBoardInfo.typeKey]" :placeholder="electricBoardInfo.desc"></Input>
+                  <Input v-else v-model="productData.electricBoardInfo[electricBoardInfo.typeKey]" :placeholder="electricBoardInfo.desc"></Input>
                 </FormItem>
               </Col>
             </Row>
@@ -197,6 +197,24 @@ import { getToken, setToken } from '@/libs/util'
 import config from '@/config'
 import qqFans from '@/assets/images/qq-group1.jpg'
 
+const initProductData = {
+  productType: '',
+  id: '',
+  categoryType: '',
+  branch: '',
+  code: '',
+  model: '',
+  sn8: '',
+  lifecycleStage: '',
+  saleChannel: '',
+  functionIds: [],
+  scenarioIds: [],
+  voiceFunctionIds: [],
+  ecologyEntranceIds: [],
+  sensorIds: [],
+  electricBoardInfo: {},
+  pic: ''
+}
 export default {
   props: {
     isUpdate: {
@@ -255,24 +273,7 @@ export default {
         width: 'fit-content',
         height: 'auto'
       },
-      productData: {
-        productType: '',
-        productTypeName: '',
-        id: '',
-        categoryType: '',
-        branch: '',
-        code: '',
-        model: '',
-        sn8: '',
-        lifecycleStage: '草稿',
-        saleChannel: '',
-        functionIds: [],
-        scenarioIds: [],
-        voiceFunctionIds: [],
-        ecologyEntranceIds: [],
-        sensorIds: [],
-        pic: ''
-      },
+      productData: JSON.parse(JSON.stringify(initProductData)), // 深拷贝，防止子项引用改到默认数据
       categoryList: [],
       branchList: [],
       functionList: [],
@@ -342,7 +343,7 @@ export default {
       auditGroupList: [],
       groupIdToUserName: {},
       groupIdToUserIds: {},
-      qqFans:qqFans,
+      qqFans: qqFans,
       showCopyModal: false,
       appCopySn8: '',
     }
@@ -453,33 +454,16 @@ export default {
         if (this.accessProductType) {
           if ((this.accessUpdate && booleanForUpdate) || (this.accessAdd && booleanForAdd)) {
             // 拼接功能id列表
-            this.productData.productType = this.productType
             this.productData.functionIds = this.functionIdList.reduce((prev, cur) => {
               if (typeof cur === 'string') {
-                cur = [cur]
+                cur = cur ? [cur] : []
               }
               return prev.concat(cur)
             })
             saveProduct(this.productData).then(result => {
               if (result.data.errorCode && result.data.errorCode === '0') {
                 this.$Message.success('产品保存成功！')
-                this.productData = {
-                  productType: this.productType,
-                  id: '',
-                  productCategory: '',
-                  branch: '',
-                  code: '',
-                  model: '',
-                  sn8: '',
-                  lifecycleStage: '',
-                  saleChannel: '',
-                  functionIds: [],
-                  scenarioIds: [],
-                  voiceFunctionIds: [],
-                  ecologyEntranceIds: [],
-                  sensorIds: [],
-                  pic: ''
-                }
+                this.productData = JSON.parse(JSON.stringify(initProductData))
                 // 重新加载列表
                 this.searchData()
                 this.visible = false
@@ -506,46 +490,14 @@ export default {
     },
     // 关闭产品编辑页面弹窗时，将该弹窗的数据清除
     cancelSaveProduct () {
-      this.productData = {
-        productType: this.productType,
-        id: '',
-        categoryType: '',
-        branch: '',
-        code: '',
-        model: '',
-        sn8: '',
-        lifecycleStage: '',
-        saleChannel: '',
-        functionIds: [],
-        scenarioIds: [],
-        voiceFunctionIds: [],
-        ecologyEntranceIds: [],
-        sensorIds: [],
-        pic: ''
-      }
+      this.productData = JSON.parse(JSON.stringify(initProductData))
       this.visible = false
       this.$emit('input', false)
     },
     // 关闭产品编辑页面弹窗时，将该弹窗的数据清除
     closeModal () {
       this.$emit('input', false)
-      this.productData = {
-        productType: this.productType,
-        id: '',
-        categoryType: '',
-        branch: '',
-        code: '',
-        model: '',
-        sn8: '',
-        lifecycleStage: '',
-        saleChannel: '',
-        functionIds: [],
-        scenarioIds: [],
-        voiceFunctionIds: [],
-        ecologyEntranceIds: [],
-        sensorIds: [],
-        pic: ''
-      }
+      this.productData = JSON.parse(JSON.stringify(initProductData))
     },
     getFunctionListByType (typeKey) {
       return this.functionList.filter(item => item.functionKey == typeKey && !item.isDisable)
@@ -562,27 +514,13 @@ export default {
         if (res.data.result) {
           this.productData = res.data.result[0]
         } else {
-          this.productData = {
-            productType: this.productType,
-            id: '',
-            categoryType: '',
-            branch: '',
-            code: '',
-            model: '',
-            sn8: '',
-            lifecycleStage: '',
-            saleChannel: '',
-            functionIds: [],
-            scenarioIds: [],
-            voiceFunctionIds: [],
-            ecologyEntranceIds: [],
-            sensorIds: [],
-            pic: ''
-          }
+          this.productData = JSON.parse(JSON.stringify(initProductData))
         }
       })
     },
     initProductTypeData () {
+      initProductData.productType = this.productType
+      this.productData.productType = this.productType
       // 获取当前类型的名称
       getProductTypeByTypeCode(this.productType).then(res => {
         if (res.data.result && res.data.result.value) {
