@@ -226,10 +226,6 @@ export default {
       type: Boolean,
       default: false
     },
-    propTaskData: {
-      type: Object,
-      default: () => ({})
-    },
     productType: {
       type: String,
       default: ''
@@ -326,18 +322,6 @@ export default {
       loading: false,
       functionTypeList: [],
       functionIdList: [],
-      // 任务管理
-      taskData: {},
-      taskRuleValidate: {
-        title: { required: true, message: '标题不能为空', trigger: 'blur' },
-        content: { required: true, message: '内容不能为空', trigger: 'blur' },
-        auditGroupId: { required: true, type: 'number', message: '审核组不能为空', trigger: 'change' },
-        actorUserId: { required: true, type: 'number', message: '执行人不能为空', trigger: 'change' },
-        productType: { required: true, message: '产品类型不能为空', trigger: 'blur' },
-        productModel: { required: true, message: '产品型号不能为空', trigger: 'blur' },
-        handleDetail: { required: true, message: '处理不能为空', trigger: 'blur' },
-        handleOpinion: { required: true, message: '处理意见不能为空', trigger: 'blur' }
-      },
       allProductType: [],
       allProductModel: {},
       allUser: [],
@@ -463,22 +447,6 @@ export default {
     getFunctionListByType (typeKey) {
       return this.functionList.filter(item => item.functionKey == typeKey && !item.isDisable)
     },
-    changeProductType () {
-      this.taskData.productFunctionType = []
-      this.taskData.productScenarioType = []
-      this.taskData.productSensorType = []
-      this.taskData.productModel = ''
-      this.initProductTypeData()
-    },
-    changeProductModel () {
-      queryProduct({ 'model': [this.taskData.productModel] }).then(res => {
-        if (res.data.result) {
-          this.productData = res.data.result[0]
-        } else {
-          this.productData = JSON.parse(JSON.stringify(initProductData))
-        }
-      })
-    },
     initProductTypeData () {
       initProductData.productType = this.productType
       this.productData.productType = this.productType
@@ -582,7 +550,6 @@ export default {
     },
   },
   created () {
-    this.taskData = this.propTaskData
   },
   mounted () {
     let userId = this.$store.state.user.userId
