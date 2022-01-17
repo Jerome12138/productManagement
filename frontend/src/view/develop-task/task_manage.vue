@@ -1,8 +1,8 @@
 <template>
   <div>
     <Button v-if="accessAddTask" type="primary" size="default" @click="showAddTaskModal">新建任务</Button>
-    <modalAddTask v-model="modal1" :propTaskData="taskData" @setAddProductModal="setAddProductModal($event)"></modalAddTask>
-    <modalAddProduct v-model="showAddProductModal" :propTaskData="taskData" :productType="addProductType"></modalAddProduct>
+    <modalAddTask v-model="modal1" :propTaskData="taskData" @setAddProductModal="setAddProductModal($event)" ref="modalAddTask"></modalAddTask>
+    <modalAddProduct v-model="showAddProductModal" :propTaskData="taskData" :productType="addProductType" @saveProductSuccess="saveProductSuccess"></modalAddProduct>
     <Drawer
       title="任务详情"
       v-model="taskDetailDrawer"
@@ -1024,9 +1024,12 @@ export default {
         this.getHandledTaskList()
       }
     },
-    setAddProductModal(productType) {
+    setAddProductModal (productType) {
       this.showAddProductModal=true
       this.addProductType=productType
+    },
+    saveProductSuccess () {
+      this.$refs.modalAddTask.initProductModel()
     },
   },
   mounted () {

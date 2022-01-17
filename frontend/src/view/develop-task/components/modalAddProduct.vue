@@ -391,46 +391,6 @@ export default {
     }
   },
   methods: {
-    saveTaskData () {
-      this.$refs.taskManage.validate((valid) => {
-        if (valid) {
-          // 获取登录用户的token，根据token获取当前用户是否有权限
-          const token = getToken()
-          store.commit('setToken', token)
-          if (!token) {
-            this.$store.state.user.access = []
-          }
-          store.dispatch('getUserInfo').then(user => {
-            // 拉取用户信息，获取用户权限access， 存储到this.$store.state.user.access;access必须是一个数组，如：['super_admin'] ['super_admin', 'admin']
-            this.$store.state.user.access = user.access
-            if (this.accessAddTask) {
-              this.loading = true
-              let userId = this.$store.state.user.userId
-              this.taskData.createUserId = userId
-              this.taskData.auditGroupUserIds = this.groupIdToUserIds[this.taskData.auditGroupId]
-              try {
-                saveTask(this.taskData).then(res => {
-                  this.loading = false
-                  if (res.data.errorCode !== '0') {
-                    this.$Message.error('保存失败:' + res.data.msg)
-                  } else {
-                    this.$Message.success('保存成功！')
-                    this.getUnhandledTaskList(userId)
-                    this.modal1 = false
-                    this.clearTaskData()
-                  }
-                })
-              } catch (e) {
-                this.loading = false
-                this.$Message.error('保存失败:' + e)
-              }
-            } else {
-              this.$Message.warning('当前用户没有发起任务的权限')
-            }
-          })
-        }
-      })
-    },
     // 保存产品，先判断当前用户是否有该类型的权限
     saveProduct () {
       const token = getToken()
@@ -465,10 +425,10 @@ export default {
               if (result.data.errorCode && result.data.errorCode === '0') {
                 this.$Message.success('产品保存成功！')
                 this.productData = JSON.parse(JSON.stringify(initProductData))
-                // 重新加载列表
-                this.searchData()
                 this.visible = false
                 this.$emit('input', false)
+                // 重新加载列表
+                this.$emit('saveProductSuccess', false)
               } else {
                 this.$Message.error('产品保存失败:' + result.data.msg)
               }
