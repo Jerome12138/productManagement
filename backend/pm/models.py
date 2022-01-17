@@ -195,6 +195,7 @@ class FmProductInfo(models.Model):
     pic = models.CharField(max_length=255, blank=True, null=True)
     productVersion = models.CharField(max_length=255, blank=True, null=True, db_column="product_version")
     dishwasherProperty = models.CharField(max_length=5000, blank=True, null=True, db_column="dishwasher_property")
+    appStatus = models.CharField(max_length=255, blank=True, null=True, db_column="app_status")
     createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
     updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 
