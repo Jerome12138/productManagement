@@ -23,6 +23,7 @@ urlpatterns = [
     path('task/getTaskDetailById', views.getTaskDetailById),
     path('ecologyEntrance/getEcologyEntrance', views.getEcologyEntrance),
     path('electricBoardInfo/getElectricBoardInfo', views.getElectricBoardInfo),
+    path('selectOption/getSelectOption', views.getSelectOption),
     # 自动化脚本
     path('autoScript/uploadFile', views.uploadFile),
     path('autoScript/parseJs2Excel', views.parseJs2Excel),

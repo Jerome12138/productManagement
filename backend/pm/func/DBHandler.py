@@ -1,14 +1,34 @@
 from pm import models
+import traceback
+
+# 返回函数装饰器
+def decoRet(func):
+    def inner_func(request, *args, **kwargs):
+        ret = False
+        try:
+            ret = func(request, *args, **kwargs)   # 运行原函数
+        except Exception as e:
+            print(traceback.print_exc())
+        finally:
+            return ret
+    return inner_func
 
 
-# 通用方法，获取db数据
+# 通用方法，获取db数据，输出字典类型
 def getDataByDBName(db_name, **condition):
     if hasattr(models, db_name):
         functionData = getattr(models, db_name).objects.filter(**condition).values()
         return list(functionData)
     else:
-        return None
+        return []
 
+# 通用方法，获取db数据，输出db对象
+def getDataObjByDBName(db_name, **condition):
+    if hasattr(models, db_name):
+        functionData = getattr(models, db_name).objects.filter(**condition)
+        return functionData
+    else:
+        return []
 
 # ========== 产品类型 ==========
 
@@ -83,26 +103,125 @@ def queryProduct(**condition):
     # print("queryProduct查询结果: %s"%list(productData))
     return list(productData)
 
+
 def saveProduct(productData):
     try:
-        # if productData.get('id'):
-        #     productData['id'] = int(productData['id'])
-        # elif productData.get('id') == "":
-        #     productData['id'] = -1
-        # obj = models.ProductData.objects.filter(
-        #     id=productData.get('id')).first()
-        # if obj:
-        #     obj.__dict__.update(productData)
-        #     obj.save()
-        #     print('数据已更新:%s' % productData['sN8'])
-        # else:
-        #     productData.pop('id')
-        #     models.ProductData.objects.create(**productData)
-        #     print('数据已添加：%s' % productData['sN8'])
+        # 保存产品基本信息
+        productInfo = { key: item for key, item in productData.items() if key in ['id','branch', 'code', 'model', 'productType', 'sn8']}
+        # 这几项暂时不加： 'lifecycleStage', 'productCategory', 'saleChannel', 'pic', 'productVersion', 'dishwasherProperty'
+        if productInfo.get('id'):
+            productInfo['id'] = int(productInfo['id'])
+        elif productInfo.get('id') == "":
+            productInfo.pop('id')
+        # 组装搜索条件
+        condition = {
+            'sn8': productInfo.get('sn8'),
+            'code': productInfo.get('code'),
+            'productType': productInfo.get('productType'),
+        }
+        if productInfo.get('productVersion'):
+            condition['productVersion'] = productInfo['productVersion']
+        # 查询是否已有产品
+        obj = models.FmProductInfo.objects.filter(**condition).first()
+        if obj: # 已存在则更新
+            obj.__dict__.update(productInfo)
+            obj.save()
+            print('产品数据已更新: (sn8: %s, code: %s)' % (productInfo['sn8'],productInfo['code']))
+        else: # 不存在则添加
+            models.FmProductInfo.objects.create(**productInfo)
+            print('产品数据已添加: (sn8: %s, code: %s)' % (productInfo['sn8'],productInfo['code']))
+        # 保存功能
+        saveProductFunction(productInfo, productData.get('functionIds'))
+        # 保存场景
+        # saveProductFunction(productVO)
+        # 保存电控信息
+        saveProductElectricBoardInfo(productInfo, productData['electricBoardInfo'])
+        # 保存产品语音功能
+        # saveVoiceFunctions(productVO);
+        # 保存产品生态入口
+        # saveEcologyEntrance(productVO);
+        # 保存产品传感器
+        # saveSensor(productVO);
         return True
     except Exception as e:
         print(e)
         return False
+
+
+@decoRet
+def saveProductFunction(productInfo, functionIds):
+    print('--------start: saveProductFunction--------')
+    condition = {
+        'productSn8':productInfo.get('sn8'),
+        'productCode':productInfo.get('code')
+    }
+    if productInfo.get('productVersion'):
+        condition['productVersion'] = productInfo['productVersion']
+    # 查询已存在的功能
+    existFuncs = getDataObjByDBName('FmProductFunction', **condition)
+    allFuncs = getDataByDBName('FmFunction', **{"typeCode": productInfo.get('productType')})
+    allFuncIds = [ item['id'] for item in allFuncs ]
+    for prodFuncObj in existFuncs:
+        funcId = prodFuncObj.functionId
+        if funcId in functionIds: # 对于列表中已存在的id从列表中删除
+            functionIds.remove(funcId)
+        else: # 对于列表中不存在的id将prodFuncObj数据删除
+            print('已删除产品功能：%s' % funcId)
+            prodFuncObj.delete()
+    for funcId in functionIds:
+        if funcId not in allFuncIds:
+            print("存在非法功能id: %s, 请核查" % funcId)
+            continue
+        newProdFunc = {
+            **condition,
+            'functionId': funcId,
+        }
+        models.FmProductFunction.objects.create(**newProdFunc)
+        print('已添加产品功能：%s' % funcId)
+    print('--------done: saveProductFunction--------')
+    return True
+
+
+@decoRet
+def saveProductElectricBoardInfo(productInfo, electricBoardInfo):
+    print('--------start: saveProductElectricBoardInfo--------')
+    condition = {
+        'productSn8':productInfo.get('sn8'),
+        'productCode':productInfo.get('code'),
+        'productType': productInfo.get('productType'),
+    }
+    if productInfo.get('productVersion'):
+        condition['productVersion'] = productInfo['productVersion']
+    # 查询已存在的电控信息
+    existElecInfos = getDataObjByDBName('FmProductElectricBoardInfo', **condition)
+    allElecInfos = getDataByDBName('FmElectricBoardInfo', **{"productType": productInfo.get('productType')})
+    allElecInfoKeys = [ item['typeKey'] for item in allElecInfos ]
+    # 先针对已存在的数据看是否需要删除或修改
+    for prodElecInfoObj in existElecInfos:
+        infoKey = prodElecInfoObj.infoKey
+        if infoKey in electricBoardInfo.keys(): # 对于列表中已存在的id从列表中删除，数据不一样的进行更改
+            if prodElecInfoObj.infoValue != electricBoardInfo[infoKey]:
+                prodElecInfoObj.infoValue = electricBoardInfo[infoKey]
+                prodElecInfoObj.save()
+                print('已更新产品电控信息：%s -> %s' % (infoKey, electricBoardInfo[infoKey]))
+            electricBoardInfo.pop(infoKey)
+        else: # 对于列表中不存在的id将prodElecInfoObj数据删除
+            prodElecInfoObj.delete()
+            print('已删除产品电控信息：%s' % (infoKey))
+    # 再添加不存在的数据
+    for infoKey in electricBoardInfo.keys():
+        if infoKey not in allElecInfoKeys:
+            print("存在非法电控信息key: %s, 请核查" % infoKey)
+            continue
+        newProdElecInfo = {
+            **condition,
+            'infoKey': infoKey,
+            'infoValue': productInfo[infoKey],
+        }
+        models.FmProductElectricBoardInfo.objects.create(**newProdElecInfo)
+        print('已添加产品电控信息：%s -> %s' % (infoKey, productInfo[infoKey]))
+    print('--------done: saveProductElectricBoardInfo--------')
+    return True
 
 
 # ========== 功能类型 ==========

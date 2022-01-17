@@ -22,7 +22,6 @@ def decoRet(func):
             ret['error'] = '遇到异常: '+e
         finally:
             return JsonResponse(ret)
-        return JsonResponse(i)
     return inner_func
 
 @decoRet
@@ -183,6 +182,16 @@ def getElectricBoardInfo(request):
         ret['errorCode'] = '0'
         productType = request.GET.get('productType')
         ret['result'] = DBHandler.getDataByDBName('FmElectricBoardInfo', **{"productType":productType})
+    return ret
+
+@decoRet
+def getSelectOption(request):
+    ret = {}
+    if request.method == "POST":
+        ret['errorCode'] = '0'
+        productType = request.GET.get('productType')
+        # key = request.GET.get('key')
+        ret['result'] = DBHandler.getDataByDBName('FmSelectOption', **{"productType":productType})
     return ret
 
 # 文件上传
