@@ -107,8 +107,9 @@ def queryProduct(**condition):
 def saveProduct(productData):
     try:
         # 保存产品基本信息
-        productInfo = { key: item for key, item in productData.items() if key in ['id','branch', 'code', 'model', 'productType', 'sn8']}
-        # 这几项暂时不加： 'lifecycleStage', 'productCategory', 'saleChannel', 'pic', 'productVersion', 'dishwasherProperty'
+        productInfoKeys = ['id','branch', 'code', 'model', 'productType', 'sn8', 'appStatus', 'lifecycleStage', 'productVersion']
+        productInfo = { key: item for key, item in productData.items() if key in productInfoKeys}
+        # 这几项暂时不加： , 'productCategory', 'saleChannel', 'pic', 'dishwasherProperty'
         if productInfo.get('id'):
             productInfo['id'] = int(productInfo['id'])
         elif productInfo.get('id') == "":

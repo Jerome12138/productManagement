@@ -66,11 +66,11 @@ def getFunctionByType(request):
 def saveProduct(request):
     ret = {}
     if request.method == "POST":
-        ret['errorCode'] = '1'
+        ret['errorCode'] = '0'
         req_data = json.loads(request.body)
-        print('saveProduct: %s'%req_data)
+        print('views-saveProduct: %s'%req_data)
         DBHandler.saveProduct(req_data)
-        codeSettingHandler.settingFileEdit(req_data)
+        # codeSettingHandler.settingFileEdit(req_data)
     return ret
 
 @decoRet
