@@ -164,7 +164,7 @@
       <Select v-model="appCopySn8" placeholder="选择产品" filterable transfer>
         <Option v-for="item in allProductModel[productType]" :value="item.sn8" :label="item.model" :key="item.model" >
           <span>{{ item.model }} ({{ item.sn8 }})</span>
-          <span style="float:right;color:#ccc;margin-right:16px">{{ item.lifecycleStage }}</span>
+          <span style="float:right;color:#ccc;margin-right:16px">{{ item.appStatus }}</span>
         </Option>
       </Select>
     </Modal>
@@ -213,6 +213,7 @@ const initProductData = {
   ecologyEntranceIds: [],
   sensorIds: [],
   electricBoardInfo: {},
+  appStatus: '草稿',
   pic: ''
 }
 export default {
