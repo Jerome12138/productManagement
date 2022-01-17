@@ -113,7 +113,7 @@ def getProductModel(request):
     ret = {}
     if request.method == "POST":
         ret['errorCode'] = '0'
-        ret['result'] = DBHandler.getProductModel()
+        ret['result'] = DBHandler.getDataByDBName('FmProductInfo')
     return ret
 
 @decoRet
@@ -132,6 +132,15 @@ def queryUnhandledTaskList(request):
         ret['errorCode'] = '0'
         userId = request.GET.get('userId')
         ret['result'] = DBHandler.queryUnhandledTaskList(userId)
+    return ret
+
+@decoRet
+def queryHandledTaskList(request):
+    ret = {}
+    if request.method == "POST":
+        ret['errorCode'] = '0'
+        userId = request.GET.get('userId')
+        ret['result'] = DBHandler.queryHandledTaskList(userId)
     return ret
 
 @decoRet

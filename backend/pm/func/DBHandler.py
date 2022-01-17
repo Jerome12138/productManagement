@@ -1,4 +1,5 @@
 from pm import models
+from django.db.models import Q      # 导入Q模块
 import traceback
 
 # 返回函数装饰器
@@ -17,7 +18,7 @@ def decoRet(func):
 # 通用方法，获取db数据，输出字典类型
 def getDataByDBName(db_name, **condition):
     if hasattr(models, db_name):
-        functionData = getattr(models, db_name).objects.filter(**condition).values()
+        functionData = getattr(models, db_name).objects.filter(**condition).order_by('-updateDateTime','-id').values()
         return list(functionData)
     else:
         return []
@@ -25,7 +26,7 @@ def getDataByDBName(db_name, **condition):
 # 通用方法，获取db数据，输出db对象
 def getDataObjByDBName(db_name, **condition):
     if hasattr(models, db_name):
-        functionData = getattr(models, db_name).objects.filter(**condition)
+        functionData = getattr(models, db_name).objects.filter(**condition).order_by('-updateDateTime','-id')
         return functionData
     else:
         return []
@@ -47,11 +48,6 @@ def getProductBranch():
     return [ {"code": item['valueCode'], 'value': item['valueName']} for item in productBranchObjs ]
 
 # ========== 产品 ==========
-
-# 获取产品列表
-def getProductModel():
-    productDataObjs = models.FmProductInfo.objects.filter().values()
-    return list(productDataObjs)
 
 
 # 根据条件查询产品全信息
@@ -104,49 +100,46 @@ def queryProduct(**condition):
     return list(productData)
 
 
+@decoRet
 def saveProduct(productData):
-    try:
-        # 保存产品基本信息
-        productInfoKeys = ['id','branch', 'code', 'model', 'productType', 'sn8', 'appStatus', 'lifecycleStage', 'productVersion']
-        productInfo = { key: item for key, item in productData.items() if key in productInfoKeys}
-        # 这几项暂时不加： , 'productCategory', 'saleChannel', 'pic', 'dishwasherProperty'
-        if productInfo.get('id'):
-            productInfo['id'] = int(productInfo['id'])
-        elif productInfo.get('id') == "":
-            productInfo.pop('id')
-        # 组装搜索条件
-        condition = {
-            'sn8': productInfo.get('sn8'),
-            'code': productInfo.get('code'),
-            'productType': productInfo.get('productType'),
-        }
-        if productInfo.get('productVersion'):
-            condition['productVersion'] = productInfo['productVersion']
-        # 查询是否已有产品
-        obj = models.FmProductInfo.objects.filter(**condition).first()
-        if obj: # 已存在则更新
-            obj.__dict__.update(productInfo)
-            obj.save()
-            print('产品数据已更新: (sn8: %s, code: %s)' % (productInfo['sn8'],productInfo['code']))
-        else: # 不存在则添加
-            models.FmProductInfo.objects.create(**productInfo)
-            print('产品数据已添加: (sn8: %s, code: %s)' % (productInfo['sn8'],productInfo['code']))
-        # 保存功能
-        saveProductFunction(productInfo, productData.get('functionIds'))
-        # 保存场景
-        saveProductScenario(productInfo, productData.get('scenarioIds'))
-        # 保存电控信息
-        saveProductElectricBoardInfo(productInfo, productData.get('electricBoardInfo'))
-        # 保存产品语音功能
-        saveProductVoiceFunctions(productInfo, productData.get('voiceFunctionIds'))
-        # 保存产品生态入口
-        saveProductEcologyEntrance(productInfo, productData.get('ecologyEntranceIds'))
-        # 保存产品传感器
-        saveProductSensor(productInfo, productData.get('sensorIds'))
-        return True
-    except Exception as e:
-        print(e)
-        return False
+    # 保存产品基本信息
+    productInfoKeys = ['id','branch', 'code', 'model', 'productType', 'sn8', 'appStatus', 'lifecycleStage', 'productVersion']
+    productInfo = { key: item for key, item in productData.items() if key in productInfoKeys}
+    # 这几项暂时不加： , 'productCategory', 'saleChannel', 'pic', 'dishwasherProperty'
+    if productInfo.get('id'):
+        productInfo['id'] = int(productInfo['id'])
+    elif productInfo.get('id') == "":
+        productInfo.pop('id')
+    # 组装搜索条件
+    condition = {
+        'sn8': productInfo.get('sn8'),
+        'code': productInfo.get('code'),
+        'productType': productInfo.get('productType'),
+    }
+    if productInfo.get('productVersion'):
+        condition['productVersion'] = productInfo['productVersion']
+    # 查询是否已有产品
+    obj = models.FmProductInfo.objects.filter(**condition).first()
+    if obj: # 已存在则更新
+        obj.__dict__.update(productInfo)
+        obj.save()
+        print('产品数据已更新: (sn8: %s, code: %s)' % (productInfo['sn8'],productInfo['code']))
+    else: # 不存在则添加
+        models.FmProductInfo.objects.create(**productInfo)
+        print('产品数据已添加: (sn8: %s, code: %s)' % (productInfo['sn8'],productInfo['code']))
+    # 保存功能
+    saveProductFunction(productInfo, productData.get('functionIds'))
+    # 保存场景
+    saveProductScenario(productInfo, productData.get('scenarioIds'))
+    # 保存电控信息
+    saveProductElectricBoardInfo(productInfo, productData.get('electricBoardInfo'))
+    # 保存产品语音功能
+    saveProductVoiceFunctions(productInfo, productData.get('voiceFunctionIds'))
+    # 保存产品生态入口
+    saveProductEcologyEntrance(productInfo, productData.get('ecologyEntranceIds'))
+    # 保存产品传感器
+    saveProductSensor(productInfo, productData.get('sensorIds'))
+    return True
 
 
 @decoRet
@@ -394,6 +387,7 @@ def getFunctionNamesByIds(ids):
     return ",".join(functionNames)
 
 # 保存功能数据
+@decoRet
 def saveFunction(functionData):
     # print(functionData)
     try:
@@ -417,37 +411,45 @@ def saveFunction(functionData):
 
 # ========== 任务 ==========
 
+@decoRet
 def saveTask(taskData):
-    print(taskData)
-    try:
-        if not taskData.get('id') or taskData.get('id') == "":
-            taskData['id'] = -1
-        obj = models.TaskData.objects.filter(
-            id=taskData.get('id')).first()
-        if obj:
-            obj.__dict__.update(taskData)
+    # 保存任务基本信息
+    taskInfoKeys = ['id','title', 'content', 'createUserId', 'status', 'productType', 'productIds', 'pm', 'planner', 'hardwareEngineer', 'softwareEngineer']
+    taskInfo = { key: item for key, item in taskData.items() if key in taskInfoKeys}
+    taskInfo['sponsorUserId'] = taskInfo.pop('createUserId')
+    # taskInfo['currentHandleUserId'] = taskInfo.pop('createUserId')
+    if taskInfo.get('id'):
+        taskInfo['id'] = int(taskInfo['id'])
+        # 查询是否已有产品
+        obj = models.FmDevelopTask.objects.filter(id=taskInfo['id']).first()
+        if obj: # 已存在则更新
+            obj.__dict__.update(taskInfo)
             obj.save()
-            print('数据已更新：%s' % taskData['title'])
-        else:
-            taskData.pop('id')
-            models.TaskData.objects.create(**taskData)
-            print('数据已添加：%s' % taskData['title'])
-        return True
-    except Exception as e:
-        print(e)
-        return False
+            print('任务数据已更新: (title: %s)' % (taskInfo['title']))
+            return True
+    elif taskInfo.get('id') == "":
+        taskInfo.pop('id')
+    # 不存在则添加
+    models.FmDevelopTask.objects.create(**taskInfo)
+    print('任务数据已添加: (title: %s)' % (taskInfo['title']))
+    return True
 
 def queryUnhandledTaskList(userId):
-    print(userId)
     taskList = models.FmDevelopTask.objects.filter(currentHandleUserId=userId).exclude(currentHandleFinishUserId=userId).order_by('-updateDateTime').values()
     return list(taskList)
 
+def queryHandledTaskList(userId):
+    taskObjList = models.FmDevelopTaskProcessContent.objects.filter(userId=userId)
+    taskIdList = [ item.developTaskId for item in taskObjList]
+    taskList = models.FmDevelopTask.objects.filter(Q(sponsorUserId=userId) | Q(id__in=taskIdList)).order_by('-updateDateTime').values()
+    return list(taskList)
+
 def getTaskDetailById(taskId):
-    print(taskId)
+    print('taskId: %s' % taskId)
     try:
         if type(taskId) == 'String':
             taskId = int(taskId)
-        taskDetail = models.TaskData.objects.filter(id=taskId).values()
+        taskDetail = models.FmDevelopTask.objects.filter(id=taskId).values()
         # print(taskDetail[0])
         return taskDetail[0]
     except Exception as e:

@@ -40,6 +40,12 @@ class FmDevelopTask(models.Model):
     sponsorUserId = models.IntegerField(blank=True, null=True, db_column="sponsor_user_id")
     status = models.CharField(max_length=255, blank=True, null=True)
     title = models.CharField(max_length=255, blank=True, null=True)
+    productType = models.CharField(max_length=255, blank=True, null=True, db_column="product_type")
+    productIds = models.CharField(max_length=255, blank=True, null=True, db_column="product_ids")
+    pm = models.CharField(max_length=255, blank=True, null=True, db_column="pm")
+    planner = models.CharField(max_length=255, blank=True, null=True, db_column="planner")
+    hardwareEngineer = models.CharField(max_length=255, blank=True, null=True, db_column="hardware_engineer")
+    softwareEngineer = models.CharField(max_length=255, blank=True, null=True, db_column="software_engineer")
     createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
     updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 

@@ -20,6 +20,7 @@ urlpatterns = [
     path('product/getProductModel', views.getProductModel),
     path('task/saveTask', views.saveTask),
     path('task/queryUnhandledTaskList', views.queryUnhandledTaskList),
+    path('task/queryHandledTaskList', views.queryHandledTaskList),
     path('task/getTaskDetailById', views.getTaskDetailById),
     path('ecologyEntrance/getEcologyEntrance', views.getEcologyEntrance),
     path('electricBoardInfo/getElectricBoardInfo', views.getElectricBoardInfo),
