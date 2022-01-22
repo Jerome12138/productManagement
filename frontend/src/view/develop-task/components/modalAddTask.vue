@@ -52,22 +52,30 @@
       <Row :gutter="8">
         <Col span="6">
           <FormItem label="项目经理:">
-            <Input v-model="taskData.pm" :maxlength="50" placeholder="填写项目经理姓名" clearable></Input>
+            <Select clearable filterable v-model="taskData.pm" placeholder="请选择">
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
+            </Select>
           </FormItem>
         </Col>
         <Col span="6">
           <FormItem label="产品企划:">
-            <Input v-model="taskData.planner" :maxlength="50" placeholder="填写产品企划姓名" clearable></Input>
+            <Select clearable filterable  v-model="taskData.planner" placeholder="请选择">
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
+            </Select>
           </FormItem>
         </Col>
         <Col span="6">
           <FormItem label="电控硬件:">
-            <Input v-model="taskData.hardwareEngineer" :maxlength="50" placeholder="填写电控硬件工程师姓名" clearable></Input>
+            <Select clearable filterable  v-model="taskData.hardwareEngineer" placeholder="请选择">
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
+            </Select>
           </FormItem>
         </Col>
         <Col span="6">
           <FormItem label="电控软件:">
-            <Input v-model="taskData.softwareEngineer" :maxlength="50" placeholder="填写电控软件工程师姓名" clearable></Input>
+            <Select clearable filterable  v-model="taskData.softwareEngineer" placeholder="请选择">
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
+            </Select>
           </FormItem>
         </Col>
       </Row>
