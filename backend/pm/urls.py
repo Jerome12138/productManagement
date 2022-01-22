@@ -11,6 +11,7 @@ urlpatterns = [
     path('product/saveProduct', views.saveProduct),
     path('function/saveFunction', views.saveFunction),
 
+    path('user/getAllUserIdAndName', views.getAllUserIdAndName),
     path('dict/getProductType', views.getProductType),
     path('dict/getProductBranch', views.getProductBranch),
     path('function/getFunctionType', views.getFunctionType),

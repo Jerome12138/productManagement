@@ -293,6 +293,7 @@ class FmUser(models.Model):
     password = models.CharField(max_length=1024, blank=True, null=True)
     token = models.CharField(max_length=255, blank=True, null=True)
     userName = models.CharField(max_length=255, blank=True, null=True, db_column="user_name")
+    nickName = models.CharField(max_length=255, blank=True, null=True, db_column="nick_name")
     createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
     updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
 

@@ -16,9 +16,9 @@ def decoRet(func):
 
 
 # 通用方法，获取db数据，输出字典类型
-def getDataByDBName(db_name, **condition):
+def getDataByDBName(db_name, condition={}, values=[], order_by=['-updateDateTime','-id']):
     if hasattr(models, db_name):
-        functionData = getattr(models, db_name).objects.filter(**condition).order_by('-updateDateTime','-id').values()
+        functionData = getattr(models, db_name).objects.filter(**condition).order_by(*order_by).values(*values)
         return list(functionData)
     else:
         return []
@@ -153,7 +153,7 @@ def saveProductFunction(productInfo, functionIds):
         condition['productVersion'] = productInfo['productVersion']
     # 查询已存在的功能
     existFuncs = getDataObjByDBName('FmProductFunction', **condition)
-    allFuncs = getDataByDBName('FmFunction', **{"typeCode": productInfo.get('productType')})
+    allFuncs = getDataByDBName('FmFunction', condition={"typeCode": productInfo.get('productType')})
     allFuncIds = [ item['id'] for item in allFuncs ]
     for prodFuncObj in existFuncs:
         funcId = prodFuncObj.functionId
@@ -187,7 +187,7 @@ def saveProductScenario(productInfo, scenarioIds):
         condition['productVersion'] = productInfo['productVersion']
     # 查询已存在的功能
     existFuncs = getDataObjByDBName('FmProductScenario', **condition)
-    allFuncs = getDataByDBName('FmScenario', **{"typeCode": productInfo.get('productType')})
+    allFuncs = getDataByDBName('FmScenario', condition={"typeCode": productInfo.get('productType')})
     allFuncIds = [ item['id'] for item in allFuncs ]
     for prodFuncObj in existFuncs:
         funcId = prodFuncObj.scenarioId
@@ -222,7 +222,7 @@ def saveProductElectricBoardInfo(productInfo, electricBoardInfo):
         condition['productVersion'] = productInfo['productVersion']
     # 查询已存在的电控信息
     existElecInfos = getDataObjByDBName('FmProductElectricBoardInfo', **condition)
-    allElecInfos = getDataByDBName('FmElectricBoardInfo', **{"productType": productInfo.get('productType')})
+    allElecInfos = getDataByDBName('FmElectricBoardInfo', condition={"productType": productInfo.get('productType')})
     allElecInfoKeys = [ item['typeKey'] for item in allElecInfos ]
     # 先针对已存在的数据看是否需要删除或修改
     for prodElecInfoObj in existElecInfos:
@@ -331,7 +331,7 @@ def saveProductSensor(productInfo, sensorIds):
         condition['productVersion'] = productInfo['productVersion']
     # 查询已存在的功能
     existFuncs = getDataObjByDBName('FmProductSensor', **condition)
-    allFuncs = getDataByDBName('FmSensor', **{"typeCode": productInfo.get('productType')})
+    allFuncs = getDataByDBName('FmSensor', condition={"typeCode": productInfo.get('productType')})
     allFuncIds = [ item['id'] for item in allFuncs ]
     for prodFuncObj in existFuncs:
         funcId = prodFuncObj.sensorId
@@ -420,7 +420,7 @@ def saveTask(taskData):
     # taskInfo['currentHandleUserId'] = taskInfo.pop('createUserId')
     if taskInfo.get('id'):
         taskInfo['id'] = int(taskInfo['id'])
-        # 查询是否已有产品
+        # 查询是否已有任务
         obj = models.FmDevelopTask.objects.filter(id=taskInfo['id']).first()
         if obj: # 已存在则更新
             obj.__dict__.update(taskInfo)

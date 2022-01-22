@@ -55,6 +55,13 @@ def getUserInfo(request):
     return ret
 
 @decoRet
+def getAllUserIdAndName(request):
+    ret = {}
+    ret['errorCode'] = '0'
+    ret['result'] = DBHandler.getDataByDBName('FmUser', values=['id', 'userName', 'nickName'])
+    return ret
+
+@decoRet
 def getFunctionByType(request):
     ret = {}
     if request.method == "POST":
@@ -122,6 +129,7 @@ def saveTask(request):
     if request.method == "POST":
         ret['errorCode'] = '0'
         taskData = json.loads(request.body)
+        print('saveTask: %s'%taskData)
         ret['result'] = DBHandler.saveTask(taskData)
     return ret
 
@@ -190,7 +198,7 @@ def getElectricBoardInfo(request):
     if request.method == "POST":
         ret['errorCode'] = '0'
         productType = request.GET.get('productType')
-        ret['result'] = DBHandler.getDataByDBName('FmElectricBoardInfo', **{"productType":productType})
+        ret['result'] = DBHandler.getDataByDBName('FmElectricBoardInfo', condition={"productType":productType})
     return ret
 
 @decoRet
@@ -200,7 +208,7 @@ def getSelectOption(request):
         ret['errorCode'] = '0'
         productType = request.GET.get('productType')
         # key = request.GET.get('key')
-        ret['result'] = DBHandler.getDataByDBName('FmSelectOption', **{"productType":productType})
+        ret['result'] = DBHandler.getDataByDBName('FmSelectOption', condition={"productType":productType})
     return ret
 
 # 文件上传
