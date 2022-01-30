@@ -61,16 +61,16 @@
         <Col span="10">
           <div v-if="taskDetailData.status==='audit_fail_confirming' && isSponsor">
             <FormItem label="产品型号:" prop="productModel">
-              <Select v-model="taskDetailData.productModel" placeholder="请选择产品型号" clearable
+              <Select v-model="taskDetailData.productIds" placeholder="请选择产品型号" clearable multiple filterable
                       not-found-text="请先选择产品类型，并确认已选类型有产品">
                 <Option v-for="item in allProductModel[taskDetailData.productType]"
-                        :value="item.model" :key="item.model">{{ item.model }}
+                        :value="item.id" :label="item.model" :key="item.id">{{ item.model }}
                 </Option>
               </Select>
             </FormItem>
           </div>
           <FormItem v-else label="产品型号:" :rules="{}">
-            <span>{{ taskDetailData.productModel }}</span>
+            <span>{{ taskDetailData.productModels }}</span>
           </FormItem>
         </Col>
       </Row>
@@ -178,7 +178,7 @@
           <Col span="24">
             <FormItem label="处理：" prop="handleDetail">
               <RadioGroup
-                v-if="(taskDetailData.currentRole==='auditor' || isSponsor) && taskDetailData.status==='auditing'"
+                v-if="(taskDetailData.currentHandlerRole==='auditor' || isSponsor) && taskDetailData.status==='auditing'"
                 v-model="taskDetailData.handleDetail">
                 <Radio v-if="isCurrentHandler" label="audit_pass">
                   <span>通过</span>
@@ -191,7 +191,7 @@
                 </Radio>
               </RadioGroup>
               <RadioGroup
-                v-if="taskDetailData.currentRole==='sponsor' && taskDetailData.status==='audit_fail_confirming'"
+                v-if="taskDetailData.currentHandlerRole==='sponsor' && taskDetailData.status==='audit_fail_confirming'"
                 v-model="taskDetailData.handleDetail">
                 <Radio label="sponsor_send_audit">
                   <span>发送审核</span>
@@ -201,7 +201,7 @@
                 </Radio>
               </RadioGroup>
               <RadioGroup
-                v-if="taskDetailData.currentRole==='sponsor' && taskDetailData.status==='accept_reject_confirming'"
+                v-if="taskDetailData.currentHandlerRole==='sponsor' && taskDetailData.status==='accept_reject_confirming'"
                 v-model="taskDetailData.handleDetail">
                 <Radio label="sponsor_reject_not_accept">
                   <span>驳回</span>
@@ -210,7 +210,7 @@
                   <span>结束</span>
                 </Radio>
               </RadioGroup>
-              <RadioGroup v-if="taskDetailData.currentRole==='sponsor' && taskDetailData.status==='finish_confirming'"
+              <RadioGroup v-if="taskDetailData.currentHandlerRole==='sponsor' && taskDetailData.status==='finish_confirming'"
                           v-model="taskDetailData.handleDetail">
                 <Radio label="sponsor_reject_finish">
                   <span>驳回</span>
@@ -220,7 +220,7 @@
                 </Radio>
               </RadioGroup>
               <RadioGroup
-                v-if="taskDetailData.currentRole==='sponsor' && taskDetailData.status==='not_finish_confirming'"
+                v-if="taskDetailData.currentHandlerRole==='sponsor' && taskDetailData.status==='not_finish_confirming'"
                 v-model="taskDetailData.handleDetail">
                 <Radio label="sponsor_reject_not_finish">
                   <span>驳回</span>
@@ -229,7 +229,7 @@
                   <span>结束</span>
                 </Radio>
               </RadioGroup>
-              <RadioGroup v-if="taskDetailData.currentRole==='actor' && taskDetailData.status==='accepting'"
+              <RadioGroup v-if="taskDetailData.currentHandlerRole==='actor' && taskDetailData.status==='accepting'"
                           v-model="taskDetailData.handleDetail">
                 <Radio v-if="isCurrentHandler" label="actor_accept">
                   <span>接受</span>
@@ -241,7 +241,7 @@
                   <span>结束</span>
                 </Radio>
               </RadioGroup>
-              <RadioGroup v-if="taskDetailData.currentRole==='actor' && taskDetailData.status==='finishing'"
+              <RadioGroup v-if="taskDetailData.currentHandlerRole==='actor' && taskDetailData.status==='finishing'"
                           v-model="taskDetailData.handleDetail">
                 <Radio v-if="isCurrentHandler" label="actor_finish">
                   <span>完成</span>
@@ -306,7 +306,7 @@ const initTaskDetailData = {
   currentHandlerIds: [],
   taskProcess: [],
   status: '',
-  currentRole: '',
+  currentHandlerRole: '',
   handleOpinion: '',
   handleDetail: '',
   isTaskEnd: false,
@@ -369,9 +369,38 @@ export default {
         minRows: 2,
         maxRows: 6
       },
-      allProductType: [],
-      allProductModel: {},
       productTypeToFunctionList: {},
+      productTypeToScenarioList: {},
+      productTypeToSensorList: {},
+      allProductType: [],
+      allVoiceFunctionList: [],
+      allEcologyEntranceList: [],
+      allProductModel: {},
+      columns: [{
+        title: '处理人',
+        align: 'left',
+        maxWidth: 100,
+        key: 'userName'
+      }, {
+        title: '任务角色',
+        align: 'left',
+        maxWidth: 85,
+        key: 'roleName'
+      }, {
+        title: '操作',
+        align: 'left',
+        maxWidth: 121,
+        key: 'operationName'
+      }, {
+        title: '意见',
+        align: 'left',
+        key: 'opinion'
+      }, {
+        title: '时间',
+        align: 'left',
+        maxWidth: 150,
+        key: 'processTime'
+      }],
     }
   },
   watch: {
@@ -412,105 +441,53 @@ export default {
           this.isSponsor = userId.toString() === this.taskDetailData.sponsorUserId.toString()
           if (this.isSponsor && this.taskDetailData.status === 'audit_fail_confirming') {
             // 当前用户是任务的sponsor且审核失败时，触发重新编辑
-            let functionLength = 0
-            let scenarioLength = 0
-            let sensorLength = 0
-            let getFunctionFinish = false
-            let getScenarioFinish = false
-            let getSensorFinish = false
-            let getVoiceFunctionFinish = false
-            let getEcologyEntranceFinish = false
-            let getModelFinish = false
             if (!this.allProductType || this.allProductType.length <= 0) {
-              // 获取所有产品类型
-              getProductType().then(res => {
-                if (res.data.errorCode === '0' && res.data.result) {
-                  this.allProductType = res.data.result
-                  res.data.result.forEach((item) => {
-                    // 获取对应产品类型的功能
-                    getFunctionByType(item.code).then(result => {
-                      if (result.data.result && result.data.errorCode === '0') {
-                        this.productTypeToFunctionList[item.code] = result.data.result
-                      }
-                      functionLength++
-                      if (functionLength === this.allProductType.length) {
-                        getFunctionFinish = true
-                        if (getFunctionFinish && getScenarioFinish && getSensorFinish && getVoiceFunctionFinish && getEcologyEntranceFinish && getModelFinish) {
-                          this.spinDrawerShow = false
-                        }
-                      }
-                    })
-                    // 获取对应产品类型的场景
-                    getScenarioByType(item.code).then(result => {
-                      if (result.data.result) {
-                        this.productTypeToScenarioList[item.code] = result.data.result
-                      }
-                      scenarioLength++
-                      if (scenarioLength === this.allProductType.length) {
-                        getScenarioFinish = true
-                        if (getFunctionFinish && getScenarioFinish && getSensorFinish && getVoiceFunctionFinish && getEcologyEntranceFinish && getModelFinish) {
-                          this.spinDrawerShow = false
-                        }
-                      }
-                    })
-                    // 获取对应的传感器
-                    getSensorByType(item.code).then(result => {
-                      if (result.data.result) {
-                        this.productTypeToSensorList[item.code] = result.data.result
-                      }
-                      sensorLength++
-                      if (sensorLength === this.allProductType.length) {
-                        getSensorFinish = true
-                        if (getFunctionFinish && getScenarioFinish && getSensorFinish && getVoiceFunctionFinish && getEcologyEntranceFinish && getModelFinish) {
-                          this.spinDrawerShow = false
-                        }
-                      }
-                    })
-                  })
-                } else {
+              let functionLength = 0
+              let scenarioLength = 0
+              let sensorLength = 0
+              let getFunctionFinish = false
+              let getScenarioFinish = false
+              let getSensorFinish = false
+              // let getVoiceFunctionFinish = false
+              // let getEcologyEntranceFinish = false
+              // let getModelFinish = false
+              // 获取对应产品类型的功能
+              getFunctionByType(this.taskDetailData.productType).then(result => {
+                if (result.data.result && result.data.errorCode === '0') {
+                  this.productTypeToFunctionList[this.taskDetailData.productType] = result.data.result
+                }
+                functionLength++
+                if (functionLength === this.allProductType.length) {
                   getFunctionFinish = true
-                  getScenarioFinish = true
-                  getSensorFinish = true
-                  if (getFunctionFinish && getScenarioFinish && getSensorFinish && getVoiceFunctionFinish && getEcologyEntranceFinish && getModelFinish) {
+                  if (getFunctionFinish && getScenarioFinish && getSensorFinish) {
                     this.spinDrawerShow = false
                   }
                 }
               })
-              // 获取生态入口
-              getEcologyEntrance().then(res => {
-                if (res.data.result && res.data.errorCode === '0') {
-                  this.allEcologyEntranceList = res.data.result
+              // 获取对应产品类型的场景
+              getScenarioByType(this.taskDetailData.productType).then(result => {
+                if (result.data.result) {
+                  this.productTypeToScenarioList[this.taskDetailData.productType] = result.data.result
                 }
-                getEcologyEntranceFinish = true
-                if (getFunctionFinish && getScenarioFinish && getSensorFinish && getVoiceFunctionFinish && getEcologyEntranceFinish && getModelFinish) {
-                  this.spinDrawerShow = false
-                }
-              })
-              // 获取语音功能
-              getVoiceFunction().then(res => {
-                if (res.data.result && res.data.errorCode === '0') {
-                  this.allVoiceFunctionList = res.data.result
-                }
-                getVoiceFunctionFinish = true
-                if (getFunctionFinish && getScenarioFinish && getSensorFinish && getVoiceFunctionFinish && getEcologyEntranceFinish && getModelFinish) {
-                  this.spinDrawerShow = false
+                scenarioLength++
+                if (scenarioLength === this.allProductType.length) {
+                  getScenarioFinish = true
+                  if (getFunctionFinish && getScenarioFinish && getSensorFinish) {
+                    this.spinDrawerShow = false
+                  }
                 }
               })
-              getProductModel().then(res => {
-                if (res.data.result) {
-                  this.allProductModel = {}
-                  res.data.result.forEach((item) => {
-                    if (this.allProductModel[item.productType]) {
-                      this.allProductModel[item.productType].push(item)
-                    } else {
-                      this.allProductModel[item.productType] = []
-                      this.allProductModel[item.productType].push(item)
-                    }
-                  })
+              // 获取对应的传感器
+              getSensorByType(this.taskDetailData.productType).then(result => {
+                if (result.data.result) {
+                  this.productTypeToSensorList[this.taskDetailData.productType] = result.data.result
                 }
-                getModelFinish = true
-                if (getFunctionFinish && getScenarioFinish && getSensorFinish && getVoiceFunctionFinish && getEcologyEntranceFinish && getModelFinish) {
-                  this.spinDrawerShow = false
+                sensorLength++
+                if (sensorLength === this.allProductType.length) {
+                  getSensorFinish = true
+                  if (getFunctionFinish && getScenarioFinish && getSensorFinish) {
+                    this.spinDrawerShow = false
+                  }
                 }
               })
             } else {
@@ -554,7 +531,7 @@ export default {
               taskOperation.userId = this.$store.state.user.userId
               taskOperation.operation = this.taskDetailData.handleDetail
               taskOperation.operationOpinion = this.taskDetailData.handleOpinion
-              taskOperation.role = this.taskDetailData.currentRole
+              taskOperation.role = this.taskDetailData.currentHandlerRole
               if (this.isSponsor && this.taskDetailData.status === 'audit_fail_confirming' && taskOperation.operation === 'sponsor_send_audit') {
                 let taskToUpdate = {}
                 taskToUpdate.id = this.taskDetailData.id
@@ -624,6 +601,31 @@ export default {
     getProductType().then(res => {
       if (res.data.errorCode === '0' && res.data.result) {
         this.allProductType = res.data.result
+      }
+    })
+    // 获取生态入口
+    getEcologyEntrance().then(res => {
+      if (res.data.result && res.data.errorCode === '0') {
+        this.allEcologyEntranceList = res.data.result
+      }
+    })
+    // 获取语音功能
+    getVoiceFunction().then(res => {
+      if (res.data.result && res.data.errorCode === '0') {
+        this.allVoiceFunctionList = res.data.result
+      }
+    })
+    getProductModel().then(res => {
+      if (res.data.result) {
+        this.allProductModel = {}
+        res.data.result.forEach((item) => {
+          if (this.allProductModel[item.productType]) {
+            this.allProductModel[item.productType].push(item)
+          } else {
+            this.allProductModel[item.productType] = []
+            this.allProductModel[item.productType].push(item)
+          }
+        })
       }
     })
   }

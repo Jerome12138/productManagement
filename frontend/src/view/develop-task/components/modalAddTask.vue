@@ -7,6 +7,9 @@
     mask
     :mask-closable=false
     :loading="loading">
+    <!-- 添加产品的弹窗 -->
+    <modalAddProduct v-model="showAddProductModal" :productType="taskData.productType" @saveProductSuccess="saveProductSuccess"></modalAddProduct>
+    <!-- 任务内容表格 -->
     <Form ref="taskManage" :model="taskData" label-position="left" :rules="taskRuleValidate" :label-width="75">
       <Row :gutter="8">
         <Col span="24">
@@ -128,6 +131,7 @@ import { hasOneOf } from '@/libs/tools'
 import store from '@/store'
 import { getToken, setToken } from '@/libs/util'
 import config from '@/config'
+import modalAddProduct from './modalAddProduct.vue'
 
 const initTaskData = {
   title: 'XXXX新品开发任务',
@@ -150,6 +154,9 @@ const initTaskData = {
 }
 
 export default {
+  components: {
+    modalAddProduct,
+  },
   props: {
     isUpdate: {
       type: Boolean,
@@ -259,7 +266,8 @@ export default {
       allUser: [],
       auditGroupList: [],
       groupIdToUserName: {},
-      groupIdToUserIds: {}
+      groupIdToUserIds: {},
+      showAddProductModal: false,
     }
   },
   watch: {
@@ -437,7 +445,10 @@ export default {
         this.$Message.warning('请先选择产品类型！');
         return
       }
-      this.$emit('setAddProductModal', this.taskData.productType)
+      this.showAddProductModal=true
+    },
+    saveProductSuccess () {
+      this.initProductModel()
     },
     initProductModel () {
       // 获取所有的产品型号

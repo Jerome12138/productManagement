@@ -324,10 +324,6 @@ export default {
       functionIdList: [],
       allProductType: [],
       allProductModel: {},
-      allUser: [],
-      auditGroupList: [],
-      groupIdToUserName: {},
-      groupIdToUserIds: {},
       qqFans: qqFans,
       showCopyModal: false,
       appCopySn8: '',
@@ -552,27 +548,6 @@ export default {
   created () {
   },
   mounted () {
-    let userId = this.$store.state.user.userId
-    queryAuditGroupByUserId(userId).then(res => {
-      if (res.data.result) {
-        this.auditGroupList = res.data.result
-        this.auditGroupList.forEach(value => {
-          this.groupIdToUserName[value.id] = value.userNames
-          this.groupIdToUserIds[value.id] = value.userIds.toString()
-        })
-      }
-    })
-    getAllUserIdAndName().then(res => {
-      if (res.data.errorCode === '0' && res.data.result) {
-        res.data.result.forEach((item) => {
-          if (item.userName !== 'admin' && item.userName !== 'super_admin') {
-            this.allUser.push(item)
-          }
-        })
-      } else {
-        this.allUser = []
-      }
-    })
   },
   beforeMount () {
     // 获取所有产品类型
