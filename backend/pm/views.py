@@ -158,6 +158,8 @@ def getTaskDetailById(request):
         ret['errorCode'] = '0'
         taskId = request.GET.get('taskId')
         ret['result'] = DBHandler.getTaskDetailById(taskId)
+        if not ret['result']:
+            ret['errorCode'] = '1'
     return ret
     
 @decoRet

@@ -1,6 +1,19 @@
 from pm import models
 from django.db.models import Q      # 导入Q模块
+import datetime
+import time
 import traceback
+
+TASK_STATUS_NAME_MAP = {
+    'auditing': '正在审核',
+    'audit_fail_confirming': '审核未通过',
+    'accepting': '正在接受',
+    'accept_reject_confirming': '拒绝接受',
+    'finishing': '正在执行',
+    'finish_confirming': '已完成',
+    'not_finish_confirming': '未完成',
+    'end': '结束',
+}
 
 # 返回函数装饰器
 def decoRet(func):
@@ -417,6 +430,7 @@ def saveTask(taskData):
     taskInfoKeys = ['id','title', 'content', 'createUserId', 'status', 'productType', 'productIds', 'pm', 'planner', 'hardwareEngineer', 'softwareEngineer']
     taskInfo = { key: item for key, item in taskData.items() if key in taskInfoKeys}
     taskInfo['sponsorUserId'] = taskInfo.pop('createUserId')
+    taskInfo['sponsorTime'] = datetime.datetime.now()
     # taskInfo['currentHandleUserId'] = taskInfo.pop('createUserId')
     if taskInfo.get('id'):
         taskInfo['id'] = int(taskInfo['id'])
@@ -449,9 +463,38 @@ def getTaskDetailById(taskId):
     try:
         if type(taskId) == 'String':
             taskId = int(taskId)
-        taskDetail = models.FmDevelopTask.objects.filter(id=taskId).values()
-        # print(taskDetail[0])
-        return taskDetail[0]
+        taskDetailList = models.FmDevelopTask.objects.filter(id=taskId).values()
+        if taskDetailList and len(taskDetailList) > 0:
+            taskDetail = taskDetailList[0]
+            # print(taskDetail[0])
+            curUserIdStr = taskDetail.get('currentHandleUserId') or ""
+            curUserIdList = curUserIdStr.split(',')
+            curFinishUserIdStr = taskDetail.get('currentHandleFinishUserId') or ""
+            curFinishUserIdList = curFinishUserIdStr.split(',')
+            
+            taskDetail['currentHandlerIds'] = list(set(curUserIdList).difference(set(curFinishUserIdList)))
+            taskDetail['sponsorTime'] = str(taskDetail['sponsorTime']).split('.')[0]
+            # 获取发起人姓名
+            allUserInfo = getDataByDBName('FmUser', values=['id', 'userName', 'nickName'])
+            taskDetail['sponsorName'] = ''
+            currentHandlerNames = []
+            for userInfo in allUserInfo:
+                if userInfo['id'] == taskDetail.get('sponsorUserId'):
+                    taskDetail['sponsorName'] = userInfo['nickName']
+                if str(userInfo['id']) in taskDetail.get('currentHandlerIds'):
+                    currentHandlerNames.append(userInfo['nickName'])
+            taskDetail['currentHandlerNames'] = ','.join(currentHandlerNames)
+            # 获取状态名称
+            taskDetail['statusName'] = TASK_STATUS_NAME_MAP[taskDetail['status'] or 'auditing']
+            # 获取productIds转化为数组
+            taskDetail['productIds'] = eval(taskDetail['productIds']) if taskDetail['productIds'] else []
+            # 拼接型号名称
+            productModelDict = getDataByDBName('FmProductInfo',condition={"id__in":taskDetail['productIds']})
+            productModels = [ item['model'] for item in productModelDict ]
+            taskDetail['productModels'] = ','.join(productModels)
+            return taskDetail
+        else:
+            return None
     except Exception as e:
-        print(e)
+        print(traceback.print_exc())
         return None
