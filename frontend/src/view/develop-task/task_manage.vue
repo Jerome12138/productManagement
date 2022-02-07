@@ -31,7 +31,6 @@
 </template>
 
 <script>
-import Tables from '_c/tables'
 import {
   queryUnhandledTaskList,
   queryHandledTaskList,
@@ -43,7 +42,6 @@ import drawerTaskDetail from './components/drawerTaskDetail.vue'
 export default {
   name: 'taskManage',
   components: {
-    Tables,
     modalAddTask,
     drawerTaskDetail,
   },

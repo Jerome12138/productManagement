@@ -274,6 +274,7 @@
 </template>
 
 <script>
+import Tables from '_c/tables'
 import {
   getAllUserIdAndName,
   getEcologyEntrance,
@@ -328,6 +329,9 @@ const initTaskDetailData = {
 }
 
 export default {
+  components: {
+    Tables,
+  },
   props: {
     value: {
       type: Boolean,
@@ -399,7 +403,7 @@ export default {
         title: '时间',
         align: 'left',
         maxWidth: 150,
-        key: 'processTime'
+        key: 'updateDateTime'
       }],
     }
   },
@@ -435,7 +439,8 @@ export default {
           this.taskDetailData.isTaskEnd = res.data.result.taskEnd
           this.taskDetailData.productTypeName = this.allProductType.find(item=>item.code==res.data.result.productType).value
           this.haveProcess = this.taskDetailData.taskProcess && this.taskDetailData.taskProcess.length > 0
-
+console.log(this.taskDetailData.taskProcess)
+console.log(this.haveProcess)
           let userId = this.$store.state.user.userId
           this.isCurrentHandler = hasOneOf([userId], this.taskDetailData.currentHandlerIds)
           this.isSponsor = userId.toString() === this.taskDetailData.sponsorUserId.toString()
