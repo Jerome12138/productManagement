@@ -15,6 +15,25 @@ TASK_STATUS_NAME_MAP = {
     'end': '结束',
 }
 
+OPERATION_ROLE_NAME_MAP = {
+    "sponsor": "发起人",
+    "auditor": "审核人",
+    "actor": "执行人",
+}
+OPERATION_CODE_NAME_MAP = {
+    "audit_pass": "审核通过",
+    "audit_not_pass": "审核不通过",
+    "actor_accept": "接受任务",
+    "actor_not_accept": "不接受任务",
+    "actor_finish": "完成任务",
+    "actor_not_finish": "未完成任务",
+    "sponsor_send_audit": "发送审核",
+    "sponsor_reject_not_accept": "驳回不接受任务",
+    "sponsor_reject_finish": "驳回完成任务",
+    "sponsor_reject_not_finish": "驳回未完成任务",
+    "sponsor_end": "确认结束",
+}
+
 # 返回函数装饰器
 def decoRet(func):
     def inner_func(request, *args, **kwargs):
@@ -37,7 +56,7 @@ def getDataByDBName(db_name, condition={}, values=[], order_by=['-updateDateTime
         return []
 
 # 通用方法，获取db数据，输出db对象
-def getDataObjByDBName(db_name, **condition):
+def getDataObjByDBName(db_name, condition={}, values=[], order_by=['-updateDateTime','-id']):
     if hasattr(models, db_name):
         functionData = getattr(models, db_name).objects.filter(**condition).order_by('-updateDateTime','-id')
         return functionData
@@ -165,7 +184,7 @@ def saveProductFunction(productInfo, functionIds):
     if productInfo.get('productVersion'):
         condition['productVersion'] = productInfo['productVersion']
     # 查询已存在的功能
-    existFuncs = getDataObjByDBName('FmProductFunction', **condition)
+    existFuncs = getDataObjByDBName('FmProductFunction', condition=condition)
     allFuncs = getDataByDBName('FmFunction', condition={"typeCode": productInfo.get('productType')})
     allFuncIds = [ item['id'] for item in allFuncs ]
     for prodFuncObj in existFuncs:
@@ -199,7 +218,7 @@ def saveProductScenario(productInfo, scenarioIds):
     if productInfo.get('productVersion'):
         condition['productVersion'] = productInfo['productVersion']
     # 查询已存在的功能
-    existFuncs = getDataObjByDBName('FmProductScenario', **condition)
+    existFuncs = getDataObjByDBName('FmProductScenario', condition=condition)
     allFuncs = getDataByDBName('FmScenario', condition={"typeCode": productInfo.get('productType')})
     allFuncIds = [ item['id'] for item in allFuncs ]
     for prodFuncObj in existFuncs:
@@ -234,7 +253,7 @@ def saveProductElectricBoardInfo(productInfo, electricBoardInfo):
     if productInfo.get('productVersion'):
         condition['productVersion'] = productInfo['productVersion']
     # 查询已存在的电控信息
-    existElecInfos = getDataObjByDBName('FmProductElectricBoardInfo', **condition)
+    existElecInfos = getDataObjByDBName('FmProductElectricBoardInfo', condition=condition)
     allElecInfos = getDataByDBName('FmElectricBoardInfo', condition={"productType": productInfo.get('productType')})
     allElecInfoKeys = [ item['typeKey'] for item in allElecInfos ]
     # 先针对已存在的数据看是否需要删除或修改
@@ -275,7 +294,7 @@ def saveProductEcologyEntrance(productInfo, ecologyEntranceIds):
     if productInfo.get('productVersion'):
         condition['productVersion'] = productInfo['productVersion']
     # 查询已存在的功能
-    existFuncs = getDataObjByDBName('FmProductEcologyEntrance', **condition)
+    existFuncs = getDataObjByDBName('FmProductEcologyEntrance', condition=condition)
     allFuncs = getDataByDBName('FmEncologyEntrance')
     allFuncIds = [ item['id'] for item in allFuncs ]
     for prodFuncObj in existFuncs:
@@ -309,7 +328,7 @@ def saveProductVoiceFunctions(productInfo, voiceFunctionIds):
     if productInfo.get('productVersion'):
         condition['productVersion'] = productInfo['productVersion']
     # 查询已存在的功能
-    existFuncs = getDataObjByDBName('FmProductVoiceFunction', **condition)
+    existFuncs = getDataObjByDBName('FmProductVoiceFunction', condition=condition)
     allFuncs = getDataByDBName('FmVoiceFunction')
     allFuncIds = [ item['id'] for item in allFuncs ]
     for prodFuncObj in existFuncs:
@@ -343,7 +362,7 @@ def saveProductSensor(productInfo, sensorIds):
     if productInfo.get('productVersion'):
         condition['productVersion'] = productInfo['productVersion']
     # 查询已存在的功能
-    existFuncs = getDataObjByDBName('FmProductSensor', **condition)
+    existFuncs = getDataObjByDBName('FmProductSensor', condition=condition)
     allFuncs = getDataByDBName('FmSensor', condition={"typeCode": productInfo.get('productType')})
     allFuncIds = [ item['id'] for item in allFuncs ]
     for prodFuncObj in existFuncs:
@@ -489,9 +508,16 @@ def getTaskDetailById(taskId):
             # 获取productIds转化为数组
             taskDetail['productIds'] = eval(taskDetail['productIds']) if taskDetail['productIds'] else []
             # 拼接型号名称
-            productModelDict = getDataByDBName('FmProductInfo',condition={"id__in":taskDetail['productIds']})
-            productModels = [ item['model'] for item in productModelDict ]
+            productModelDicts = getDataByDBName('FmProductInfo',condition={"id__in":taskDetail['productIds']})
+            productModels = [ item['model'] for item in productModelDicts ]
             taskDetail['productModels'] = ','.join(productModels)
+            # 获取处理流程
+            taskProcessDicts = getDataByDBName('FmDevelopTaskProcessContent', condition={"developTaskId":taskDetail['id']})
+            for item in taskProcessDicts:
+                item['userName'] = getDataObjByDBName('FmUser', condition={"id": item['userId']}).first().nickName
+                item['roleName'] = OPERATION_ROLE_NAME_MAP[item['role']]
+                item['operationName'] = OPERATION_CODE_NAME_MAP[item['operation']]
+            taskDetail['taskProcess'] = taskProcessDicts
             return taskDetail
         else:
             return None
