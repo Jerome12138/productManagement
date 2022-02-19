@@ -446,7 +446,7 @@ def saveFunction(functionData):
 @decoRet
 def saveTask(taskData):
     # 保存任务基本信息
-    taskInfoKeys = ['id','title', 'content', 'createUserId', 'status', 'productType', 'productIds', 'pm', 'planner', 'hardwareEngineer', 'softwareEngineer']
+    taskInfoKeys = ['id','title', 'content', 'createUserId', 'status', 'productType', 'productIds', 'actorUserId', 'auditGroupUserIds', 'pm', 'planner', 'hardwareEngineer', 'softwareEngineer']
     # 筛选所需数据
     taskInfo = { key: item for key, item in taskData.items() if key in taskInfoKeys}
     if taskInfo.get('id'):
@@ -466,11 +466,12 @@ def saveTask(taskData):
         # 无id添加任务，去除id字段
         taskInfo.pop('id')
     # 任务数据预处理
+    taskInfo.pop('actorUserId')
     taskInfo['sponsorUserId'] = taskInfo.pop('createUserId')
-    currentHandleUserIds = set([str(taskInfo.get('pm')),str(taskInfo.get('planner')),str(taskInfo.get('hardwareEngineer')),str(taskInfo.get('softwareEngineer'))])
-    taskInfo['currentHandleUserId'] = ','.join(currentHandleUserIds)
+    currentHandleUserIds = [str(item) for key, item in taskInfo.items() if key in ['pm','planner','hardwareEngineer','softwareEngineer']]
+    currentHandleUserIds.extend(taskInfo.pop('auditGroupUserIds').split(','))
+    taskInfo['currentHandleUserId'] = ','.join(set(currentHandleUserIds))
     taskInfo['auditUserIds'] = taskInfo['currentHandleUserId']
-    # taskInfo['actorUserId'] = taskInfo.get('actorUserId')
     taskInfo['sponsorTime'] = datetime.datetime.now()
     taskInfo['status'] = "auditing"
     taskInfo['currentHandlerRole'] = "auditor"

@@ -107,6 +107,33 @@ def getFunctionType(request):
     return ret
 
 @decoRet
+def getVoiceFunction(request):
+    ret = {}
+    if request.method == "POST":
+        ret['errorCode'] = '0'
+        ret['result'] = DBHandler.getDataByDBName('FmVoiceFunction')
+    return ret
+
+@decoRet
+def queryAuditGroupByUserId(request):
+    ret = {}
+    if request.method == "POST":
+        ret['errorCode'] = '0'
+        createUserId = request.GET.get('id')
+        groups = DBHandler.getDataByDBName('FmDevelopTaskAuditGroup', condition={"createUserId": createUserId})
+        allUsers = DBHandler.getDataByDBName('FmUser', values=['id', 'userName', 'nickName'])
+        groupUsers = DBHandler.getDataByDBName('FmDevelopTaskAuditGroupUser')
+        if len(groups):
+            for group in groups:
+                group['userIds'] = [ groupUser['userId'] for groupUser in groupUsers if groupUser['auditGroupId'] == group['id']]
+                userNames = [ user['userName'] for user in allUsers if user['id'] in group['userIds'] ]
+                group['userNames'] = ','.join(userNames)
+                nickNames = [ user['nickName'] for user in allUsers if user['id'] in group['userIds'] ]
+                group['nickNames'] = ','.join(nickNames)
+        ret['result'] = groups
+    return ret
+
+@decoRet
 def queryProduct(request):
     ret = {}
     if request.method == "POST":

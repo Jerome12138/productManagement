@@ -12,11 +12,13 @@ urlpatterns = [
     path('function/saveFunction', views.saveFunction),
 
     path('user/getAllUserIdAndName', views.getAllUserIdAndName),
+    path('auditGroup/queryAuditGroupByUserId', views.queryAuditGroupByUserId),
     path('dict/getProductType', views.getProductType),
     path('dict/getProductBranch', views.getProductBranch),
     path('function/getFunctionType', views.getFunctionType),
     path('function/getHeatingTubeType', views.getHeatingTubeType),
     path('function/getWifiModuleType', views.getWifiModuleType),
+    path('voiceFunction/getVoiceFunction', views.getVoiceFunction),
     path('product/queryProduct', views.queryProduct),
     path('product/getProductModel', views.getProductModel),
     path('task/saveTask', views.saveTask),
