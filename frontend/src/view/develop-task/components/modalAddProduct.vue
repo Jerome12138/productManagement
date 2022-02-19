@@ -255,7 +255,6 @@ export default {
       ecologyEntranceNameToId: {},
       sensorNameToId: {},
       searchLoading: false,
-      productTypeName: '',
       tableDataCount: 0,
       exportLoading: false,
       selectDatas: [],
@@ -446,36 +445,30 @@ export default {
     initProductTypeData () {
       initProductData.productType = this.productType
       this.productData.productType = this.productType
-      // 获取当前类型的名称
-      getProductTypeByTypeCode(this.productType).then(res => {
-        if (res.data.result && res.data.result.value) {
-          this.productTypeName = res.data.result.value
-        }
-      })
       // 获取场景
-      getScenario(this.productType).then(res => {
-        if (res.data.result) {
-          let scenarios = res.data.result
-          this.scenarioList = scenarios
-          this.setColumns(scenarios)
+      // getScenario(this.productType).then(res => {
+      //   if (res.data.result) {
+      //     let scenarios = res.data.result
+      //     this.scenarioList = scenarios
+      //     this.setColumns(scenarios)
 
-          let scenarioNameToScenarioId = {}
-          scenarios.forEach((scen) => {
-            scenarioNameToScenarioId[scen.scenarioName] = scen.id
-          })
-          this.productTypeToScenNameAndId[this.productType] = scenarioNameToScenarioId
-        }
-      })
+      //     let scenarioNameToScenarioId = {}
+      //     scenarios.forEach((scen) => {
+      //       scenarioNameToScenarioId[scen.scenarioName] = scen.id
+      //     })
+      //     this.productTypeToScenNameAndId[this.productType] = scenarioNameToScenarioId
+      //   }
+      // })
       // 获取品类
-      getProductCategoryByProductType(this.productType).then(result => {
-        if (result.data.result) {
-          this.categoryList = result.data.result
-          this.categoryList.forEach((cate) => {
-            this.categoryNameToProductType[cate.value] = this.productType
-            this.categoryNameToCategoryType[cate.value] = cate.code
-          })
-        }
-      })
+      // getProductCategoryByProductType(this.productType).then(result => {
+      //   if (result.data.result) {
+      //     this.categoryList = result.data.result
+      //     this.categoryList.forEach((cate) => {
+      //       this.categoryNameToProductType[cate.value] = this.productType
+      //       this.categoryNameToCategoryType[cate.value] = cate.code
+      //     })
+      //   }
+      // })
       // 获取功能
       getFunctionByType(this.productType).then(res => {
         // console.log(res.data)
@@ -500,16 +493,16 @@ export default {
         }
       })
       // 获取传感器
-      getSensorByType(this.productType).then(res => {
-        if (res.data.errorCode === '0') {
-          this.allSensorList = res.data.result
-          if (this.allSensorList) {
-            this.allSensorList.forEach(value => {
-              this.sensorNameToId[value.sensorName] = value.id
-            })
-          }
-        }
-      })
+      // getSensorByType(this.productType).then(res => {
+      //   if (res.data.errorCode === '0') {
+      //     this.allSensorList = res.data.result
+      //     if (this.allSensorList) {
+      //       this.allSensorList.forEach(value => {
+      //         this.sensorNameToId[value.sensorName] = value.id
+      //       })
+      //     }
+      //   }
+      // })
       // 获取电控信息
       getElectricBoardInfo(this.productType).then(res => {
         if (res.data.errorCode === '0') {

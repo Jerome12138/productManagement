@@ -82,7 +82,7 @@
           </FormItem>
         </Col>
       </Row>
-      <Row :gutter="8" v-if="false">
+      <Row :gutter="8">
         <Col span="12">
           <FormItem label="审核组:" prop="auditGroupId">
             <span style="max-width: 100%; display: inline-block; overflow-wrap: break-word;text-align: left;">
@@ -93,10 +93,17 @@
             </Select>
           </FormItem>
         </Col>
+        <!-- <Col span="12">
+          <FormItem label="APP审核人:" :label-width="80">
+            <Select clearable filterable v-model="taskData.appReviewer" placeholder="请选择">
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
+            </Select>
+          </FormItem>
+        </Col> -->
         <Col span="12">
           <FormItem label="执行人:" prop="actorUserId">
-            <Select clearable v-model="taskData.actorUserId" placeholder="请选择执行人">
-              <Option v-for="item in allUser" :value="item.id" :key="item.id">{{ item.userName }}</Option>
+            <Select clearable v-model="taskData.actorUserId" placeholder="由APP审核人指派" disabled>
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
             </Select>
           </FormItem>
         </Col>
@@ -180,19 +187,12 @@ export default {
       importErrorTotal: 0,
       invalidData: [],
       tableLoading: false,
-      categoryNameToProductType: {},
-      categoryNameToCategoryType: {},
       branchNameToBranchCode: {},
-      productTypeToScenNameAndId: {},
-      productTypeToFunctionList: {},
-      productTypeToFuncNameAndId: {},
       productTypeToCategory: {},
       voiceFunctionNameToId: {},
       ecologyEntranceNameToId: {},
-      sensorNameToId: {},
       searchLoading: false,
       productType: '',
-      productTypeName: '',
       tableDataCount: 0,
       exportLoading: false,
       selectDatas: [],
@@ -207,11 +207,7 @@ export default {
         width: 'fit-content',
         height: 'auto'
       },
-      categoryList: [],
       branchList: [],
-      functionList: [],
-      scenarioList: [],
-      allSensorList: [],
       allVoiceFunctionList: [],
       allEcologyEntranceList: [],
       drawerTitle: '添加产品',
@@ -247,8 +243,6 @@ export default {
       currentStep: 0,
       allSn8List: [],
       loading: false,
-      functionTypeList: [],
-      functionIdList: [],
       // 任务管理
       taskData: JSON.parse(JSON.stringify(initTaskData)), // 深拷贝，防止子项引用改到默认数据
       taskRuleValidate: {
@@ -278,18 +272,6 @@ export default {
   computed: {
     modalTitle () {
       return this.isUpdate ? '编辑产品' : '添加产品'
-    },
-    functionTypeListRow () {
-      let rowList = []
-      this.functionTypeList.map((item, index) => {
-        item.title = item.typeName + (item.desc ? `(${item.desc})` : '')
-        if (index % 2 == 0) {
-          rowList.push([item])
-        } else {
-          rowList[rowList.length - 1].push(item)
-        }
-      })
-      return rowList
     },
     access () {
       return this.$store.state.user.access
@@ -357,79 +339,11 @@ export default {
       this.$emit('input', false)
       this.taskData = JSON.parse(JSON.stringify(initTaskData))
     },
-    getFunctionListByType (typeKey) {
-      return this.functionList.filter(item => item.typeKey == typeKey)
-    },
     changeProductType () {
       // this.taskData.productFunctionType = []
       // this.taskData.productScenarioType = []
       // this.taskData.productSensorType = []
       this.taskData.productModel = ''
-      this.initProductTypeData()
-    },
-    initProductTypeData () {
-      // 获取当前类型的名称
-      getProductTypeByTypeCode(this.productType).then(res => {
-        if (res.data.result && res.data.result.value) {
-          this.productTypeName = res.data.result.value
-        }
-      })
-      // 获取场景
-      getScenario(this.productType).then(res => {
-        if (res.data.result) {
-          let scenarios = res.data.result
-          this.scenarioList = scenarios
-          this.setColumns(scenarios)
-
-          let scenarioNameToScenarioId = {}
-          scenarios.forEach((scen) => {
-            scenarioNameToScenarioId[scen.scenarioName] = scen.id
-          })
-          this.productTypeToScenNameAndId[this.productType] = scenarioNameToScenarioId
-        }
-      })
-      // 获取品类
-      getProductCategoryByProductType(this.productType).then(result => {
-        if (result.data.result) {
-          this.categoryList = result.data.result
-          this.categoryList.forEach((cate) => {
-            this.categoryNameToProductType[cate.value] = this.productType
-            this.categoryNameToCategoryType[cate.value] = cate.code
-          })
-        }
-      })
-      // 获取功能
-      getFunctionByType(this.productType).then(res => {
-        // console.log(res.data)
-        if (res.data.result) {
-          this.functionList = res.data.result
-          this.productTypeToFunctionList[this.productType] = this.functionList
-          let functionNameToFunctionId = {}
-          this.functionList.forEach((func) => {
-            functionNameToFunctionId[func.functionName] = func.id
-          })
-          this.productTypeToFuncNameAndId[this.productType] = functionNameToFunctionId
-        }
-      })
-      // 获取功能类型
-      getFunctionType(this.productType).then(res => {
-        // console.log(res.data)
-        if (res.data.result) {
-          this.functionTypeList = res.data.result
-          this.functionIdList = new Array(this.functionTypeList.length).fill([])
-        }
-      })
-      // 获取传感器
-      getSensorByType(this.productType).then(res => {
-        if (res.data.errorCode === '0') {
-          this.allSensorList = res.data.result
-          if (this.allSensorList) {
-            this.allSensorList.forEach(value => {
-              this.sensorNameToId[value.sensorName] = value.id
-            })
-          }
-        }
-      })
     },
     cancel () {
       this.clearTaskData()
