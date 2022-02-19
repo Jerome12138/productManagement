@@ -447,28 +447,40 @@ def saveFunction(functionData):
 def saveTask(taskData):
     # 保存任务基本信息
     taskInfoKeys = ['id','title', 'content', 'createUserId', 'status', 'productType', 'productIds', 'pm', 'planner', 'hardwareEngineer', 'softwareEngineer']
+    # 筛选所需数据
     taskInfo = { key: item for key, item in taskData.items() if key in taskInfoKeys}
-    taskInfo['sponsorUserId'] = taskInfo.pop('createUserId')
-    taskInfo['sponsorTime'] = datetime.datetime.now()
-    # taskInfo['currentHandleUserId'] = taskInfo.pop('createUserId')
     if taskInfo.get('id'):
+        # 有id更新任务
         taskInfo['id'] = int(taskInfo['id'])
-        # 查询是否已有任务
+        # 查询是否已存在该任务
         obj = models.FmDevelopTask.objects.filter(id=taskInfo['id']).first()
         if obj: # 已存在则更新
             obj.__dict__.update(taskInfo)
             obj.save()
             print('任务数据已更新: (title: %s)' % (taskInfo['title']))
             return True
+        else:
+            print('未知任务id')
+            return False
     elif taskInfo.get('id') == "":
+        # 无id添加任务，去除id字段
         taskInfo.pop('id')
-    # 不存在则添加
+    # 任务数据预处理
+    taskInfo['sponsorUserId'] = taskInfo.pop('createUserId')
+    currentHandleUserIds = set([str(taskInfo.get('pm')),str(taskInfo.get('planner')),str(taskInfo.get('hardwareEngineer')),str(taskInfo.get('softwareEngineer'))])
+    taskInfo['currentHandleUserId'] = ','.join(currentHandleUserIds)
+    taskInfo['auditUserIds'] = taskInfo['currentHandleUserId']
+    # taskInfo['actorUserId'] = taskInfo.get('actorUserId')
+    taskInfo['sponsorTime'] = datetime.datetime.now()
+    taskInfo['status'] = "auditing"
+    taskInfo['currentHandlerRole'] = "auditor"
+    
     models.FmDevelopTask.objects.create(**taskInfo)
     print('任务数据已添加: (title: %s)' % (taskInfo['title']))
     return True
 
 def queryUnhandledTaskList(userId):
-    taskList = models.FmDevelopTask.objects.filter(currentHandleUserId=userId).exclude(currentHandleFinishUserId=userId).order_by('-updateDateTime').values()
+    taskList = models.FmDevelopTask.objects.filter(currentHandleUserId__regex=r'(.+,)*(%s)(,.+)*'%userId).exclude(currentHandleFinishUserId__regex=r'(.+,)*(%s)(,.+)*'%userId).order_by('-updateDateTime').values()
     return list(taskList)
 
 def queryHandledTaskList(userId):
