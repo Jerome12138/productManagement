@@ -7,6 +7,9 @@
     mask
     :mask-closable=false
     :loading="loading">
+    <!-- 添加产品的弹窗 -->
+    <modalAddProduct v-model="showAddProductModal" :productType="taskData.productType" @saveProductSuccess="saveProductSuccess"></modalAddProduct>
+    <!-- 任务内容表格 -->
     <Form ref="taskManage" :model="taskData" label-position="left" :rules="taskRuleValidate" :label-width="75">
       <Row :gutter="8">
         <Col span="24">
@@ -24,51 +27,62 @@
         </Col>
       </Row>
       <Row :gutter="8">
-        <Col span="12">
+        <Col span="10">
           <FormItem label="产品类型:" prop="productType">
             <Select v-model="taskData.productType" placeholder="请选择产品类型" clearable not-found-text="暂无产品类型" @on-change="changeProductType">
               <Option v-for="item in allProductType" :value="item.code" :key="item.code">{{ item.value }}</Option>
             </Select>
           </FormItem>
         </Col>
-        <Col span="10">
-          <FormItem label="产品型号:" prop="productModel">
-            <Select v-model="taskData.productModel" placeholder="请选择产品型号" clearable not-found-text="请先选择产品类型，并确认已选类型有产品" @on-change="changeProductModel">
-              <Option v-for="item in allProductModel[taskData.productType]" :value="item.model" :label="item.model" :key="item.model" >
-                <span>{{ item.model }}</span>
-                <span style="float:right;color:#ccc">{{ item.sN8 }}</span>
+        <Col span="12">
+          <FormItem label="产品型号:" prop="productIds">
+            <Select
+              v-model="taskData.productIds"
+              placeholder="请选择产品型号，新产品请先创建"
+              multiple filterable clearable
+              not-found-text="请先选择产品类型，并确认已选类型有产品">
+              <Option v-for="item in allProductModel[taskData.productType]" :value="item.id" :label="item.model" :key="item.id" >
+                <span>{{ item.model }} ({{ item.sn8 }})</span>
+                <span style="float:right;color:#ccc;margin-right:16px">{{ item.appStatus }}</span>
               </Option>
             </Select>
           </FormItem>
         </Col>
         <Col span="2" :gutter="0" style="margin-top:4px">
-          <Button shape="circle" size="small" @click="setAddProductModal">添加产品</Button>
+          <Button shape="circle" size="small" @click="setAddProductModal">创建产品</Button>
         </Col>
       </Row>
-      <!-- todo: 后期扩展 -->
-      <Row :gutter="8" v-if="false">
+      <Row :gutter="8">
         <Col span="6">
           <FormItem label="项目经理:">
-            <Input v-model="taskData.pm" :maxlength="50" placeholder="填写项目经理姓名" clearable></Input>
+            <Select clearable filterable v-model="taskData.pm" placeholder="请选择">
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
+            </Select>
           </FormItem>
         </Col>
         <Col span="6">
           <FormItem label="产品企划:">
-            <Input v-model="taskData.planner" :maxlength="50" placeholder="填写产品企划姓名" clearable></Input>
+            <Select clearable filterable  v-model="taskData.planner" placeholder="请选择">
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
+            </Select>
           </FormItem>
         </Col>
         <Col span="6">
           <FormItem label="电控硬件:">
-            <Input v-model="taskData.hardwareEngineer" :maxlength="50" placeholder="填写电控硬件工程师姓名" clearable></Input>
+            <Select clearable filterable  v-model="taskData.hardwareEngineer" placeholder="请选择">
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
+            </Select>
           </FormItem>
         </Col>
         <Col span="6">
           <FormItem label="电控软件:">
-            <Input v-model="taskData.softwareEngineer" :maxlength="50" placeholder="填写电控软件工程师姓名" clearable></Input>
+            <Select clearable filterable  v-model="taskData.softwareEngineer" placeholder="请选择">
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
+            </Select>
           </FormItem>
         </Col>
       </Row>
-      <Row :gutter="8">
+      <Row :gutter="8" v-if="false">
         <Col span="12">
           <FormItem label="审核组:" prop="auditGroupId">
             <span style="max-width: 100%; display: inline-block; overflow-wrap: break-word;text-align: left;">
@@ -97,7 +111,6 @@
 
 <script>
 import {
-  deleteProductById,
   queryProduct,
   getScenario,
   getProductCategoryByProductType,
@@ -105,7 +118,6 @@ import {
   getBranchList,
   getFunctionByType,
   getFunctionType,
-  saveProduct,
   getVoiceFunction,
   getSensorByType,
   getEcologyEntrance,
@@ -119,8 +131,32 @@ import { hasOneOf } from '@/libs/tools'
 import store from '@/store'
 import { getToken, setToken } from '@/libs/util'
 import config from '@/config'
+import modalAddProduct from './modalAddProduct.vue'
+
+const initTaskData = {
+  title: 'XXXX新品开发任务',
+  content: '',
+  actorUserId: '',
+  auditGroupId: '',
+  auditGroupUserIds: '',
+  productType: '',
+  productIds: [],
+  pm: '',
+  planner: '',
+  hardwareEngineer: '',
+  softwareEngineer: '',
+  // productFunctionType: [],
+  // productScenarioType: [],
+  // productSensorType: [],
+  // productVoiceFunctionType: [],
+  // productEcologyEntranceType: [],
+  // productModel: ''
+}
 
 export default {
+  components: {
+    modalAddProduct,
+  },
   props: {
     isUpdate: {
       type: Boolean,
@@ -130,10 +166,6 @@ export default {
       type: Boolean,
       default: false
     },
-    propTaskData: {
-      type: Object,
-      default: () => ({})
-    }
   },
   data () {
     return {
@@ -175,24 +207,6 @@ export default {
         width: 'fit-content',
         height: 'auto'
       },
-      productData: {
-        productType: this.productType,
-        productTypeName: '',
-        id: '',
-        categoryType: '',
-        branch: '',
-        code: '',
-        model: '',
-        sN8: '',
-        lifecycleStage: '',
-        saleChannel: '',
-        functionIds: [],
-        scenarioIds: [],
-        voiceFunctionIds: [],
-        ecologyEntranceIds: [],
-        sensorIds: [],
-        pic: ''
-      },
       categoryList: [],
       branchList: [],
       functionList: [],
@@ -232,25 +246,18 @@ export default {
       tableData: [],
       currentStep: 0,
       allSn8List: [],
-      functionIds1: [],
-      functionIds2: [],
-      functionIds3: [],
-      functionIds4: [],
-      functionIds5: [],
-      functionIds6: [],
-      functionIds7: [],
       loading: false,
       functionTypeList: [],
       functionIdList: [],
       // 任务管理
-      taskData: {},
+      taskData: JSON.parse(JSON.stringify(initTaskData)), // 深拷贝，防止子项引用改到默认数据
       taskRuleValidate: {
         title: { required: true, message: '标题不能为空', trigger: 'blur' },
         content: { required: true, message: '内容不能为空', trigger: 'blur' },
         // auditGroupId: { required: true, type: 'number', message: '审核组不能为空', trigger: 'change' },
         // actorUserId: { required: true, type: 'number', message: '执行人不能为空', trigger: 'change' },
         productType: { required: true, message: '产品类型不能为空', trigger: 'blur' },
-        productModel: { required: true, message: '产品型号不能为空', trigger: 'blur' },
+        productIds: { required: true, type: 'array', message: '产品型号不能为空', trigger: 'blur' },
         handleDetail: { required: true, message: '处理不能为空', trigger: 'blur' },
         handleOpinion: { required: true, message: '处理意见不能为空', trigger: 'blur' }
       },
@@ -259,7 +266,8 @@ export default {
       allUser: [],
       auditGroupList: [],
       groupIdToUserName: {},
-      groupIdToUserIds: {}
+      groupIdToUserIds: {},
+      showAddProductModal: false,
     }
   },
   watch: {
@@ -328,8 +336,8 @@ export default {
                     this.$Message.error('保存失败:' + res.data.msg)
                   } else {
                     this.$Message.success('保存成功！')
-                    this.getUnhandledTaskList(userId)
                     this.modal1 = false
+                    this.$emit('input', false)
                     this.clearTaskData()
                   }
                 })
@@ -344,117 +352,10 @@ export default {
         }
       })
     },
-    // 保存产品，先判断当前用户是否有该类型的权限
-    saveProduct () {
-      const token = getToken()
-      store.commit('setToken', token)
-      if (!token) {
-        this.$store.state.user.access = []
-      }
-      store.dispatch('getUserInfo').then(user => {
-        // 拉取用户信息，通过用户权限和跳转的页面的name来判断是否有权限访问;access必须是一个数组，如：['super_admin'] ['super_admin', 'admin']
-        this.$store.state.user.access = user.access
-        // 根据是否有id，判断是更新还是新增
-        let booleanForAdd = true
-        let booleanForUpdate = true
-        if (this.productData.id) {
-          booleanForAdd = false
-          booleanForUpdate = true
-        } else {
-          booleanForAdd = true
-          booleanForUpdate = false
-        }
-        // 如果有对应产品的权限
-        if (this.accessProductType) {
-          if ((this.accessUpdate && booleanForUpdate) || (this.accessAdd && booleanForAdd)) {
-            // 拼接功能id列表
-            this.productData.functionIds = this.functionIdList.reduce((prev, cur) => prev.concat(cur))
-            saveProduct(this.productData).then(result => {
-              if (result.data.errorCode && result.data.errorCode === '0') {
-                this.$Message.success('产品保存成功！')
-                this.productData = {
-                  productType: this.productType,
-                  id: '',
-                  productCategory: '',
-                  branch: '',
-                  code: '',
-                  model: '',
-                  sN8: '',
-                  lifecycleStage: '',
-                  saleChannel: '',
-                  functionIds: [],
-                  scenarioIds: [],
-                  voiceFunctionIds: [],
-                  ecologyEntranceIds: [],
-                  sensorIds: [],
-                  pic: ''
-                }
-                // 重新加载列表
-                this.searchData()
-                this.visible = false
-                this.$emit('input', false)
-              } else {
-                this.$Message.error('产品保存失败:' + result.data.msg)
-              }
-            })
-          } else {
-            if (booleanForAdd) {
-              this.$Message.error('当前用户没有添加产品权限！')
-            } else {
-              this.$Message.error('当前用户没有更新产品权限！')
-            }
-          }
-        } else {
-          this.$Message.error('当前用户没有此类产品的权限！')
-        }
-      }).catch(() => {
-        setToken('')
-        this.$store.state.user.access = []
-        this.$Message.error('保存失败！')
-      })
-    },
-    // 关闭产品编辑页面弹窗时，将该弹窗的数据清除
-    cancelSaveProduct () {
-      this.productData = {
-        productType: this.productType,
-        id: '',
-        categoryType: '',
-        branch: '',
-        code: '',
-        model: '',
-        sN8: '',
-        lifecycleStage: '',
-        saleChannel: '',
-        functionIds: [],
-        scenarioIds: [],
-        voiceFunctionIds: [],
-        ecologyEntranceIds: [],
-        sensorIds: [],
-        pic: ''
-      }
-      this.visible = false
-      this.$emit('input', false)
-    },
     // 关闭产品编辑页面弹窗时，将该弹窗的数据清除
     closeModal () {
       this.$emit('input', false)
-      this.productData = {
-        productType: this.productType,
-        id: '',
-        categoryType: '',
-        branch: '',
-        code: '',
-        model: '',
-        sN8: '',
-        lifecycleStage: '',
-        saleChannel: '',
-        functionIds: [],
-        scenarioIds: [],
-        voiceFunctionIds: [],
-        ecologyEntranceIds: [],
-        sensorIds: [],
-        pic: ''
-      }
+      this.taskData = JSON.parse(JSON.stringify(initTaskData))
     },
     getFunctionListByType (typeKey) {
       return this.functionList.filter(item => item.typeKey == typeKey)
@@ -465,31 +366,6 @@ export default {
       // this.taskData.productSensorType = []
       this.taskData.productModel = ''
       this.initProductTypeData()
-    },
-    changeProductModel () {
-      queryProduct({ 'model': [this.taskData.productModel] }).then(res => {
-        if (res.data.result) {
-          this.productData = res.data.result[0]
-        } else {
-          this.productData = {
-            productType: this.productType,
-            id: '',
-            categoryType: '',
-            branch: '',
-            code: '',
-            model: '',
-            sN8: '',
-            lifecycleStage: '',
-            saleChannel: '',
-            functionIds: [],
-            scenarioIds: [],
-            voiceFunctionIds: [],
-            ecologyEntranceIds: [],
-            sensorIds: [],
-            pic: ''
-          }
-        }
-      })
     },
     initProductTypeData () {
       // 获取当前类型的名称
@@ -561,29 +437,42 @@ export default {
       this.$emit('input', false)
     },
     clearTaskData () {
-      this.taskData.title = ''
-      this.taskData.content = ''
-      this.taskData.auditGroupId = ''
-      this.taskData.actorUserId = ''
-      this.taskData.createUserId = ''
-      // this.taskData.productEcologyEntranceType = []
-      // this.taskData.productFunctionType = []
-      // this.taskData.productScenarioType = []
-      // this.taskData.productSensorType = []
-      this.taskData.productType = []
-      // this.taskData.productVoiceFunctionType = []
-      this.taskData.productModel = ''
+      this.taskData = JSON.parse(JSON.stringify(initTaskData))
       this.loading = false
     },
-    setAddProductModal() {
+    setAddProductModal () {
       if (!this.taskData.productType) {
+        this.$Message.warning('请先选择产品类型！');
         return
       }
-      this.$emit('setAddProductModal', this.taskData.productType)
+      this.showAddProductModal=true
+    },
+    saveProductSuccess () {
+      this.initProductModel()
+    },
+    initProductModel () {
+      // 获取所有的产品型号
+      getProductModel().then(res => {
+        if (res.data.result) {
+          this.allProductModel = {}
+          res.data.result.forEach((item) => {
+            if (this.allProductModel[item.productType]) {
+              this.allProductModel[item.productType].push(item)
+            } else {
+              this.allProductModel[item.productType] = []
+              this.allProductModel[item.productType].push(item)
+            }
+          })
+          // console.log(this.allProductModel)
+        }
+        // getModelFinish = true
+        // if (getFunctionFinish && getScenarioFinish && getSensorFinish && getVoiceFunctionFinish && getEcologyEntranceFinish && getModelFinish) {
+        //   this.spinShow = false
+        // }
+      })
     }
   },
   created () {
-    this.taskData = this.propTaskData
   },
   mounted () {
     this.productType = this.$route.meta.productType
@@ -650,25 +539,7 @@ export default {
         }
       }
     })
-    // 获取所有的产品型号
-    getProductModel().then(res => {
-      if (res.data.result) {
-        this.allProductModel = {}
-        res.data.result.forEach((item) => {
-          if (this.allProductModel[item.productType]) {
-            this.allProductModel[item.productType].push(item)
-          } else {
-            this.allProductModel[item.productType] = []
-            this.allProductModel[item.productType].push(item)
-          }
-        })
-        console.log(this.allProductModel)
-      }
-      // getModelFinish = true
-      // if (getFunctionFinish && getScenarioFinish && getSensorFinish && getVoiceFunctionFinish && getEcologyEntranceFinish && getModelFinish) {
-      //   this.spinShow = false
-      // }
-    })
+    this.initProductModel()
   }
 }
 </script>

@@ -327,3 +327,31 @@ export const getFunctionType = productType => {
     method: 'post'
   })
 }
+
+export const getHeatingTubeType = () => {
+  return axios.request({
+    url: 'function/getHeatingTubeType',
+    method: 'post'
+  })
+}
+
+export const getWifiModuleType = () => {
+  return axios.request({
+    url: 'function/getWifiModuleType',
+    method: 'post'
+  })
+}
+
+export const getElectricBoardInfo = productType => {
+  return axios.request({
+    url: 'electricBoardInfo/getElectricBoardInfo?productType=' + productType,
+    method: 'post'
+  })
+}
+
+export const getSelectOption = productType => {
+  return axios.request({
+    url: `selectOption/getSelectOption?productType=${productType}`,
+    method: 'post'
+  })
+}

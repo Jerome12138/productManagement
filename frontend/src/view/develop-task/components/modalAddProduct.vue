@@ -15,105 +15,23 @@
     </Steps> -->
     <Form :model="productData" label-position="left" :label-width="88">
       <Tabs v-model="currentStep">
-          <Tab-pane label="项目信息" v-if="false">
-            <Form ref="taskManage" :model="taskData" label-position="left" :rules="taskRuleValidate" :label-width="75">
-              <Row :gutter="8">
-                <Col span="24">
-                  <FormItem label="标题:" prop="title">
-                    <Input v-model="taskData.title" :maxlength="50" placeholder="请输入50个字符以内的任务标题" autosize></Input>
-                  </FormItem>
-                </Col>
-              </Row>
-              <Row :gutter="8">
-                <Col span="24">
-                  <FormItem label="内容:" prop="content">
-                    <Input v-model="taskData.content" type="textarea" :maxlength="500" placeholder="请输入500个字符以内的任务内容"
-                            autosize></Input>
-                  </FormItem>
-                </Col>
-              </Row>
-              <Row :gutter="8">
-                <Col span="12">
-                  <FormItem label="产品类型:" prop="productType">
-                    <Select v-model="taskData.productType" placeholder="请选择产品类型" clearable not-found-text="暂无产品类型" @on-change="changeProductType">
-                      <Option v-for="item in allProductType" :value="item.code" :key="item.code">{{ item.value }}</Option>
-                    </Select>
-                  </FormItem>
-                </Col>
-                <Col span="10">
-                  <FormItem label="产品型号:" prop="productModel">
-                    <Select v-model="taskData.productModel" placeholder="请选择产品型号" clearable not-found-text="请先选择产品类型，并确认已选类型有产品" @on-change="changeProductModel">
-                      <Option v-for="item in allProductModel[taskData.productType]" :value="item.model" :label="item.model" :key="item.model" >
-                        <span>{{ item.model }}</span>
-                        <span style="float:right;color:#ccc">{{ item.sN8 }}</span>
-                      </Option>
-                    </Select>
-                  </FormItem>
-                </Col>
-                <Col span="2" :gutter="0" style="margin-top:4px">
-                  <Button shape="circle" size="small">添加产品</Button>
-                </Col>
-              </Row>
-              <Row :gutter="8">
-                <Col span="6">
-                  <FormItem label="项目经理:">
-                    <Input v-model="taskData.pm" :maxlength="50" placeholder="填写项目经理姓名" clearable></Input>
-                  </FormItem>
-                </Col>
-                <Col span="6">
-                  <FormItem label="产品企划:">
-                    <Input v-model="taskData.planner" :maxlength="50" placeholder="填写产品企划姓名" clearable></Input>
-                  </FormItem>
-                </Col>
-                <Col span="6">
-                  <FormItem label="电控硬件:">
-                    <Input v-model="taskData.hardwareEngineer" :maxlength="50" placeholder="填写电控硬件工程师姓名" clearable></Input>
-                  </FormItem>
-                </Col>
-                <Col span="6">
-                  <FormItem label="电控软件:">
-                    <Input v-model="taskData.softwareEngineer" :maxlength="50" placeholder="填写电控软件工程师姓名" clearable></Input>
-                  </FormItem>
-                </Col>
-              </Row>
-              <Row :gutter="8">
-                <Col span="12">
-                  <FormItem label="审核组:" prop="auditGroupId">
-                    <span style="max-width: 100%; display: inline-block; overflow-wrap: break-word;text-align: left;">
-                      {{ groupIdToUserName[taskData.auditGroupId] }}
-                    </span>
-                    <Select clearable v-model="taskData.auditGroupId" placeholder="请选择审核组">
-                      <Option v-for="item in auditGroupList" :value="item.id" :key="item.id">{{ item.groupName }}</Option>
-                    </Select>
-                  </FormItem>
-                </Col>
-                <Col span="12">
-                  <FormItem label="执行人:" prop="actorUserId">
-                    <Select clearable v-model="taskData.actorUserId" placeholder="请选择执行人">
-                      <Option v-for="item in allUser" :value="item.id" :key="item.id">{{ item.userName }}</Option>
-                    </Select>
-                  </FormItem>
-                </Col>
-              </Row>
-            </Form>
-          </Tab-pane>
           <Tab-pane label="产品基本信息">
             <Row :gutter="16">
               <Col span="12">
                 <FormItem label="产品编码">
-                  <Input :disabled="isUpdate" v-model="productData.code" :maxlength="50" placeholder="请输入产品编号，50个字符以内" clearable></Input>
+                  <Input :disabled="isUpdate" v-model="productData.code" :maxlength="50" placeholder="请输入产品编码" clearable></Input>
                 </FormItem>
               </Col>
               <Col span="12">
                 <FormItem label="产品型号">
-                  <Input :disabled="isUpdate" v-model="productData.model" :maxlength="50" placeholder="请输入产品型号，50个字符以内" clearable></Input>
+                  <Input :disabled="isUpdate" v-model="productData.model" :maxlength="50" placeholder="请输入产品型号" clearable></Input>
                 </FormItem>
               </Col>
             </Row>
             <Row :gutter="16">
               <Col span="12">
                 <FormItem label="SN8">
-                  <Input :disabled="isUpdate" v-model="productData.sN8" :maxlength="50" placeholder="请输入产品SN8，8个字符" clearable></Input>
+                  <Input :disabled="isUpdate" v-model="productData.sn8" :maxlength="50" placeholder="请输入产品SN8，8个字符" clearable></Input>
                 </FormItem>
               </Col>
               <Col span="12">
@@ -132,73 +50,48 @@
                   </Select>
                 </FormItem>
               </Col>
-              <!-- todo: 扩展，可复制功能 -->
-              <!-- <Col span="12">
-                <FormItem label="APP借用SN8">
-                  <Select v-model="productData.appCopySn8" placeholder="APP完全借用可选择借用机型的SN8，可选" filterable transfer>
-                    <Option v-for="item in allSn8List" :value="item.id" :key="item.id">{{ item.sn8 }}</Option>
-                  </Select>
-                </FormItem>
-              </Col> -->
             </Row>
           </Tab-pane>
           <Tab-pane label="电控信息">
             <Row :gutter="16">
-              <Col span="12">
-                <FormItem label="电源板编码">
-                  <Input :disabled="isUpdate" v-model="productData.powerBoardCode" :maxlength="50" placeholder="请输入电源板编码，50个字符以内" clearable></Input>
-                </FormItem>
-              </Col>
-              <Col span="12">
-                <FormItem label="显示板编码">
-                  <Input :disabled="isUpdate" v-model="productData.displayBoardCode" :maxlength="50" placeholder="请输入显示板编码，50个字符以内" clearable></Input>
-                </FormItem>
-              </Col>
-            </Row>
-            <Row :gutter="16">
-              <Col span="12">
-                <FormItem label="WiFi模块编码">
-                  <Input :disabled="isUpdate" v-model="productData.wifiModuleCode" :maxlength="50" placeholder="请输入WiFi模块编码，50个字符以内" clearable></Input>
-                </FormItem>
-              </Col>
-              <Col span="12">
-              <!-- 待处理，WiFi模块单独维护 -->
-                <FormItem label="配网方式">
-                  <Input :disabled="true" v-model="productData.networkingMode" :maxlength="50" placeholder="输入WiFi模块编码后将自动匹配配网方式" clearable></Input>
-                </FormItem>
-              </Col>
-            </Row>
-            <Row :gutter="16">
-              <Col span="12">
-                <FormItem label="蜂鸣器">
-                  <Input v-model="productData.hasBuzzer" :maxlength="50" placeholder="请选择是否有蜂鸣器" clearable></Input>
-                </FormItem>
-              </Col>
-              <Col span="12">
-                <FormItem label="流量传感器">
-                  <Input v-model="productData.hasFlowSensor" :maxlength="50" placeholder="请选择流量传感器配置" clearable></Input>
-                </FormItem>
-              </Col>
-            </Row>
-            <Row :gutter="16">
-              <Col span="12">
-                <FormItem label="漏电断电">
-                  <Input v-model="productData.hasElectricLeakageProtect" :maxlength="50" placeholder="请选择是否有流量传感器" clearable></Input>
-                </FormItem>
-              </Col>
-              <Col span="12">
-                <FormItem label="加热管">
-                  <Input v-model="productData.hasBuzzer" :maxlength="50" placeholder="请选择加热管配置" clearable></Input>
+              <Col span="12" v-for="(electricBoardInfo,index) in allElectricBoardInfoList" :key="index">
+                <FormItem :label="electricBoardInfo.typeName">
+                  <!-- 选择 -->
+                  <Select
+                    v-if="electricBoardInfo.componentType=='Select'"
+                    v-model="productData.electricBoardInfo[electricBoardInfo.typeKey]"
+                    :placeholder="electricBoardInfo.desc"
+                    transfer
+                    clearable
+                    @on-change="wifiModuleCodeSelected"
+                  >
+                    <Option
+                      v-for="item in allSelectOptionList.filter(op=>op.key == electricBoardInfo.typeKey)"
+                      :value="item.value"
+                      :key="item.id"
+                    >
+                      {{ item.label }}
+                      <span style="float:right;color:#ccc"> {{item.desc}}</span>
+                    </Option>
+                  </Select>
+                  <!-- 文本输入框 -->
+                  <Input v-else v-model="productData.electricBoardInfo[electricBoardInfo.typeKey]" :placeholder="electricBoardInfo.desc"></Input>
                 </FormItem>
               </Col>
             </Row>
           </Tab-pane>
           <Tab-pane label="APP功能">
-            <Row :gutter="16" v-for="(functionType,index) in functionTypeList" :key="index">
-              <Col span="24">
-                <FormItem>
+            <Row :gutter="16">
+              <!-- todo: 扩展，可复制功能 -->
+              <Col span="12">
+                <Button type="primary" @click="showCopyModal=true">从现有产品复制功能</Button>
+              </Col>
+            </Row>
+            <Row :gutter="16">
+              <Col :span="functionType.componentType=='Select'?12:24" v-for="(functionType,index) in functionTypeList" :key="index">
+                <FormItem style="margin-bottom: 12px">
                   <div slot="label">
-                    <span>{{functionType.typeName + (functionType.desc ? `(${functionType.desc})` : '')}}</span>
+                    <span>{{functionType.typeName}}</span>
                     <!-- <Poptip placement="right" width="400">
                       <Icon type="ios-help-circle" size="16" color="#888888" @click="showHelp(index)"/>
                         <div slot="content">
@@ -206,56 +99,80 @@
                         </div>
                     </Poptip> -->
                   </div>
-                  <div :is="!!functionType.isMultiple?'CheckboxGroup':'RadioGroup'" v-model="functionIdList[index]" clearable>
-                    <div :is="!!functionType.isMultiple?'Checkbox':'Radio'"
-                      v-for="item in getFunctionListByType(functionType.typeKey)"
+                  <!-- 多选 -->
+                  <CheckboxGroup v-if="functionType.componentType=='Checkbox'" v-model="functionIdList[index]" clearable>
+                    <Checkbox
+                      v-for="item in functionList.filter(item => item.functionKey == functionType.typeKey && !item.isDisable)"
                       :key="item.id"
                       :label="item.id"
                     >
                       <span>{{item.functionName}}</span>
-                      <span v-if="item.functionDesc" class="func-desc">({{item.functionDesc}})</span>
-                    </div>
-                  </div>
-                  <!-- <Select v-model="functionIdList[index*2]" :placeholder="`请选择${colList[0].typeName}`" :multiple="!!colList[0].isMultiple" filterable clearable transfer>
-                    <Option v-for="item in getFunctionListByType(colList[0].typeKey)" :value="item.id" :key="item.id">
-                      {{ item.functionName }}</Option>
-                  </Select> -->
-                </FormItem>
-              </Col>
-              <!-- <Col span="12" v-if="colList.length >1">
-                <FormItem :label="colList[1].title">
-                  <RadioGroup v-model="functionIdList[index*2+1]">
+                      <span v-if="item.functionDesc" style="color: #999999; font-size: 0.6em;">({{item.functionDesc}})</span>
+                    </Checkbox>
+                  </CheckboxGroup>
+                  <!-- 单选 -->
+                  <RadioGroup v-else-if="functionType.componentType=='Radio'" v-model="functionIdList[index]" clearable>
                     <Radio
-                      v-for="item in getFunctionListByType(colList[1].typeKey)"
+                      v-for="item in functionList.filter(item => item.functionKey == functionType.typeKey && !item.isDisable)"
                       :key="item.id"
                       :label="item.id"
                     >
-                      <span>{{item.functionName}}</span>
+                      <!-- 单选的functionName都一样，显示desc就行 -->
+                      <span>{{item.functionDesc}}</span>
                     </Radio>
                   </RadioGroup>
-                  <Select v-model="functionIdList[index*2+1]" :placeholder="`请选择${colList[1].typeName}`" :multiple="!!colList[1].isMultiple" filterable clearable transfer>
-                    <Option v-for="item in getFunctionListByType(colList[1].typeKey)" :value="item.id" :key="item.id">{{ item.functionName }}</Option>
+                  <!-- 选择器 -->
+                  <Select
+                    v-else-if="functionType.componentType=='Select'"
+                    v-model="functionIdList[index]"
+                    :placeholder="functionType.desc"
+                    transfer
+                    clearable
+                  >
+                    <Option
+                      v-for="item in functionList.filter(item => item.functionKey == functionType.typeKey && !item.isDisable)"
+                      :value="item.id"
+                      :key="item.id"
+                    >
+                      {{ item.functionDesc }}
+                    </Option>
                   </Select>
+                  <!-- 文本输入框 -->
+                  <Input v-else v-model="functionIdList[index]" clearable></Input>
                 </FormItem>
-              </Col> -->
+              </Col>
             </Row>
           </Tab-pane>
-          <Tab-pane label="其他功能">
-          </Tab-pane>
+          <!-- <Tab-pane label="其他功能">
+          </Tab-pane> -->
       </Tabs>
     </Form>
     <div slot="footer">
       <Button style="margin-right: 8px" @click="cancelSaveProduct">取消</Button>
       <Button v-if="currentStep != 0" style="margin-right: 8px" @click="currentStep-=1">上一步</Button>
-      <Button v-if="currentStep == 3" type="primary" @click="saveProduct">保存</Button>
+      <Button v-if="currentStep == 2" type="primary" @click="saveProduct">保存</Button>
       <Button v-else type="primary" @click="currentStep+=1">下一步</Button>
     </div>
+    <Modal
+      :styles="{width: '320px'}"
+      v-model="showCopyModal"
+      title="复制产品功能"
+      @on-cancel="showCopyModal=false"
+      @on-ok="copyFunctionFromProduct"
+      mask
+      :mask-closable=false>
+      <Select v-model="appCopySn8" placeholder="选择产品" filterable transfer>
+        <Option v-for="item in allProductModel[productType]" :value="item.sn8" :label="item.model" :key="item.model" >
+          <span>{{ item.model }} ({{ item.sn8 }})</span>
+          <span style="float:right;color:#ccc;margin-right:16px">{{ item.appStatus }}</span>
+        </Option>
+      </Select>
+    </Modal>
   </Modal>
 </template>
 
 <script>
 import {
-  deleteProductById,
   queryProduct,
   getScenario,
   getProductCategoryByProductType,
@@ -270,7 +187,9 @@ import {
   getProductType,
   getProductModel,
   getAllUserIdAndName,
-  queryAuditGroupByUserId
+  queryAuditGroupByUserId,
+  getElectricBoardInfo,
+  getSelectOption,
 } from '@/api/data'
 import { hasOneOf } from '@/libs/tools'
 import store from '@/store'
@@ -278,6 +197,25 @@ import { getToken, setToken } from '@/libs/util'
 import config from '@/config'
 import qqFans from '@/assets/images/qq-group1.jpg'
 
+const initProductData = {
+  productType: '',
+  id: '',
+  categoryType: '',
+  branch: '',
+  code: '',
+  model: '',
+  sn8: '',
+  lifecycleStage: '',
+  saleChannel: '',
+  functionIds: [],
+  scenarioIds: [],
+  voiceFunctionIds: [],
+  ecologyEntranceIds: [],
+  sensorIds: [],
+  electricBoardInfo: {},
+  appStatus: '草稿',
+  pic: ''
+}
 export default {
   props: {
     isUpdate: {
@@ -287,10 +225,6 @@ export default {
     value: {
       type: Boolean,
       default: false
-    },
-    propTaskData: {
-      type: Object,
-      default: () => ({})
     },
     productType: {
       type: String,
@@ -336,29 +270,14 @@ export default {
         width: 'fit-content',
         height: 'auto'
       },
-      productData: {
-        productType: this.productType,
-        productTypeName: '',
-        id: '',
-        categoryType: '',
-        branch: '',
-        code: '',
-        model: '',
-        sN8: '',
-        lifecycleStage: '',
-        saleChannel: '',
-        functionIds: [],
-        scenarioIds: [],
-        voiceFunctionIds: [],
-        ecologyEntranceIds: [],
-        sensorIds: [],
-        pic: ''
-      },
+      productData: JSON.parse(JSON.stringify(initProductData)), // 深拷贝，防止子项引用改到默认数据
       categoryList: [],
       branchList: [],
       functionList: [],
       scenarioList: [],
       allSensorList: [],
+      allElectricBoardInfoList: [],
+      allSelectOptionList: [],
       allVoiceFunctionList: [],
       allEcologyEntranceList: [],
       drawerTitle: '添加产品',
@@ -403,31 +322,21 @@ export default {
       loading: false,
       functionTypeList: [],
       functionIdList: [],
-      // 任务管理
-      taskData: {},
-      taskRuleValidate: {
-        title: { required: true, message: '标题不能为空', trigger: 'blur' },
-        content: { required: true, message: '内容不能为空', trigger: 'blur' },
-        auditGroupId: { required: true, type: 'number', message: '审核组不能为空', trigger: 'change' },
-        actorUserId: { required: true, type: 'number', message: '执行人不能为空', trigger: 'change' },
-        productType: { required: true, message: '产品类型不能为空', trigger: 'blur' },
-        productModel: { required: true, message: '产品型号不能为空', trigger: 'blur' },
-        handleDetail: { required: true, message: '处理不能为空', trigger: 'blur' },
-        handleOpinion: { required: true, message: '处理意见不能为空', trigger: 'blur' }
-      },
       allProductType: [],
       allProductModel: {},
-      allUser: [],
-      auditGroupList: [],
-      groupIdToUserName: {},
-      groupIdToUserIds: {},
-      qqFans:qqFans,
+      qqFans: qqFans,
+      showCopyModal: false,
+      appCopySn8: '',
     }
   },
   watch: {
-    value (val) {
-      this.visible = val
-    }
+    value (nV, oV) {
+      this.visible = nV
+      if (nV && !oV) {
+        // 类型根据传过来的数据赋值
+        this.initProductTypeData()
+      }
+    },
   },
   computed: {
     modalTitle () {
@@ -462,46 +371,6 @@ export default {
     }
   },
   methods: {
-    saveTaskData () {
-      this.$refs.taskManage.validate((valid) => {
-        if (valid) {
-          // 获取登录用户的token，根据token获取当前用户是否有权限
-          const token = getToken()
-          store.commit('setToken', token)
-          if (!token) {
-            this.$store.state.user.access = []
-          }
-          store.dispatch('getUserInfo').then(user => {
-            // 拉取用户信息，获取用户权限access， 存储到this.$store.state.user.access;access必须是一个数组，如：['super_admin'] ['super_admin', 'admin']
-            this.$store.state.user.access = user.access
-            if (this.accessAddTask) {
-              this.loading = true
-              let userId = this.$store.state.user.userId
-              this.taskData.createUserId = userId
-              this.taskData.auditGroupUserIds = this.groupIdToUserIds[this.taskData.auditGroupId]
-              try {
-                saveTask(this.taskData).then(res => {
-                  this.loading = false
-                  if (res.data.errorCode !== '0') {
-                    this.$Message.error('保存失败:' + res.data.msg)
-                  } else {
-                    this.$Message.success('保存成功！')
-                    this.getUnhandledTaskList(userId)
-                    this.modal1 = false
-                    this.clearTaskData()
-                  }
-                })
-              } catch (e) {
-                this.loading = false
-                this.$Message.error('保存失败:' + e)
-              }
-            } else {
-              this.$Message.warning('当前用户没有发起任务的权限')
-            }
-          })
-        }
-      })
-    },
     // 保存产品，先判断当前用户是否有该类型的权限
     saveProduct () {
       const token = getToken()
@@ -526,31 +395,20 @@ export default {
         if (this.accessProductType) {
           if ((this.accessUpdate && booleanForUpdate) || (this.accessAdd && booleanForAdd)) {
             // 拼接功能id列表
-            this.productData.functionIds = this.functionIdList.reduce((prev, cur) => prev.concat(cur))
+            this.productData.functionIds = this.functionIdList.reduce((prev, cur) => {
+              if (typeof cur === 'string') {
+                cur = cur ? [cur] : []
+              }
+              return prev.concat(cur)
+            })
             saveProduct(this.productData).then(result => {
               if (result.data.errorCode && result.data.errorCode === '0') {
                 this.$Message.success('产品保存成功！')
-                this.productData = {
-                  productType: this.productType,
-                  id: '',
-                  productCategory: '',
-                  branch: '',
-                  code: '',
-                  model: '',
-                  sN8: '',
-                  lifecycleStage: '',
-                  saleChannel: '',
-                  functionIds: [],
-                  scenarioIds: [],
-                  voiceFunctionIds: [],
-                  ecologyEntranceIds: [],
-                  sensorIds: [],
-                  pic: ''
-                }
-                // 重新加载列表
-                this.searchData()
+                this.productData = JSON.parse(JSON.stringify(initProductData))
                 this.visible = false
                 this.$emit('input', false)
+                // 重新加载列表
+                this.$emit('saveProductSuccess', false)
               } else {
                 this.$Message.error('产品保存失败:' + result.data.msg)
               }
@@ -573,83 +431,21 @@ export default {
     },
     // 关闭产品编辑页面弹窗时，将该弹窗的数据清除
     cancelSaveProduct () {
-      this.productData = {
-        productType: this.productType,
-        id: '',
-        categoryType: '',
-        branch: '',
-        code: '',
-        model: '',
-        sN8: '',
-        lifecycleStage: '',
-        saleChannel: '',
-        functionIds: [],
-        scenarioIds: [],
-        voiceFunctionIds: [],
-        ecologyEntranceIds: [],
-        sensorIds: [],
-        pic: ''
-      }
+      this.productData = JSON.parse(JSON.stringify(initProductData))
       this.visible = false
       this.$emit('input', false)
     },
     // 关闭产品编辑页面弹窗时，将该弹窗的数据清除
     closeModal () {
       this.$emit('input', false)
-      this.productData = {
-        productType: this.productType,
-        id: '',
-        categoryType: '',
-        branch: '',
-        code: '',
-        model: '',
-        sN8: '',
-        lifecycleStage: '',
-        saleChannel: '',
-        functionIds: [],
-        scenarioIds: [],
-        voiceFunctionIds: [],
-        ecologyEntranceIds: [],
-        sensorIds: [],
-        pic: ''
-      }
+      this.productData = JSON.parse(JSON.stringify(initProductData))
     },
     getFunctionListByType (typeKey) {
-      return this.functionList.filter(item => item.typeKey == typeKey && !item.isDisable)
-    },
-    changeProductType () {
-      this.taskData.productFunctionType = []
-      this.taskData.productScenarioType = []
-      this.taskData.productSensorType = []
-      this.taskData.productModel = ''
-      this.initProductTypeData()
-    },
-    changeProductModel () {
-      queryProduct({ 'model': [this.taskData.productModel] }).then(res => {
-        if (res.data.result) {
-          this.productData = res.data.result[0]
-        } else {
-          this.productData = {
-            productType: this.productType,
-            id: '',
-            categoryType: '',
-            branch: '',
-            code: '',
-            model: '',
-            sN8: '',
-            lifecycleStage: '',
-            saleChannel: '',
-            functionIds: [],
-            scenarioIds: [],
-            voiceFunctionIds: [],
-            ecologyEntranceIds: [],
-            sensorIds: [],
-            pic: ''
-          }
-        }
-      })
+      return this.functionList.filter(item => item.functionKey == typeKey && !item.isDisable)
     },
     initProductTypeData () {
+      initProductData.productType = this.productType
+      this.productData.productType = this.productType
       // 获取当前类型的名称
       getProductTypeByTypeCode(this.productType).then(res => {
         if (res.data.result && res.data.result.value) {
@@ -698,7 +494,9 @@ export default {
         // console.log(res.data)
         if (res.data.result) {
           this.functionTypeList = res.data.result
-          this.functionIdList = new Array(this.functionTypeList.length).fill([])
+          this.functionIdList = this.functionTypeList.map(item => {
+            return item.isMultiple ? [] : ''
+          })
         }
       })
       // 获取传感器
@@ -712,33 +510,44 @@ export default {
           }
         }
       })
-    }
+      // 获取电控信息
+      getElectricBoardInfo(this.productType).then(res => {
+        if (res.data.errorCode === '0') {
+          this.allElectricBoardInfoList = res.data.result
+          if (this.allElectricBoardInfoList) {
+            // this.allElectricBoardInfoList.forEach(value => {
+            //   this.sensorNameToId[value.sensorName] = value.id
+            // })
+          }
+        }
+      })
+      // 获取电控信息
+      getSelectOption(this.productType).then(res => {
+        if (res.data.errorCode === '0') {
+          this.allSelectOptionList = res.data.result
+          if (this.allSelectOptionList) {
+            // this.allSelectOptionList.forEach(value => {
+            //   this.sensorNameToId[value.sensorName] = value.id
+            // })
+          }
+        }
+      })
+    },
+    copyFunctionFromProduct () {
+      if (!this.appCopySn8) return
+      let copyItem = this.allProductModel[this.productType].find(item => item.sn8 === this.appCopySn8)
+      console.log(this.appCopySn8)
+      this.productData.functionIds = copyItem.functionIds
+      console.log(this.productData.functionIds)
+    },
+    wifiModuleCodeSelected () {
+      // let selectedItem = this.allWifiModuleTypeList.find(item => item.code === this.productData.wifiModuleCode)
+      // this.productData.networkingMode = selectedItem.networkingMode
+    },
   },
   created () {
-    this.taskData = this.propTaskData
   },
   mounted () {
-    let userId = this.$store.state.user.userId
-    queryAuditGroupByUserId(userId).then(res => {
-      if (res.data.result) {
-        this.auditGroupList = res.data.result
-        this.auditGroupList.forEach(value => {
-          this.groupIdToUserName[value.id] = value.userNames
-          this.groupIdToUserIds[value.id] = value.userIds.toString()
-        })
-      }
-    })
-    getAllUserIdAndName().then(res => {
-      if (res.data.errorCode === '0' && res.data.result) {
-        res.data.result.forEach((item) => {
-          if (item.userName !== 'admin' && item.userName !== 'super_admin') {
-            this.allUser.push(item)
-          }
-        })
-      } else {
-        this.allUser = []
-      }
-    })
   },
   beforeMount () {
     // 获取所有产品类型
@@ -747,8 +556,6 @@ export default {
         this.allProductType = res.data.result
       }
     })
-    // 类型根据传过来的数据赋值
-    this.initProductTypeData()
     // 获取品牌
     getBranchList().then(result => {
       if (result.data.result) {
@@ -804,8 +611,5 @@ export default {
 </script>
 
 <style scoped>
-.func-desc {
-  color: #666666;
-  font-size: 0.8em;
-}
+
 </style>
