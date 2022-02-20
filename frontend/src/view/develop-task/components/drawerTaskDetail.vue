@@ -267,6 +267,7 @@
         <div class="demo-drawer-footer">
           <Button style="margin-right: 8px" @click="closeTaskDetail">取消</Button>
           <Button type="primary" @click="handleTask">确认</Button>
+          <!-- <Button type="primary" @click="runQueue">打包</Button> -->
         </div>
       </div>
     </Form>
@@ -290,7 +291,8 @@ import {
   getScenarioByType,
   getSensorByType,
   getVoiceFunction,
-  getProductModel
+  getProductModel,
+  pushCompileQueue
 } from '@/api/data'
 import { hasOneOf } from '@/libs/tools'
 import store from '@/store'
@@ -592,10 +594,9 @@ console.log(this.haveProcess)
         }
       })
     },
-    clearTaskDetailData () {
-      this.taskDetailData.handleOpinion = ''
-      this.taskDetailData.handleDetail = ''
-    },
+    runQueue () {
+      pushCompileQueue(this.taskDetailData.id)
+    }
   },
   created () {
   },

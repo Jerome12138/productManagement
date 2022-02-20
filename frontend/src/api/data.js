@@ -355,3 +355,17 @@ export const getSelectOption = productType => {
     method: 'post'
   })
 }
+
+export const getQueue = () => {
+  return axios.request({
+    url: `task/getQueue`,
+    method: 'post'
+  })
+}
+
+export const pushCompileQueue = taskId => {
+  return axios.request({
+    url: `task/pushCompileQueue?taskId=${taskId}`,
+    method: 'post'
+  })
+}

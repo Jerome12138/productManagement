@@ -111,6 +111,16 @@ export default [
           icon: 'md-people'
         },
         component: () => import('@/view/develop-task/audit_group_manage.vue')
+      },
+      {
+        path: '/compileTaskQueue',
+        name: '打包任务管理',
+        meta: {
+          access: ['super_admin', 'admin', 'develop_task'],
+          title: '打包任务管理',
+          icon: 'md-people'
+        },
+        component: () => import('@/view/develop-task/compile_task_queue.vue')
       }
     ]
   },
