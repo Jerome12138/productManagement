@@ -3,6 +3,7 @@ from django.db.models import Q      # 导入Q模块
 import datetime
 import time
 import traceback
+import uuid
 
 TASK_STATUS_NAME_MAP = {
     'auditing': '正在审核',
@@ -537,3 +538,25 @@ def getTaskDetailById(taskId):
     except Exception as e:
         print(traceback.print_exc())
         return None
+
+# ============任务队列==============
+def saveTaskQueue(queueData):
+    # 查询是否已有队列id
+    taskQueueObj = models.FmTaskQueue.objects.filter(id=queueData.get('id')).first()
+    if queueData.get('id') and taskQueueObj: # 已存在则更新
+        taskQueueObj.__dict__.update(queueData)
+        taskQueueObj.save()
+        print('队列数据已更新: (id: %s, developTaskId: %s, status: %s)' % (queueData['id'],queueData['developTaskId'], queueData['status']))
+    else: # 不存在则添加
+        taskQueueObj = models.FmTaskQueue.objects.create(**queueData)
+        print('队列数据已添加: (developTaskId: %s, status: %s)' % (queueData['developTaskId'], queueData['status']))
+    return taskQueueObj
+
+def saveFileMap(file_path, file_name):
+    file_data = {
+        "fileId": uuid.uuid1(),
+        "fileName": file_name,
+        "filePath": file_path,
+    }
+    fileMapObj = models.FmFileMap.objects.create(**file_data)
+    return fileMapObj.fileId

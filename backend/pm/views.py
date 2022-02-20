@@ -1,9 +1,11 @@
 from django.shortcuts import render, HttpResponse
+from django.http import FileResponse, Http404
 from django.http.response import JsonResponse
-import json
+import json, os
 import traceback
 from .func import DBHandler
 from .func import codeSettingHandler
+from .func import taskQueue
 # from .func import autoScript
 import re
 
@@ -279,3 +281,44 @@ def parseJs2Excel(request):
         # autoScript.parseJs2Excel(obj)
         ret['errorCode'] = '0'
     return ret
+
+
+@decoRet
+def getQueue(request):
+    ret = {}
+    if request.method == "POST":
+        ret['errorCode'] = '0'
+        ret['result'] = DBHandler.getDataByDBName('FmTaskQueue')
+    return ret
+
+@decoRet
+def pushCompileQueue(request):
+    ret = {}
+    if request.method == "POST":
+        ret['errorCode'] = '0'
+        taskId = request.GET.get('taskId')
+        taskData = DBHandler.getDataObjByDBName('FmDevelopTask',condition={"id": taskId}).first()
+        print('pushCompileQueue: %s'%taskData)
+        taskQueue.pushQueue(taskData)
+        taskQueue.startQueue()
+    return ret
+
+def fileDownload(request):
+    file_id = request.GET.get('fileId')
+    file_obj = DBHandler.getDataObjByDBName('FmFileMap',condition={"fileId": file_id}).first()
+    if file_obj:
+        file_path = file_obj.filePath
+        file_name = file_obj.fileName
+        is_file = os.path.isfile(file_path+file_name)
+        if is_file:
+            print("下载: "+file_path+file_name)
+            response = FileResponse(open(file_path+file_name, 'rb'))
+            response['content_type'] = "application/octet-stream"
+            response['Content-Disposition'] = 'attachment; filename=' + file_name
+            return response
+        else:
+            print('文件不存在: '+file_path+file_name)
+            return Http404
+    else:
+        print('非法文件id: '+file_id)
+        return Http404

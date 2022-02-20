@@ -5,6 +5,8 @@ from . import DBHandler
 
 weex_path = "/home/lighthouse/weex-kh-widgets"
 
+publish_path = weex_path + "/publish/"
+
 # ========== 配置文件处理 ==========
 
 # 编辑配置文件
@@ -40,15 +42,39 @@ def settingFileEdit(productData={}):
     
 
 # 代码打包
-def compile():
-    log_time = time.strftime("%Y%m%d%H%M", time.localtime(time.time()))
-    stdout_file_name = "pm/log/compile_log_%s_stdout.txt"%log_time
-    stderr_file_name = "pm/log/compile_log_%s_stderr.txt"%log_time
+def compile(cate="e2", outputPrefix=""):
+    print('开始打包...')
+    start_time = time.time()
+    log_time = time.strftime("%Y%m%d%H%M", time.localtime(start_time))
+    stdout_file_name = "pm/log/%s/compile_log_%s_stdout.txt"%(cate, log_time)
+    stderr_file_name = "pm/log/%s/compile_log_%s_stderr.txt"%(cate, log_time)
     with open(stdout_file_name,"wb") as f_out, open(stderr_file_name,"wb") as f_err:
-        pop = subprocess.Popen("npm run build-e2 --prefix=C:\DATA\Code\Git\weex-kh-widgets", shell=True, stdout=f_out, stderr=f_err)
+        pop = subprocess.Popen("npm run build-%s --prefix=%s"%(cate, weex_path), shell=True, stdout=f_out, stderr=f_err)
         while pop.poll() != 0:
-            print("尚未完成")
+            end_time = time.time()
+            spend_time = int(end_time - start_time)
+            print("打包中, 耗时: %ss"% spend_time)
             time.sleep(30)
+        end_time = time.time()
+        spend_time = int(end_time - start_time)
+        print("打包完成! 耗时: %ss"%spend_time)
+        # 返回打包文件名称
+        if not outputPrefix:
+            outputPrefix = "T0x%s" % cate.upper()
+        time_str = time.strftime("%Y%m%d%H%M", time.localtime(end_time))
+        file_name = "%s_%s.zip" % (outputPrefix, time_str)
+        # 判断文件是否存在
+        is_file = os.path.isfile(publish_path+file_name)
+        if not is_file:
+            # 处理有时正好跨1分钟完成的情况
+            time_str = str(int(time_str) - 1)
+            file_name = "%s_%s.zip" % (outputPrefix, time_str)
+            is_file = os.path.isfile(publish_path+file_name)
+            if not is_file:
+                return "error"
+        return DBHandler.saveFileMap(publish_path, file_name)
+
+
 
 # 新品配置项处理
 def handleSetting(productData={}):

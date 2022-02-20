@@ -355,6 +355,30 @@ class FmSelectOption(models.Model):
         # managed = False
         db_table = 'fm_select_option'
 
+class FmTaskQueue(models.Model):
+    taskType = models.CharField(max_length=255, blank=True, null=True, db_column="task_type")
+    developTaskId = models.IntegerField(blank=True, null=True, db_column="develop_task_id")
+    userId = models.IntegerField(blank=True, null=True, db_column="user_id")
+    status = models.CharField(max_length=255, blank=True, null=True)
+    result = models.CharField(max_length=255, blank=True, null=True)
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
+
+    class Meta:
+        # managed = False
+        db_table = 'fm_task_queue'
+
+class FmFileMap(models.Model):
+    fileId = models.CharField(max_length=255, blank=True, null=True, db_column="file_id")
+    filePath = models.CharField(max_length=255, blank=True, null=True, db_column="file_path")
+    fileName = models.CharField(max_length=255, blank=True, null=True, db_column="file_name")
+    createDateTime = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_column="create_date_time")
+    updateDateTime = models.DateTimeField(auto_now=True, blank=True, null=True, db_column="update_date_time")
+
+    class Meta:
+        # managed = False
+        db_table = 'fm_file_map'
+
 # ========== 自己创建的 ============
 
 # 加热管类型
