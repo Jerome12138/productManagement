@@ -76,6 +76,22 @@ export default {
   actions: {
     // 登录
     handleLogin ({ commit }, { userName, password }) {
+      let staticchars = 'PXhw7UT1B0a9kQDKZsjIASmOezxYG4CHo5Jyfg2b8FLpEvRr3WtVnlqMidu6cN' // 26个字母大小写+10个数字
+      let encodechars = ''
+      for (let i = 0; i < password.length; i++) {
+        let num0 = staticchars.indexOf(password[i])
+        let code = ''
+        if (num0 == -1) {
+          code = password[i] // 特殊字符取本来的值
+        } else {
+          code = staticchars[(num0 + 3) % 62]
+        }
+        let num1 = parseInt(Math.random() * 62, 10) // 随机数
+        let num2 = parseInt(Math.random() * 62, 10)
+        encodechars += staticchars[num1] + code + staticchars[num2]
+      }
+      let enPassword = encodechars // 得到的字符长度为原字符三倍
+      password = enPassword
       userName = userName.trim()
       return new Promise((resolve, reject) => {
         login({
