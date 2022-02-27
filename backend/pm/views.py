@@ -8,8 +8,14 @@ from .func import codeSettingHandler
 from .func import taskQueue
 # from .func import autoScript
 import re
+import requests
+import urllib
 
 # Create your views here.
+
+session = requests.session()
+session.headers['Host'] = "product-function.midea-hotwater.com"
+midea_url = 'https://product-function.midea-hotwater.com/pm/%s'
 
 # 返回函数装饰器
 def decoRet(func):
@@ -26,13 +32,17 @@ def decoRet(func):
             return JsonResponse(ret)
     return inner_func
 
-@decoRet
+
+# @decoRet
 def login(request):
-    ret = {}
-    if request.method == "POST":
-        ret['errorCode'] = '0'
-        ret['token'] = 'admin'
-    return ret
+    res = session.post(midea_url%'login', json=json.loads(request.body))
+    result = json.loads(res.content.decode())
+    return JsonResponse(result)
+    # ret = {}
+    # if request.method == "POST":
+    #     ret['errorCode'] = '0'
+    #     ret['token'] = 'admin'
+    # return ret
 
 @decoRet
 def logout(request):
@@ -41,20 +51,43 @@ def logout(request):
         ret['errorCode'] = '0'
     return ret
 
-@decoRet
+# @decoRet
 def getUserInfo(request):
-    ret = {}
-    if request.method == "GET":
-        ret['errorCode'] = '0'
-        ret = {
-            **ret,
-            "name": 'admin',
-            "user_id": '2',
-            "access": ['admin'],
-            "token": 'admin',
-            "avator": 'https://avatars0.githubusercontent.com/u/20942571?s=460&v=4'
-        }
-    return ret
+    token = request.GET.get('token')
+    session.headers['Cookie'] = "token=%s"%token
+    # print(session.headers)
+    token_encode = urllib.parse.quote(token)
+    # print(token_encode)
+    response = session.get(midea_url%'get_info?token=%s'%token_encode)
+    result = json.loads(response.content.decode())
+    res = JsonResponse(result)
+    # res_cookie = response.cookies['token']
+    # print(res_cookie)
+    # res.set_cookie('token',res_cookie)
+    return res
+    # return JsonResponse(result)
+    # ret = {}
+    # if request.method == "GET":
+    #     ret['errorCode'] = '0'
+    #     ret = {
+    #         **ret,
+    #         "name": 'admin',
+    #         "user_id": '2',
+    #         "access": ['admin'],
+    #         "token": 'admin',
+    #         "avator": 'https://avatars0.githubusercontent.com/u/20942571?s=460&v=4'
+    #     }
+    # return ret
+
+
+def getAllUser(request):
+    # token = request.COOKIES.get('token')
+    # print(request.COOKIES)
+    # session.headers['Cookie'] = "token=%s"%token
+    res = session.post(midea_url%'user/getAllUser')
+    result = json.loads(res.content.decode())
+    return JsonResponse(result)
+
 
 @decoRet
 def getAllUserIdAndName(request):
