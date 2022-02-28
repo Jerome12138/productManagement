@@ -72,11 +72,12 @@ export default {
         align: 'center',
         render: (h, params) => {
           if (params.row.status === '已完成') {
+            const baseUrl = process.env.NODE_ENV === 'development' ? config.baseUrl.dev : config.baseUrl.pro
             return h('div', [
               h('a', {
                 attrs: {
                   // href: `${config.baseUrl.dev}/pm/task/fileDownload?fileId=${params.row.result}` // 正式用
-                  href: `${config.baseUrl.dev}task/fileDownload?fileId=${params.row.result}` // 调试用
+                  href: `${baseUrl}task/fileDownload?fileId=${params.row.result}` // 调试用
                 }
               }, '下载')
             ])
