@@ -492,7 +492,6 @@ def queryHandledTaskList(userId):
     return list(taskList)
 
 def getTaskDetailById(taskId):
-    print('taskId: %s' % taskId)
     try:
         if type(taskId) == 'String':
             taskId = int(taskId)
@@ -538,6 +537,219 @@ def getTaskDetailById(taskId):
     except Exception as e:
         print(traceback.print_exc())
         return None
+
+def saveProcessContent(operation):
+    processContent = {
+        'developTaskId': operation.get('taskId'),
+        'operation': operation.get('operation'),
+        'opinion': operation.get('operationOpinion'),
+        'role': operation.get('role'),
+        'userId': operation.get('userId'),
+    }
+    models.FmDevelopTaskProcessContent.objects.create(**processContent)
+    print('任务评论已添加: (taskId: %s)' % (processContent['developTaskId']))
+
+@decoRet
+def handleTaskProcess(taskOperation):
+    # 根据任务状态 对任务处理
+    taskDataObj = getDataObjByDBName('FmDevelopTask', condition={"id":taskOperation.get('taskId')}).first()
+    status = taskDataObj.status
+    currentHandleUserIds = taskDataObj.currentHandleUserId
+
+    if not currentHandleUserIds or len(currentHandleUserIds.split(",")) == 0:
+        return { 'errorCode': '2', 'msg': '当前用户不是该任务目前的处理用户！'}
+    # 当前流程处理用户id合集
+    setForCurrentHandleUserId = currentHandleUserIds.split(",")
+    userId = str(taskOperation.get('userId'))
+    if userId not in setForCurrentHandleUserId:
+        return { 'errorCode': '2', 'msg': '当前用户不是该任务目前的处理用户！'}
+    # 当前流程处理用户，已完成处理的用户id合集
+    setForFinishCurrentHandleUserId = []
+    if taskDataObj.currentHandleFinishUserId and len(taskDataObj.currentHandleFinishUserId.split(",")) > 0:
+        setForFinishCurrentHandleUserId = taskDataObj.currentHandleFinishUserId.split(",")
+    if userId in setForFinishCurrentHandleUserId:
+        return { 'errorCode': '3', 'msg': '当前用户已经处理过该任务流程！'}
+    #  审核中
+    if status == 'auditing':
+        # 保存操作内容
+        saveProcessContent(taskOperation)
+        # 将操作用户id添加到已操作完成的用户id set里面
+        setForFinishCurrentHandleUserId.append(userId)
+        # 判断是不是所有当前阶段处理人都处理过了
+        if set(setForCurrentHandleUserId) < set(setForFinishCurrentHandleUserId):
+            processTask = getDataByDBName('FmDevelopTaskProcessContent', condition={"developTaskId":taskOperation.get('taskId')}, order_by='-updateDateTime')
+            # 判断是 审核通过 还是 审核不通过，所有审核人都通过，就是审核通过，有一个没通过，就是审核没通过
+            auditPass = True
+            if not processTask:
+                for taskProcessContent in processTask:
+                    if taskProcessContent.get('role') != 'auditor':
+                        return { 'errorCode': '2', 'msg': '当前用户不是该任务目前的处理用户！'}
+                    auditPass = auditPass and taskProcessContent.get('operation') == 'audit_pass'
+            if auditPass:
+                # 如果审核通过，修改当前处理人角色是执行人，当前处理人id 是 执行人id，已完成处理用户id是空，任务状态是 正在接受
+                taskDataObj.currentHandlerRole = 'actor'
+                taskDataObj.currentHandleUserId = str(taskDataObj.actorUserId)
+                taskDataObj.currentHandleFinishUserId = ""
+                taskDataObj.status = 'accepting'
+            else:
+                # 如果审核不通过，修改当前处理人角色是发起人，当前处理人id 是 发起人id，已完成处理用户id是空，任务状态是 审核没通过
+                taskDataObj.currentHandlerRole = 'sponsor'
+                taskDataObj.currentHandleUserId = str(taskDataObj.sponsorUserId)
+                taskDataObj.currentHandleFinishUserId = ""
+                taskDataObj.status = 'audit_fail_confirming'
+        else:
+            taskDataObj.currentHandleFinishUserId = ",".join(setForFinishCurrentHandleUserId)
+        taskDataObj.save()
+        print('任务数据已更新: (taskId: %s)' % (taskDataObj.id))
+    elif status == 'audit_fail_confirming':
+        if taskOperation.get('role') != 'sponsor':
+            return { 'errorCode': '4', 'msg': '当前用户不是发起人！'}
+        # 判断操作是不是 接受任务 和 不接受任务，如果不是这两个，那么操作是不对的
+        if taskOperation.get('operation') != 'sponsor_send_audit' and taskOperation.get('operation') != 'sponsor_end':
+            return { 'errorCode': '5', 'msg': '当前操作不是对于审核失败任务的操作！'}
+        # 保存操作内容
+        saveProcessContent(taskOperation)
+        # 将操作用户id添加到已操作完成的用户id set里面
+        setForFinishCurrentHandleUserId.append(userId)
+        # 判断是不是所有的当前处理人已处理
+        if set(setForCurrentHandleUserId) < set(setForFinishCurrentHandleUserId):
+            if taskOperation.get('operation') == 'sponsor_send_audit':
+                taskDataObj.currentHandlerRole = 'auditor'
+                taskDataObj.currentHandleUserId = taskDataObj.auditUserIds
+                taskDataObj.currentHandleFinishUserId = ""
+                taskDataObj.status = 'auditing'
+            elif taskOperation.get('operation') == 'sponsor_end':
+                taskDataObj.currentHandlerRole = ''
+                taskDataObj.currentHandleUserId = ''
+                taskDataObj.currentHandleFinishUserId = ''
+                taskDataObj.status = 'end'
+            taskDataObj.save()
+            print('任务数据已更新: (taskId: %s)' % (taskDataObj.id))
+    elif status == 'accepting':
+        if taskOperation.get('role') != 'actor':
+            return { 'errorCode': '4', 'msg': '当前用户不是执行人！'}
+        # 判断操作是不是 接受任务 和 不接受任务，如果不是这两个，那么操作是不对的
+        if taskOperation.get('operation') != 'actor_accept' and taskOperation.get('operation') != 'actor_not_accept':
+            return { 'errorCode': '5', 'msg': '当前操作不是接受任务的操作！'}
+        # 保存操作内容
+        saveProcessContent(taskOperation)
+        # 将操作用户id添加到已操作完成的用户id set里面
+        setForFinishCurrentHandleUserId.append(userId)
+        # 判断是不是所有的当前处理人已处理
+        if set(setForCurrentHandleUserId) < set(setForFinishCurrentHandleUserId):
+            if taskOperation.get('operation') == 'actor_accept':
+                taskDataObj.currentHandlerRole = 'actor'
+                taskDataObj.currentHandleUserId = str(taskDataObj.actorUserId)
+                taskDataObj.currentHandleFinishUserId = ""
+                taskDataObj.status = 'finishing'
+            elif taskOperation.get('operation') == 'actor_not_accept':
+                taskDataObj.currentHandlerRole = 'sponsor'
+                taskDataObj.currentHandleUserId = str(taskDataObj.sponsorUserId)
+                taskDataObj.currentHandleFinishUserId = ""
+                taskDataObj.status = 'accept_reject_confirming'
+            taskDataObj.save()
+            print('任务数据已更新: (taskId: %s)' % (taskDataObj.id))
+    elif status == 'accept_reject_confirming':
+        if taskOperation.get('role') != 'sponsor':
+            return { 'errorCode': '4', 'msg': '当前用户不是发起人！'}
+        # 判断操作是不是 接受任务 和 不接受任务，如果不是这两个，那么操作是不对的
+        if taskOperation.get('operation') != 'sponsor_reject_not_accept' and taskOperation.get('operation') != 'sponsor_end':
+            return { 'errorCode': '5', 'msg': '当前操作不是对于拒绝接受任务的操作！'}
+        # 保存操作内容
+        saveProcessContent(taskOperation)
+        # 将操作用户id添加到已操作完成的用户id set里面
+        setForFinishCurrentHandleUserId.append(userId)
+        # 判断是不是所有的当前处理人已处理
+        if set(setForCurrentHandleUserId) < set(setForFinishCurrentHandleUserId):
+            if taskOperation.get('operation') == 'sponsor_reject_not_accept':
+                taskDataObj.currentHandlerRole = 'actor'
+                taskDataObj.currentHandleUserId = str(taskDataObj.actorUserId)
+                taskDataObj.currentHandleFinishUserId = ""
+                taskDataObj.status = 'accepting'
+            elif taskOperation.get('operation') == 'sponsor_end':
+                taskDataObj.currentHandlerRole = ''
+                taskDataObj.currentHandleUserId = ''
+                taskDataObj.currentHandleFinishUserId = ''
+                taskDataObj.status = 'end'
+            taskDataObj.save()
+            print('任务数据已更新: (taskId: %s)' % (taskDataObj.id))
+    elif status == 'finishing':
+        if taskOperation.get('role') != 'actor':
+            return { 'errorCode': '4', 'msg': '当前用户不是执行人！'}
+        # 判断操作是不是 接受任务 和 不接受任务，如果不是这两个，那么操作是不对的
+        if taskOperation.get('operation') != 'actor_finish' and taskOperation.get('operation') != 'actor_not_finish':
+            return { 'errorCode': '5', 'msg': '当前操作不是对于完成任务的操作！'}
+        # 保存操作内容
+        saveProcessContent(taskOperation)
+        # 将操作用户id添加到已操作完成的用户id set里面
+        setForFinishCurrentHandleUserId.append(userId)
+        # 判断是不是所有的当前处理人已处理
+        if set(setForCurrentHandleUserId) < set(setForFinishCurrentHandleUserId):
+            if taskOperation.get('operation') == 'actor_finish':
+                taskDataObj.currentHandlerRole = 'sponsor'
+                taskDataObj.currentHandleUserId = str(taskDataObj.sponsorUserId)
+                taskDataObj.currentHandleFinishUserId = ""
+                taskDataObj.status = 'finish_confirming'
+            elif taskOperation.get('operation') == 'actor_not_finish':
+                taskDataObj.currentHandlerRole = 'sponsor'
+                taskDataObj.currentHandleUserId = str(taskDataObj.sponsorUserId)
+                taskDataObj.currentHandleFinishUserId = ""
+                taskDataObj.status = 'not_finish_confirming'
+            taskDataObj.save()
+            print('任务数据已更新: (taskId: %s)' % (taskDataObj.id))
+    elif status == 'finish_confirming':
+        if taskOperation.get('role') != 'sponsor':
+            return { 'errorCode': '4', 'msg': '当前用户不是发起人！'}
+        # 判断操作是不是 接受任务 和 不接受任务，如果不是这两个，那么操作是不对的
+        if taskOperation.get('operation') != 'sponsor_reject_finish' and taskOperation.get('operation') != 'sponsor_end':
+            return { 'errorCode': '5', 'msg': '当前操作不是对于已完成任务的操作！'}
+        # 保存操作内容
+        saveProcessContent(taskOperation)
+        # 将操作用户id添加到已操作完成的用户id set里面
+        setForFinishCurrentHandleUserId.append(userId)
+        # 判断是不是所有的当前处理人已处理
+        if set(setForCurrentHandleUserId) < set(setForFinishCurrentHandleUserId):
+            if taskOperation.get('operation') == 'sponsor_reject_finish':
+                taskDataObj.currentHandlerRole = 'actor'
+                taskDataObj.currentHandleUserId = str(taskDataObj.actorUserId)
+                taskDataObj.currentHandleFinishUserId = ""
+                taskDataObj.status = 'finishing'
+            elif taskOperation.get('operation') == 'sponsor_end':
+                taskDataObj.currentHandlerRole = ''
+                taskDataObj.currentHandleUserId = ''
+                taskDataObj.currentHandleFinishUserId = ''
+                taskDataObj.status = 'end'
+            taskDataObj.save()
+            print('任务数据已更新: (taskId: %s)' % (taskDataObj.id))
+    elif status == 'not_finish_confirming':
+        if taskOperation.get('role') != 'sponsor':
+            return { 'errorCode': '4', 'msg': '当前用户不是发起人！'}
+        # 判断操作是不是 接受任务 和 不接受任务，如果不是这两个，那么操作是不对的
+        if taskOperation.get('operation') != 'sponsor_reject_not_finish' and taskOperation.get('operation') != 'sponsor_end':
+            return { 'errorCode': '5', 'msg': '当前操作不是对于未完成任务的操作！'}
+        # 保存操作内容
+        saveProcessContent(taskOperation)
+        # 将操作用户id添加到已操作完成的用户id set里面
+        setForFinishCurrentHandleUserId.append(userId)
+        # 判断是不是所有的当前处理人已处理
+        if set(setForCurrentHandleUserId) < set(setForFinishCurrentHandleUserId):
+            if taskOperation.get('operation') == 'sponsor_reject_not_finish':
+                taskDataObj.currentHandlerRole = 'actor'
+                taskDataObj.currentHandleUserId = str(taskDataObj.actorUserId)
+                taskDataObj.currentHandleFinishUserId = ""
+                taskDataObj.status = 'finishing'
+            elif taskOperation.get('operation') == 'sponsor_end':
+                taskDataObj.currentHandlerRole = ''
+                taskDataObj.currentHandleUserId = ''
+                taskDataObj.currentHandleFinishUserId = ''
+                taskDataObj.status = 'end'
+            taskDataObj.save()
+            print('任务数据已更新: (taskId: %s)' % (taskDataObj.id))
+    elif status == 'end':
+        return { 'errorCode': '6', 'msg': '当前任务已结束，不能再进行处理！'}
+    return {'errorCode': '0'}
+
+
 
 # ============任务队列==============
 def saveTaskQueue(queueData):

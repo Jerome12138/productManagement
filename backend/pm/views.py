@@ -59,6 +59,7 @@ def getUserInfo(request):
     token_encode = urllib.parse.quote(token)
     # print(token_encode)
     response = session.get(midea_url%'get_info?token=%s'%token_encode)
+    print(response.content)
     result = json.loads(response.content.decode())
     res = JsonResponse(result)
     # res_cookie = response.cookies['token']
@@ -223,7 +224,17 @@ def getTaskDetailById(request):
         if not ret['result']:
             ret['errorCode'] = '1'
     return ret
-    
+
+@decoRet
+def handleTaskProcess(request):
+    ret = {}
+    if request.method == "POST":
+        ret['errorCode'] = '0'
+        taskOperation = json.loads(request.body)
+        print('handleTaskProcess: %s'%taskOperation)
+        ret.update(DBHandler.handleTaskProcess(taskOperation))
+    return ret
+
 @decoRet
 def getEcologyEntrance(request):
     ret = {}

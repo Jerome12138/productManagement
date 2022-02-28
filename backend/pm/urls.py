@@ -26,6 +26,7 @@ urlpatterns = [
     path('task/queryUnhandledTaskList', views.queryUnhandledTaskList),
     path('task/queryHandledTaskList', views.queryHandledTaskList),
     path('task/getTaskDetailById', views.getTaskDetailById),
+    path('task/handleTaskProcess', views.handleTaskProcess),
     path('ecologyEntrance/getEcologyEntrance', views.getEcologyEntrance),
     path('electricBoardInfo/getElectricBoardInfo', views.getElectricBoardInfo),
     path('selectOption/getSelectOption', views.getSelectOption),
