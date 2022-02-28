@@ -162,7 +162,7 @@
       mask
       :mask-closable=false>
       <Select v-model="appCopySn8" placeholder="选择产品" filterable transfer>
-        <Option v-for="item in allProductModel[productType]" :value="item.sn8" :label="item.model" :key="item.model" >
+        <Option v-for="item in allProductModel[productType]" :value="item.sn8" :label="item.model" :key="item.sn8" >
           <span>{{ item.model }} ({{ item.sn8 }})</span>
           <span style="float:right;color:#ccc;margin-right:16px">{{ item.appStatus }}</span>
         </Option>

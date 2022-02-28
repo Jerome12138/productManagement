@@ -1,7 +1,7 @@
 <template>
   <Drawer
     title="任务详情"
-    v-model="visible"
+    v-model="taskDetailDrawer"
     width="720"
     :mask-closable="false"
     :styles="styles"
@@ -346,7 +346,7 @@ export default {
   },
   data () {
     return {
-      visible: false,
+      taskDetailDrawer: false,
       handleTaskLoading: false,
       isSponsor: false,
       haveProcess: false,
@@ -411,7 +411,7 @@ export default {
   },
   watch: {
     value (nV, oV) {
-      this.visible = nV
+      this.taskDetailDrawer = nV
       if (nV && !oV) {
         // drawer出现时初始化数据
         this.initTaskDetail()
