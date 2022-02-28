@@ -17,9 +17,9 @@ export default {
    * @description api请求基础路径
    */
   baseUrl: {
-    dev: 'http://101.43.119.118:12108/pm/',
+    dev: 'http://localhost:12108/pm/',
     // dev: 'http://121.43.198.225:8080/',
-    pro: 'http://101.43.119.118:88/pm/'
+    pro: 'http://101.43.119.118/pm-back/'
   },
   /**
    * @description 默认打开的首页的路由name值，默认为home

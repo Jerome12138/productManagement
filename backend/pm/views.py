@@ -20,29 +20,46 @@ midea_url = 'https://product-function.midea-hotwater.com/pm/%s'
 # 返回函数装饰器
 def decoRet(func):
     def inner_func(request, *args, **kwargs):
-        ret = {'errorCode': '-1', 'error': None, 'result': None}
+        ret = {'errorCode': '-1', 'msg': '', 'result': None}
         try:
             i = func(request, *args, **kwargs)   # 运行原函数
             ret.update(i)
         except Exception as e:
             print(traceback.print_exc())
             ret['errorCode'] = '-1'
-            ret['error'] = '遇到异常: '+e
+            ret['msg'] = '遇到异常: '+e
         finally:
             return JsonResponse(ret)
     return inner_func
 
+# 返回函数装饰器
+def decoTokenRet(func):
+    def inner_func(request, *args, **kwargs):
+        result = {'errorCode': '-1', 'msg': '', 'result': None}
+        try:
+            token = request.COOKIES.get('token')
+            # print(request.COOKIES)
+            if token:
+                session.headers['Cookie'] = "token=%s"%token
+            response = func(request, *args, **kwargs)   # 运行原函数
+            result = json.loads(response.content.decode())
+        except Exception as e:
+            print(traceback.print_exc())
+            result['errorCode'] = '-1'
+            result['msg'] = '遇到异常: '+e
+        finally:
+            ret = JsonResponse(result)
+            res_cookie = response.cookies['token']
+            # print(res_cookie)
+            ret.set_cookie('token',res_cookie.strip('"'))
+            return ret
+    return inner_func
 
 # @decoRet
 def login(request):
     res = session.post(midea_url%'login', json=json.loads(request.body))
     result = json.loads(res.content.decode())
     return JsonResponse(result)
-    # ret = {}
-    # if request.method == "POST":
-    #     ret['errorCode'] = '0'
-    #     ret['token'] = 'admin'
-    # return ret
 
 @decoRet
 def logout(request):
@@ -51,7 +68,7 @@ def logout(request):
         ret['errorCode'] = '0'
     return ret
 
-# @decoRet
+@decoTokenRet
 def getUserInfo(request):
     token = request.GET.get('token')
     session.headers['Cookie'] = "token=%s"%token
@@ -59,35 +76,14 @@ def getUserInfo(request):
     token_encode = urllib.parse.quote(token)
     # print(token_encode)
     response = session.get(midea_url%'get_info?token=%s'%token_encode)
-    print(response.content)
-    result = json.loads(response.content.decode())
-    res = JsonResponse(result)
-    # res_cookie = response.cookies['token']
-    # print(res_cookie)
-    # res.set_cookie('token',res_cookie)
-    return res
-    # return JsonResponse(result)
-    # ret = {}
-    # if request.method == "GET":
-    #     ret['errorCode'] = '0'
-    #     ret = {
-    #         **ret,
-    #         "name": 'admin',
-    #         "user_id": '2',
-    #         "access": ['admin'],
-    #         "token": 'admin',
-    #         "avator": 'https://avatars0.githubusercontent.com/u/20942571?s=460&v=4'
-    #     }
-    # return ret
+    # print(response.content)
+    return response
 
-
+@decoTokenRet
 def getAllUser(request):
-    # token = request.COOKIES.get('token')
-    # print(request.COOKIES)
-    # session.headers['Cookie'] = "token=%s"%token
-    res = session.post(midea_url%'user/getAllUser')
-    result = json.loads(res.content.decode())
-    return JsonResponse(result)
+    response = session.post(midea_url%'user/getAllUser')
+    # print(response.content.decode())
+    return response
 
 
 @decoRet

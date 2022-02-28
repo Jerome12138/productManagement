@@ -421,7 +421,6 @@ export default {
     })
     // 类型根据传过来的数据赋值
     this.productType = this.$route.meta.productType
-    this.initProductTypeData()
     // 获取品牌
     getBranchList().then(result => {
       if (result.data.result) {

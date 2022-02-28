@@ -19,5 +19,5 @@ from django.conf import settings  # 新增2
 from django.conf.urls.static import static  # 新增2
 
 urlpatterns = [
-    path('pm/', include('pm.urls')),
+    path('', include('pm.urls')),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
