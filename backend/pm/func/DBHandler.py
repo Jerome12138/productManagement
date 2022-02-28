@@ -576,8 +576,8 @@ def handleTaskProcess(taskOperation):
         # 将操作用户id添加到已操作完成的用户id set里面
         setForFinishCurrentHandleUserId.append(userId)
         # 判断是不是所有当前阶段处理人都处理过了
-        if set(setForCurrentHandleUserId) < set(setForFinishCurrentHandleUserId):
-            processTask = getDataByDBName('FmDevelopTaskProcessContent', condition={"developTaskId":taskOperation.get('taskId')}, order_by='-updateDateTime')
+        if set(setForCurrentHandleUserId) <= set(setForFinishCurrentHandleUserId):
+            processTask = getDataByDBName('FmDevelopTaskProcessContent', condition={"developTaskId":taskOperation.get('taskId')})
             # 判断是 审核通过 还是 审核不通过，所有审核人都通过，就是审核通过，有一个没通过，就是审核没通过
             auditPass = True
             if not processTask:
@@ -612,7 +612,7 @@ def handleTaskProcess(taskOperation):
         # 将操作用户id添加到已操作完成的用户id set里面
         setForFinishCurrentHandleUserId.append(userId)
         # 判断是不是所有的当前处理人已处理
-        if set(setForCurrentHandleUserId) < set(setForFinishCurrentHandleUserId):
+        if set(setForCurrentHandleUserId) <= set(setForFinishCurrentHandleUserId):
             if taskOperation.get('operation') == 'sponsor_send_audit':
                 taskDataObj.currentHandlerRole = 'auditor'
                 taskDataObj.currentHandleUserId = taskDataObj.auditUserIds
@@ -636,7 +636,7 @@ def handleTaskProcess(taskOperation):
         # 将操作用户id添加到已操作完成的用户id set里面
         setForFinishCurrentHandleUserId.append(userId)
         # 判断是不是所有的当前处理人已处理
-        if set(setForCurrentHandleUserId) < set(setForFinishCurrentHandleUserId):
+        if set(setForCurrentHandleUserId) <= set(setForFinishCurrentHandleUserId):
             if taskOperation.get('operation') == 'actor_accept':
                 taskDataObj.currentHandlerRole = 'actor'
                 taskDataObj.currentHandleUserId = str(taskDataObj.actorUserId)
@@ -660,7 +660,7 @@ def handleTaskProcess(taskOperation):
         # 将操作用户id添加到已操作完成的用户id set里面
         setForFinishCurrentHandleUserId.append(userId)
         # 判断是不是所有的当前处理人已处理
-        if set(setForCurrentHandleUserId) < set(setForFinishCurrentHandleUserId):
+        if set(setForCurrentHandleUserId) <= set(setForFinishCurrentHandleUserId):
             if taskOperation.get('operation') == 'sponsor_reject_not_accept':
                 taskDataObj.currentHandlerRole = 'actor'
                 taskDataObj.currentHandleUserId = str(taskDataObj.actorUserId)
@@ -684,7 +684,7 @@ def handleTaskProcess(taskOperation):
         # 将操作用户id添加到已操作完成的用户id set里面
         setForFinishCurrentHandleUserId.append(userId)
         # 判断是不是所有的当前处理人已处理
-        if set(setForCurrentHandleUserId) < set(setForFinishCurrentHandleUserId):
+        if set(setForCurrentHandleUserId) <= set(setForFinishCurrentHandleUserId):
             if taskOperation.get('operation') == 'actor_finish':
                 taskDataObj.currentHandlerRole = 'sponsor'
                 taskDataObj.currentHandleUserId = str(taskDataObj.sponsorUserId)
@@ -708,7 +708,7 @@ def handleTaskProcess(taskOperation):
         # 将操作用户id添加到已操作完成的用户id set里面
         setForFinishCurrentHandleUserId.append(userId)
         # 判断是不是所有的当前处理人已处理
-        if set(setForCurrentHandleUserId) < set(setForFinishCurrentHandleUserId):
+        if set(setForCurrentHandleUserId) <= set(setForFinishCurrentHandleUserId):
             if taskOperation.get('operation') == 'sponsor_reject_finish':
                 taskDataObj.currentHandlerRole = 'actor'
                 taskDataObj.currentHandleUserId = str(taskDataObj.actorUserId)
@@ -732,7 +732,7 @@ def handleTaskProcess(taskOperation):
         # 将操作用户id添加到已操作完成的用户id set里面
         setForFinishCurrentHandleUserId.append(userId)
         # 判断是不是所有的当前处理人已处理
-        if set(setForCurrentHandleUserId) < set(setForFinishCurrentHandleUserId):
+        if set(setForCurrentHandleUserId) <= set(setForFinishCurrentHandleUserId):
             if taskOperation.get('operation') == 'sponsor_reject_not_finish':
                 taskDataObj.currentHandlerRole = 'actor'
                 taskDataObj.currentHandleUserId = str(taskDataObj.actorUserId)
