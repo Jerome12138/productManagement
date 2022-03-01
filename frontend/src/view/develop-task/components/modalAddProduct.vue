@@ -13,29 +13,29 @@
         <Step title="APP功能"></Step>
         <Step title="其他功能"></Step>
     </Steps> -->
-    <Form :model="productData" label-position="left" :label-width="88">
+    <Form ref="productEditManage" :model="productData" label-position="left" :label-width="88" :rules="productRuleValidate">
       <Tabs v-model="currentStep">
           <Tab-pane label="产品基本信息">
             <Row :gutter="16">
               <Col span="12">
-                <FormItem label="产品编码">
+                <FormItem label="产品编码" prop="code">
                   <Input :disabled="isUpdate" v-model="productData.code" :maxlength="50" placeholder="请输入产品编码" clearable></Input>
                 </FormItem>
               </Col>
               <Col span="12">
-                <FormItem label="产品型号">
+                <FormItem label="产品型号" prop="model">
                   <Input :disabled="isUpdate" v-model="productData.model" :maxlength="50" placeholder="请输入产品型号" clearable></Input>
                 </FormItem>
               </Col>
             </Row>
             <Row :gutter="16">
               <Col span="12">
-                <FormItem label="SN8">
+                <FormItem label="SN8" prop="sn8">
                   <Input :disabled="isUpdate" v-model="productData.sn8" :maxlength="50" placeholder="请输入产品SN8，8个字符" clearable></Input>
                 </FormItem>
               </Col>
               <Col span="12">
-                <FormItem label="品牌">
+                <FormItem label="品牌" prop="branch">
                   <Select v-model="productData.branch" placeholder="请选择品牌" filterable transfer>
                     <Option v-for="item in branchList" :value="item.code" :key="item.code">{{ item.value }}</Option>
                   </Select>
@@ -44,7 +44,7 @@
             </Row>
             <Row :gutter="16">
               <Col span="12">
-                <FormItem label="生态入口">
+                <FormItem label="生态入口" prop="ecologyEntranceIds">
                   <Select v-model="productData.ecologyEntranceIds" placeholder="请选择产品生态入口" multiple filterable transfer>
                     <Option v-for="item in allEcologyEntranceList" :value="item.id" :key="item.id">{{ item.name }}</Option>
                   </Select>
@@ -151,7 +151,7 @@
       <Button style="margin-right: 8px" @click="cancelSaveProduct">取消</Button>
       <Button v-if="currentStep != 0" style="margin-right: 8px" @click="currentStep-=1">上一步</Button>
       <Button v-if="currentStep == 2" type="primary" @click="saveProduct">保存</Button>
-      <Button v-else type="primary" @click="currentStep+=1">下一步</Button>
+      <Button v-else type="primary" @click="nextStep">下一步</Button>
     </div>
     <Modal
       :styles="{width: '320px'}"
@@ -326,6 +326,13 @@ export default {
       qqFans: qqFans,
       showCopyModal: false,
       appCopySn8: '',
+      productRuleValidate: {
+        code: { required: true, message: '产品编码不能为空', trigger: 'blur' },
+        model: { required: true, message: '产品型号不能为空', trigger: 'blur' },
+        sn8: { required: true, message: 'SN8不能为空', trigger: 'blur' },
+        branch: { required: true, message: '品牌不能为空', trigger: 'blur' },
+        ecologyEntranceIds: { required: true, type: 'array', message: '生态入口不能为空', trigger: 'blur' },
+      },
     }
   },
   watch: {
@@ -370,62 +377,78 @@ export default {
     }
   },
   methods: {
+    // 下一步
+    nextStep () {
+      this.$refs.productEditManage.validate((valid) => {
+        if (valid) {
+          currentStep+=1
+        } else {
+          this.$Message.error('请先确认所有必填字段已填写完毕！')
+        }
+      })
+    },
     // 保存产品，先判断当前用户是否有该类型的权限
     saveProduct () {
-      const token = getToken()
-      store.commit('setToken', token)
-      if (!token) {
-        this.$store.state.user.access = []
-      }
-      store.dispatch('getUserInfo').then(user => {
-        // 拉取用户信息，通过用户权限和跳转的页面的name来判断是否有权限访问;access必须是一个数组，如：['super_admin'] ['super_admin', 'admin']
-        this.$store.state.user.access = user.access
-        // 根据是否有id，判断是更新还是新增
-        let booleanForAdd = true
-        let booleanForUpdate = true
-        if (this.productData.id) {
-          booleanForAdd = false
-          booleanForUpdate = true
-        } else {
-          booleanForAdd = true
-          booleanForUpdate = false
-        }
-        // 如果有对应产品的权限
-        if (this.accessProductType) {
-          if ((this.accessUpdate && booleanForUpdate) || (this.accessAdd && booleanForAdd)) {
-            // 拼接功能id列表
-            this.productData.functionIds = this.functionIdList.reduce((prev, cur) => {
-              if (typeof cur === 'string') {
-                cur = cur ? [cur] : []
-              }
-              return prev.concat(cur)
-            })
-            saveProduct(this.productData).then(result => {
-              if (result.data.errorCode && result.data.errorCode === '0') {
-                this.$Message.success('产品保存成功！')
-                this.productData = JSON.parse(JSON.stringify(initProductData))
-                this.visible = false
-                this.$emit('input', false)
-                // 重新加载列表
-                this.$emit('saveProductSuccess', false)
-              } else {
-                this.$Message.error('产品保存失败:' + result.data.msg)
-              }
-            })
-          } else {
-            if (booleanForAdd) {
-              this.$Message.error('当前用户没有添加产品权限！')
-            } else {
-              this.$Message.error('当前用户没有更新产品权限！')
-            }
+      this.$refs.productEditManage.validate((valid) => {
+        if (valid) {
+          const token = getToken()
+          store.commit('setToken', token)
+          if (!token) {
+            this.$store.state.user.access = []
           }
+          store.dispatch('getUserInfo').then(user => {
+            // 拉取用户信息，通过用户权限和跳转的页面的name来判断是否有权限访问;access必须是一个数组，如：['super_admin'] ['super_admin', 'admin']
+            this.$store.state.user.access = user.access
+            // 根据是否有id，判断是更新还是新增
+            let booleanForAdd = true
+            let booleanForUpdate = true
+            if (this.productData.id) {
+              booleanForAdd = false
+              booleanForUpdate = true
+            } else {
+              booleanForAdd = true
+              booleanForUpdate = false
+            }
+            // 如果有对应产品的权限
+            if (this.accessProductType) {
+              if ((this.accessUpdate && booleanForUpdate) || (this.accessAdd && booleanForAdd)) {
+                // 拼接功能id列表
+                this.productData.functionIds = this.functionIdList.reduce((prev, cur) => {
+                  if (typeof cur === 'string') {
+                    cur = cur ? [cur] : []
+                  }
+                  return prev.concat(cur)
+                })
+                saveProduct(this.productData).then(result => {
+                  if (result.data.errorCode && result.data.errorCode === '0') {
+                    this.$Message.success('产品保存成功！')
+                    this.productData = JSON.parse(JSON.stringify(initProductData))
+                    this.visible = false
+                    this.$emit('input', false)
+                    // 重新加载列表
+                    this.$emit('saveProductSuccess', false)
+                  } else {
+                    this.$Message.error('产品保存失败:' + result.data.msg)
+                  }
+                })
+              } else {
+                if (booleanForAdd) {
+                  this.$Message.error('当前用户没有添加产品权限！')
+                } else {
+                  this.$Message.error('当前用户没有更新产品权限！')
+                }
+              }
+            } else {
+              this.$Message.error('当前用户没有此类产品的权限！')
+            }
+          }).catch(() => {
+            setToken('')
+            this.$store.state.user.access = []
+            this.$Message.error('保存失败！')
+          })
         } else {
-          this.$Message.error('当前用户没有此类产品的权限！')
+          this.$Message.error('请先确认所有必填字段已填写完毕！')
         }
-      }).catch(() => {
-        setToken('')
-        this.$store.state.user.access = []
-        this.$Message.error('保存失败！')
       })
     },
     // 关闭产品编辑页面弹窗时，将该弹窗的数据清除

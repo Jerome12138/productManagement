@@ -60,81 +60,19 @@
         </Col>
         <Col span="10">
           <div v-if="taskDetailData.status==='audit_fail_confirming' && isSponsor">
-            <FormItem label="产品型号:" prop="productModel">
+            <FormItem label="产品型号:" prop="productIds">
               <Select v-model="taskDetailData.productIds" placeholder="请选择产品型号" clearable multiple filterable
                       not-found-text="请先选择产品类型，并确认已选类型有产品">
                 <Option v-for="item in allProductModel[taskDetailData.productType]"
-                        :value="item.id" :label="item.model" :key="item.id">{{ item.model }}
+                        :value="item.id" :label="item.model" :key="item.id">
+                  <span>{{ item.model }} ({{ item.sn8 }})</span>
+                  <span style="float:right;color:#ccc;margin-right:16px">{{ item.appStatus }}</span>
                 </Option>
               </Select>
             </FormItem>
           </div>
           <FormItem v-else label="产品型号:" :rules="{}">
             <span>{{ taskDetailData.productModels }}</span>
-          </FormItem>
-        </Col>
-      </Row>
-      <Row :gutter="10" v-if="false">
-        <Col span="12">
-          <FormItem label="产品功能:">
-            <Select v-if="taskDetailData.status==='audit_fail_confirming' && isSponsor"
-                    v-model="taskDetailData.productFunctionType" placeholder="请选择产品功能" clearable multiple
-                    not-found-text="请先选择产品类型，并确认已选类型有功能选项">
-              <Option v-for="item in productTypeToFunctionList[taskDetailData.productType]" :value="item.id"
-                      :key="item.id">
-                {{ item.functionName }}
-              </Option>
-            </Select>
-            <span v-else>{{ taskDetailData.productFunctionTypeNames }}</span>
-          </FormItem>
-        </Col>
-        <Col span="12">
-          <FormItem label="产品场景:">
-            <Select v-if="taskDetailData.status==='audit_fail_confirming' && isSponsor"
-                    v-model="taskDetailData.productScenarioType" placeholder="请选择产品场景" clearable multiple
-                    not-found-text="请先选择产品类型，并确认已选类型有场景选项">
-              <Option v-for="item in productTypeToScenarioList[taskDetailData.productType]"
-                      :value="item.id" :key="item.id">{{ item.scenarioName }}
-              </Option>
-            </Select>
-            <span v-else>{{ taskDetailData.productScenarioTypeNames }}</span>
-          </FormItem>
-        </Col>
-      </Row>
-      <Row :gutter="10" v-if="false">
-        <Col span="12">
-          <FormItem label="传感器:">
-            <Select v-if="taskDetailData.status==='audit_fail_confirming' && isSponsor"
-                    v-model="taskDetailData.productSensorType" placeholder="请选择产品传感器" clearable multiple
-                    not-found-text="请先选择产品类型，并确认已选类型有传感器选项">
-              <Option v-for="item in productTypeToSensorList[taskDetailData.productType]" :value="item.id"
-                      :key="item.id">
-                {{ item.sensorName }}
-              </Option>
-            </Select>
-            <span v-else>{{ taskDetailData.productSensorTypeNames }}</span>
-          </FormItem>
-        </Col>
-        <Col span="12">
-          <FormItem label="语音功能:">
-            <Select v-if="taskDetailData.status==='audit_fail_confirming' && isSponsor"
-                    v-model="taskDetailData.productVoiceFunctionType" placeholder="请选择产品语音功能" clearable multiple
-                    not-found-text="暂无可选项，请确认是否有语音功能选项">
-              <Option v-for="item in allVoiceFunctionList" :value="item.id" :key="item.id">{{ item.name }}</Option>
-            </Select>
-            <span v-else>{{ taskDetailData.productVoiceFunctionTypeNames }}</span>
-          </FormItem>
-        </Col>
-      </Row>
-      <Row :gutter="10" v-if="false">
-        <Col span="12">
-          <FormItem label="生态入口:">
-            <Select v-if="taskDetailData.status==='audit_fail_confirming' && isSponsor"
-                    v-model="taskDetailData.productEcologyEntranceType" placeholder="请选择产品生态入口" clearable multiple
-                    not-found-text="暂无可选项，请确认是否有生态入口选项">
-              <Option v-for="item in allEcologyEntranceList" :value="item.id" :key="item.id">{{ item.name }}</Option>
-            </Select>
-            <span v-else>{{ taskDetailData.productEcologyEntranceTypeNames }}</span>
           </FormItem>
         </Col>
       </Row>
@@ -367,7 +305,7 @@ export default {
         auditGroupId: { required: true, type: 'number', message: '审核组不能为空', trigger: 'change' },
         actorUserId: { required: true, type: 'number', message: '执行人不能为空', trigger: 'change' },
         productType: { required: true, message: '产品类型不能为空', trigger: 'blur' },
-        productModel: { required: true, message: '产品型号不能为空', trigger: 'blur' },
+        productIds: { required: true, type: 'array', message: '产品型号不能为空', trigger: 'blur' },
         handleDetail: { required: true, message: '处理不能为空', trigger: 'blur' },
         handleOpinion: { required: true, message: '处理意见不能为空', trigger: 'blur' }
       },
@@ -419,14 +357,15 @@ export default {
     }
   },
   computed: {
-    changeTaskDetailProductType () {
-      this.taskDetailData.productFunctionType = []
-      this.taskDetailData.productScenarioType = []
-      this.taskDetailData.productSensorType = []
-      this.taskDetailData.productModel = ''
-    },
   },
   methods: {
+    changeTaskDetailProductType () {
+      // this.taskDetailData.productFunctionType = []
+      // this.taskDetailData.productScenarioType = []
+      // this.taskDetailData.productSensorType = []
+      // this.taskDetailData.productModel = ''
+      this.taskDetailData.productIds = []
+    },
     clearTaskDetailData () {
       this.taskDetailData = JSON.parse(JSON.stringify(initTaskDetailData))
     },
