@@ -57,9 +57,9 @@ def getDataByDBName(db_name, condition={}, values=[], order_by=['-updateDateTime
         return []
 
 # 通用方法，获取db数据，输出db对象
-def getDataObjByDBName(db_name, condition={}, values=[], order_by=['-updateDateTime','-id']):
+def getDataObjByDBName(db_name, condition={}, order_by=['-updateDateTime','-id']):
     if hasattr(models, db_name):
-        functionData = getattr(models, db_name).objects.filter(**condition).order_by('-updateDateTime','-id')
+        functionData = getattr(models, db_name).objects.filter(**condition).order_by(*order_by)
         return functionData
     else:
         return []

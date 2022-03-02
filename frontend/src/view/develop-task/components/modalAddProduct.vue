@@ -1,11 +1,19 @@
 <template>
-  <Modal
-    :styles="{width: '820px'}"
+  <!-- <Drawer
+    v-model="drawer"
+    :title="drawerTitle"
+    width="720"
+    :mask-closable="false"
+    :styles="styles"
+    @on-close="closeDrawer"> -->
+  <components
+    :is="1?'Modal':'Drawer'"
     v-model="visible"
     title="添加产品"
+    width="820"
     @on-cancel="closeModal"
     mask
-    :mask-closable=false
+    :mask-closable="false"
     :loading="loading">
     <!-- <Steps :current="currentStep">
         <Step title="产品基本信息"></Step>
@@ -55,7 +63,7 @@
           <Tab-pane label="电控信息">
             <Row :gutter="16">
               <Col span="12" v-for="(electricBoardInfo,index) in allElectricBoardInfoList" :key="index">
-                <FormItem :label="electricBoardInfo.typeName">
+                <FormItem :label="electricBoardInfo.typeName" :rules="{ required: electricBoardInfo.isRequired, message: electricBoardInfo.typeName+'不能为空', trigger: 'blur' }">
                   <!-- 选择 -->
                   <Select
                     v-if="electricBoardInfo.componentType=='Select'"
@@ -168,7 +176,7 @@
         </Option>
       </Select>
     </Modal>
-  </Modal>
+  </components>
 </template>
 
 <script>

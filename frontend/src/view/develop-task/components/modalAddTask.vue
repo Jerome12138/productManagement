@@ -30,7 +30,8 @@
         <Col span="10">
           <FormItem label="产品类型:" prop="productType">
             <Select v-model="taskData.productType" placeholder="请选择产品类型" clearable not-found-text="暂无产品类型" @on-change="changeProductType">
-              <Option v-for="item in allProductType" :value="item.code" :key="item.code">{{ item.value }}</Option>
+              <Option value="electric_heater" key="electric_heater">电热水器</Option>
+              <!-- <Option v-for="item in allProductType" :value="item.code" :key="item.code">{{ item.value }}</Option> -->
             </Select>
           </FormItem>
         </Col>
@@ -54,28 +55,28 @@
       </Row>
       <Row :gutter="8">
         <Col span="6">
-          <FormItem label="项目经理:">
+          <FormItem label="项目经理:" prop="pm">
             <Select clearable filterable v-model="taskData.pm" placeholder="请选择">
               <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
             </Select>
           </FormItem>
         </Col>
         <Col span="6">
-          <FormItem label="产品企划:">
+          <FormItem label="产品企划:" prop="planner">
             <Select clearable filterable  v-model="taskData.planner" placeholder="请选择">
               <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
             </Select>
           </FormItem>
         </Col>
         <Col span="6">
-          <FormItem label="电控硬件:">
+          <FormItem label="电控硬件:" prop="hardwareEngineer">
             <Select clearable filterable  v-model="taskData.hardwareEngineer" placeholder="请选择">
               <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
             </Select>
           </FormItem>
         </Col>
         <Col span="6">
-          <FormItem label="电控软件:">
+          <FormItem label="电控软件:" prop="softwareEngineer">
             <Select clearable filterable  v-model="taskData.softwareEngineer" placeholder="请选择">
               <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
             </Select>
@@ -248,12 +249,16 @@ export default {
       taskRuleValidate: {
         title: { required: true, message: '标题不能为空', trigger: 'blur' },
         content: { required: true, message: '内容不能为空', trigger: 'blur' },
-        // auditGroupId: { required: true, type: 'number', message: '审核组不能为空', trigger: 'change' },
+        auditGroupId: { required: true, type: 'number', message: '审核组不能为空', trigger: 'change' },
         // actorUserId: { required: true, type: 'number', message: '执行人不能为空', trigger: 'change' },
         productType: { required: true, message: '产品类型不能为空', trigger: 'blur' },
         productIds: { required: true, type: 'array', message: '产品型号不能为空', trigger: 'blur' },
         handleDetail: { required: true, message: '处理不能为空', trigger: 'blur' },
-        handleOpinion: { required: true, message: '处理意见不能为空', trigger: 'blur' }
+        handleOpinion: { required: true, message: '处理意见不能为空', trigger: 'blur' },
+        pm: { required: true, message: '项目经理不能为空', trigger: 'blur' },
+        planner: { required: true, message: '企划不能为空', trigger: 'blur' },
+        hardwareEngineer: { required: true, message: '电控硬件不能为空', trigger: 'blur' },
+        softwareEngineer: { required: true, message: '电控软件不能为空', trigger: 'blur' }
       },
       allProductType: [],
       allProductModel: {},

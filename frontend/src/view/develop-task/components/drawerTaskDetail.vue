@@ -50,7 +50,8 @@
               <Select v-model="taskDetailData.productType" placeholder="请选择产品类型" clearable
                       not-found-text="暂无产品类型"
                       @on-change="changeTaskDetailProductType">
-                <Option v-for="item in allProductType" :value="item.code" :key="item.code">{{ item.value }}</Option>
+                <Option value="electric_heater" key="electric_heater">电热水器</Option>
+                <!-- <Option v-for="item in allProductType" :value="item.code" :key="item.code">{{ item.value }}</Option> -->
               </Select>
             </FormItem>
           </div>

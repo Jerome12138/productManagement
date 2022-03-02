@@ -269,7 +269,7 @@ def getElectricBoardInfo(request):
     if request.method == "POST":
         ret['errorCode'] = '0'
         productType = request.GET.get('productType')
-        ret['result'] = DBHandler.getDataByDBName('FmElectricBoardInfo', condition={"productType":productType})
+        ret['result'] = DBHandler.getDataByDBName('FmElectricBoardInfo', condition={"productType":productType}, order_by=['displayPriority'])
     return ret
 
 @decoRet
