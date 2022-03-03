@@ -1,15 +1,11 @@
 <template>
   <!-- <Drawer
-    v-model="drawer"
-    :title="drawerTitle"
-    width="720"
-    :mask-closable="false"
     :styles="styles"
     @on-close="closeDrawer"> -->
   <components
-    :is="1?'Modal':'Drawer'"
+    :is="isUpdate?'Drawer':'Modal'"
     v-model="visible"
-    title="添加产品"
+    :title="modalTitle"
     width="820"
     @on-cancel="closeModal"
     mask
@@ -155,6 +151,7 @@
           </Tab-pane> -->
       </Tabs>
     </Form>
+    <!-- <div> -->
     <div slot="footer">
       <Button style="margin-right: 8px" @click="cancelSaveProduct">取消</Button>
       <Button v-if="currentStep != 0" style="margin-right: 8px" @click="currentStep-=1">上一步</Button>
@@ -226,10 +223,6 @@ const initProductData = {
 }
 export default {
   props: {
-    isUpdate: {
-      type: Boolean,
-      default: false
-    },
     value: {
       type: Boolean,
       default: false
@@ -237,6 +230,10 @@ export default {
     productType: {
       type: String,
       default: ''
+    },
+    productId: {
+      type: Number,
+      default: -1
     }
   },
   data () {
@@ -341,12 +338,14 @@ export default {
         branch: { required: true, message: '品牌不能为空', trigger: 'blur' },
         ecologyEntranceIds: { required: true, type: 'array', message: '生态入口不能为空', trigger: 'blur' },
       },
+      isUpdate: false,
     }
   },
   watch: {
     value (nV, oV) {
       this.visible = nV
       if (nV && !oV) {
+        this.isUpdate = this.productId && this.productId != -1
         // 类型根据传过来的数据赋值
         this.initProductTypeData()
       }
@@ -430,7 +429,7 @@ export default {
                 saveProduct(this.productData).then(result => {
                   if (result.data.errorCode && result.data.errorCode === '0') {
                     this.$Message.success('产品保存成功！')
-                    this.productData = JSON.parse(JSON.stringify(initProductData))
+                    // this.productData = JSON.parse(JSON.stringify(initProductData))
                     this.visible = false
                     this.$emit('input', false)
                     // 重新加载列表
@@ -461,21 +460,21 @@ export default {
     },
     // 关闭产品编辑页面弹窗时，将该弹窗的数据清除
     cancelSaveProduct () {
-      this.productData = JSON.parse(JSON.stringify(initProductData))
+      // this.productData = JSON.parse(JSON.stringify(initProductData))
       this.visible = false
       this.$emit('input', false)
     },
     // 关闭产品编辑页面弹窗时，将该弹窗的数据清除
     closeModal () {
       this.$emit('input', false)
-      this.productData = JSON.parse(JSON.stringify(initProductData))
     },
     getFunctionListByType (typeKey) {
       return this.functionList.filter(item => item.functionKey == typeKey && !item.isDisable)
     },
     initProductTypeData () {
       initProductData.productType = this.productType
-      this.productData.productType = this.productType
+      this.productData = JSON.parse(JSON.stringify(initProductData))
+      // Object.assign(this.productData, this.propProductData)
       // 获取场景
       // getScenario(this.productType).then(res => {
       //   if (res.data.result) {

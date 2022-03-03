@@ -7,8 +7,6 @@
     mask
     :mask-closable=false
     :loading="loading">
-    <!-- 添加产品的弹窗 -->
-    <modalAddProduct v-model="showAddProductModal" :productType="taskData.productType" @saveProductSuccess="saveProductSuccess"></modalAddProduct>
     <!-- 任务内容表格 -->
     <Form ref="taskManage" :model="taskData" label-position="left" :rules="taskRuleValidate" :label-width="75">
       <Row :gutter="8">
@@ -21,7 +19,7 @@
       <Row :gutter="8">
         <Col span="24">
           <FormItem label="内容:" prop="content">
-            <Input v-model="taskData.content" type="textarea" :maxlength="500" placeholder="请输入500个字符以内的任务内容"
+            <Input v-model="taskData.content" type="textarea" :maxlength="500" placeholder="请输入500个字符以内的任务内容, 包括但不限于计划试产时间、电控板和配网图提供时间等"
                     autosize></Input>
           </FormItem>
         </Col>
@@ -44,6 +42,7 @@
               not-found-text="请先选择产品类型，并确认已选类型有产品">
               <Option v-for="item in allProductModel[taskData.productType]" :value="item.id" :label="item.model" :key="item.id" >
                 <span>{{ item.model }} ({{ item.sn8 }})</span>
+                <Button type="circle" size="small" @click.stop="setAddProductModal(item.id)">编辑</Button>
                 <span style="float:right;color:#ccc;margin-right:16px">{{ item.appStatus }}</span>
               </Option>
             </Select>
@@ -114,6 +113,13 @@
       <Button style="margin-right: 8px" @click="cancel">取消</Button>
       <Button type="primary" @click="saveTaskData">保存</Button>
     </div>
+    <!-- 添加产品的弹窗 -->
+    <modalAddProduct
+      v-model="showAddProductModal"
+      :productType="taskData.productType"
+      :productId="editProductId"
+      @saveProductSuccess="saveProductSuccess"
+    ></modalAddProduct>
   </Modal>
 </template>
 
@@ -166,10 +172,6 @@ export default {
     modalAddProduct,
   },
   props: {
-    isUpdate: {
-      type: Boolean,
-      default: false
-    },
     value: {
       type: Boolean,
       default: false
@@ -211,7 +213,6 @@ export default {
       branchList: [],
       allVoiceFunctionList: [],
       allEcologyEntranceList: [],
-      drawerTitle: '添加产品',
       productTypeToAuth: {
         electric_heater: 'product_electric_heater',
         gas_heater_stove: 'product_gas_heater_stove',
@@ -267,6 +268,7 @@ export default {
       groupIdToUserName: {},
       groupIdToUserIds: {},
       showAddProductModal: false,
+      editProductId: -1,
     }
   },
   watch: {
@@ -275,9 +277,6 @@ export default {
     }
   },
   computed: {
-    modalTitle () {
-      return this.isUpdate ? '编辑产品' : '添加产品'
-    },
     access () {
       return this.$store.state.user.access
     },
@@ -359,11 +358,21 @@ export default {
       this.taskData = JSON.parse(JSON.stringify(initTaskData))
       this.loading = false
     },
-    setAddProductModal () {
+    setAddProductModal (productId=-1) {
       if (!this.taskData.productType) {
         this.$Message.warning('请先选择产品类型！');
         return
       }
+      this.editProductId = productId
+      // if (params.row.pic) {
+      //   this.uploadList = [{
+      //     name: params.row.pic,
+      //     url: this.viewPicContext + params.row.pic,
+      //     status: 'finished'
+      //   }]
+      // } else {
+      //   this.uploadList = []
+      // }
       this.showAddProductModal=true
     },
     saveProductSuccess () {
