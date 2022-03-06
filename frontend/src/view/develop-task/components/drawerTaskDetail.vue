@@ -16,20 +16,13 @@
           </FormItem>
         </Col>
       </Row>
-      <Row :gutter="10" v-if="taskDetailData.status==='audit_fail_confirming' && isSponsor">
+      <Row :gutter="10">
         <Col span="24">
           <FormItem v-if="taskDetailData.status==='audit_fail_confirming' && isSponsor" label="任务内容：" prop="content">
             <Input v-model="taskDetailData.content" type="textarea" :maxlength="500" placeholder="请输入500个字符以内的任务内容"
                     autosize></Input>
           </FormItem>
-          <FormItem v-else label="" :rules="{}">
-            <span>任务内容：</span><span style="white-space: pre">{{ taskDetailData.content }}</span>
-          </FormItem>
-        </Col>
-      </Row>
-      <Row v-else>
-        <Col span="24">
-          <FormItem label="任务内容：">
+          <FormItem v-else label="任务内容：">
             <span style="white-space: pre">{{ taskDetailData.content }}</span>
           </FormItem>
         </Col>
@@ -71,49 +64,67 @@
       </Row>
       <Row :gutter="10">
         <Col span="6">
-          <FormItem label="项目经理:" prop="pmId">
+          <FormItem v-if="taskDetailData.status==='audit_fail_confirming' && isSponsor" label="项目经理:" prop="pmId">
             <Select clearable filterable v-model="taskDetailData.pmId" placeholder="请选择">
               <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.nickName">{{ item.nickName }}</Option>
             </Select>
           </FormItem>
+          <FormItem v-else label="项目经理:">
+            <span style="white-space: pre">{{ userIdToNickName[taskDetailData.pmId] }}</span>
+          </FormItem>
         </Col>
         <Col span="6">
-          <FormItem label="产品企划:" prop="plannerId">
+          <FormItem v-if="taskDetailData.status==='audit_fail_confirming' && isSponsor" label="产品企划:" prop="plannerId">
             <Select clearable filterable  v-model="taskDetailData.plannerId" placeholder="请选择">
               <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.nickName">{{ item.nickName }}</Option>
             </Select>
           </FormItem>
+          <FormItem v-else label="产品企划:">
+            <span style="white-space: pre">{{ userIdToNickName[taskDetailData.plannerId] }}</span>
+          </FormItem>
         </Col>
         <Col span="6">
-          <FormItem label="电控硬件:" prop="hardwareEngineerId">
+          <FormItem v-if="taskDetailData.status==='audit_fail_confirming' && isSponsor" label="电控硬件:" prop="hardwareEngineerId">
             <Select clearable filterable  v-model="taskDetailData.hardwareEngineerId" placeholder="请选择">
               <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.nickName">{{ item.nickName }}</Option>
             </Select>
           </FormItem>
+          <FormItem v-else label="电控硬件:">
+            <span style="white-space: pre">{{ userIdToNickName[taskDetailData.hardwareEngineerId] }}</span>
+          </FormItem>
         </Col>
         <Col span="6">
-          <FormItem label="电控软件:" prop="softwareEngineerId">
+          <FormItem v-if="taskDetailData.status==='audit_fail_confirming' && isSponsor" label="电控软件:" prop="softwareEngineerId">
             <Select clearable filterable  v-model="taskDetailData.softwareEngineerId" placeholder="请选择">
               <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.nickName">{{ item.nickName }}</Option>
             </Select>
           </FormItem>
+          <FormItem v-else label="电控软件:">
+            <span style="white-space: pre">{{ userIdToNickName[taskDetailData.softwareEngineerId] }}</span>
+          </FormItem>
         </Col>
       </Row>
-      <Row :gutter="8" v-if="taskDetailData.status==='audit_fail_confirming' && isSponsor">
-        <!-- <Col span="12">
-          <FormItem label="审核组:" prop="auditGroupId">
+      <Row :gutter="8">
+        <Col span="12">
+          <FormItem v-if="taskDetailData.status==='audit_fail_confirming' && isSponsor" label="审核组:" prop="auditGroupId">
             <Select clearable v-model="taskDetailData.auditGroupId" placeholder="请选择审核组">
               <Option v-for="item in auditGroupList" :value="item.id" :key="item.id" :label="`${item.groupName}（${groupIdToNickName[item.id]}）`">
                 <span>{{ `${item.groupName}（${groupIdToNickName[item.id]}）` }}</span>
               </Option>
             </Select>
           </FormItem>
-        </Col> -->
+          <FormItem v-else label="审核组:">
+            <span style="white-space: pre">{{ `${groupIdToNickName[taskDetailData.auditGroupId]}` }}</span>
+          </FormItem>
+        </Col>
         <Col span="12">
-          <FormItem label="执行人:" prop="actorUserId">
+          <FormItem v-if="taskDetailData.status==='audit_fail_confirming' && isSponsor" label="执行人:" prop="actorUserId">
             <Select clearable v-model="taskDetailData.actorUserId" placeholder="由APP审核人指派" disabled>
               <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.nickName">{{ item.nickName }}</Option>
             </Select>
+          </FormItem>
+          <FormItem v-else label="执行人:">
+            <span style="white-space: pre">{{ userIdToNickName[taskDetailData.actorUserId] }}</span>
           </FormItem>
         </Col>
       </Row>
@@ -387,6 +398,10 @@ export default {
         maxWidth: 150,
         key: 'updateDateTime'
       }],
+      auditGroupList: [],
+      groupIdToNickName: {},
+      groupIdToUserIds: {},
+      userIdToNickName: {},
     }
   },
   watch: {
@@ -584,6 +599,16 @@ console.log(this.haveProcess)
   mounted () {
   },
   beforeMount () {
+    let userId = this.$store.state.user.userId
+    queryAuditGroupByUserId(userId).then(res => {
+      if (res.data.result) {
+        this.auditGroupList = res.data.result
+        this.auditGroupList.forEach(value => {
+          this.groupIdToNickName[value.id] = value.nickNames
+          this.groupIdToUserIds[value.id] = value.userIds.toString()
+        })
+      }
+    })
     // 获取所有产品类型
     getProductType().then(res => {
       if (res.data.errorCode === '0' && res.data.result) {
@@ -620,6 +645,7 @@ console.log(this.haveProcess)
         res.data.result.forEach((item) => {
           if (item.userName !== 'admin' && item.userName !== 'super_admin') {
             this.allUser.push(item)
+            this.userIdToNickName[item.id] = item.nickName
           }
         })
       } else {
