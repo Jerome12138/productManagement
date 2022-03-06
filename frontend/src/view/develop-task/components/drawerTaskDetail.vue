@@ -10,12 +10,8 @@
     <Spin size="large" fix v-if="spinDrawerShow"></Spin>
     <Form ref="taskEditManage" :model="taskDetailData" :rules="taskRuleValidate">
       <Row :gutter="10">
-        <Col span="3">
+        <Col span="24">
           <FormItem label="任务标题：">
-          </FormItem>
-        </Col>
-        <Col span="21">
-          <FormItem>
             <span>{{ taskDetailData.title }}</span>
           </FormItem>
         </Col>
@@ -32,12 +28,8 @@
         </Col>
       </Row>
       <Row v-else>
-        <Col span="3">
+        <Col span="24">
           <FormItem label="任务内容：">
-          </FormItem>
-        </Col>
-        <Col span="21">
-          <FormItem>
             <span style="white-space: pre">{{ taskDetailData.content }}</span>
           </FormItem>
         </Col>
@@ -74,6 +66,54 @@
           </div>
           <FormItem v-else label="产品型号:" :rules="{}">
             <span>{{ taskDetailData.productModels }}</span>
+          </FormItem>
+        </Col>
+      </Row>
+      <Row :gutter="10">
+        <Col span="6">
+          <FormItem label="项目经理:" prop="pmId">
+            <Select clearable filterable v-model="taskDetailData.pmId" placeholder="请选择">
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.nickName">{{ item.nickName }}</Option>
+            </Select>
+          </FormItem>
+        </Col>
+        <Col span="6">
+          <FormItem label="产品企划:" prop="plannerId">
+            <Select clearable filterable  v-model="taskDetailData.plannerId" placeholder="请选择">
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.nickName">{{ item.nickName }}</Option>
+            </Select>
+          </FormItem>
+        </Col>
+        <Col span="6">
+          <FormItem label="电控硬件:" prop="hardwareEngineerId">
+            <Select clearable filterable  v-model="taskDetailData.hardwareEngineerId" placeholder="请选择">
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.nickName">{{ item.nickName }}</Option>
+            </Select>
+          </FormItem>
+        </Col>
+        <Col span="6">
+          <FormItem label="电控软件:" prop="softwareEngineerId">
+            <Select clearable filterable  v-model="taskDetailData.softwareEngineerId" placeholder="请选择">
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.nickName">{{ item.nickName }}</Option>
+            </Select>
+          </FormItem>
+        </Col>
+      </Row>
+      <Row :gutter="8" v-if="taskDetailData.status==='audit_fail_confirming' && isSponsor">
+        <!-- <Col span="12">
+          <FormItem label="审核组:" prop="auditGroupId">
+            <Select clearable v-model="taskDetailData.auditGroupId" placeholder="请选择审核组">
+              <Option v-for="item in auditGroupList" :value="item.id" :key="item.id" :label="`${item.groupName}（${groupIdToNickName[item.id]}）`">
+                <span>{{ `${item.groupName}（${groupIdToNickName[item.id]}）` }}</span>
+              </Option>
+            </Select>
+          </FormItem>
+        </Col> -->
+        <Col span="12">
+          <FormItem label="执行人:" prop="actorUserId">
+            <Select clearable v-model="taskDetailData.actorUserId" placeholder="由APP审核人指派" disabled>
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.nickName">{{ item.nickName }}</Option>
+            </Select>
           </FormItem>
         </Col>
       </Row>
@@ -321,6 +361,7 @@ export default {
       allVoiceFunctionList: [],
       allEcologyEntranceList: [],
       allProductModel: {},
+      allUser: [],
       columns: [{
         title: '处理人',
         align: 'left',
@@ -572,6 +613,17 @@ console.log(this.haveProcess)
             this.allProductModel[item.productType].push(item)
           }
         })
+      }
+    })
+    getAllUserIdAndName().then(res => {
+      if (res.data.errorCode === '0' && res.data.result) {
+        res.data.result.forEach((item) => {
+          if (item.userName !== 'admin' && item.userName !== 'super_admin') {
+            this.allUser.push(item)
+          }
+        })
+      } else {
+        this.allUser = []
       }
     })
   }

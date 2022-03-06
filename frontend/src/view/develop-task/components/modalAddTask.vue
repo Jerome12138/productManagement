@@ -56,30 +56,30 @@
       </Row>
       <Row :gutter="8">
         <Col span="6">
-          <FormItem label="项目经理:" prop="pm">
-            <Select clearable filterable v-model="taskData.pm" placeholder="请选择">
-              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
+          <FormItem label="项目经理:" prop="pmId">
+            <Select clearable filterable v-model="taskData.pmId" placeholder="请选择">
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.nickName">{{ item.nickName }}</Option>
             </Select>
           </FormItem>
         </Col>
         <Col span="6">
-          <FormItem label="产品企划:" prop="planner">
-            <Select clearable filterable  v-model="taskData.planner" placeholder="请选择">
-              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
+          <FormItem label="产品企划:" prop="plannerId">
+            <Select clearable filterable  v-model="taskData.plannerId" placeholder="请选择">
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.nickName">{{ item.nickName }}</Option>
             </Select>
           </FormItem>
         </Col>
         <Col span="6">
-          <FormItem label="电控硬件:" prop="hardwareEngineer">
-            <Select clearable filterable  v-model="taskData.hardwareEngineer" placeholder="请选择">
-              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
+          <FormItem label="电控硬件:" prop="hardwareEngineerId">
+            <Select clearable filterable  v-model="taskData.hardwareEngineerId" placeholder="请选择">
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.nickName">{{ item.nickName }}</Option>
             </Select>
           </FormItem>
         </Col>
         <Col span="6">
-          <FormItem label="电控软件:" prop="softwareEngineer">
-            <Select clearable filterable  v-model="taskData.softwareEngineer" placeholder="请选择">
-              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
+          <FormItem label="电控软件:" prop="softwareEngineerId">
+            <Select clearable filterable  v-model="taskData.softwareEngineerId" placeholder="请选择">
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.nickName">{{ item.nickName }}</Option>
             </Select>
           </FormItem>
         </Col>
@@ -87,25 +87,24 @@
       <Row :gutter="8">
         <Col span="12">
           <FormItem label="审核组:" prop="auditGroupId">
-            <span style="max-width: 100%; display: inline-block; overflow-wrap: break-word;text-align: left;">
-              {{ groupIdToUserName[taskData.auditGroupId] }}
-            </span>
             <Select clearable v-model="taskData.auditGroupId" placeholder="请选择审核组">
-              <Option v-for="item in auditGroupList" :value="item.id" :key="item.id">{{ item.groupName }}</Option>
+              <Option v-for="item in auditGroupList" :value="item.id" :key="item.id" :label="`${item.groupName}（${groupIdToNickName[item.id]}）`">
+                <span>{{ `${item.groupName}（${groupIdToNickName[item.id]}）` }}</span>
+              </Option>
             </Select>
           </FormItem>
         </Col>
         <!-- <Col span="12">
           <FormItem label="APP审核人:" :label-width="80">
             <Select clearable filterable v-model="taskData.appReviewer" placeholder="请选择">
-              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.nickName">{{ item.nickName }}</Option>
             </Select>
           </FormItem>
         </Col> -->
         <Col span="12">
           <FormItem label="执行人:" prop="actorUserId">
             <Select clearable v-model="taskData.actorUserId" placeholder="由APP审核人指派" disabled>
-              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.userName">{{ item.nickName }}</Option>
+              <Option v-for="item in allUser" :value="item.id" :key="item.id" :label="item.nickName">{{ item.nickName }}</Option>
             </Select>
           </FormItem>
         </Col>
@@ -157,10 +156,10 @@ const initTaskData = {
   auditGroupUserIds: '',
   productType: '',
   productIds: [],
-  pm: '',
-  planner: '',
-  hardwareEngineer: '',
-  softwareEngineer: '',
+  pmId: '',
+  plannerId: '',
+  hardwareEngineerId: '',
+  softwareEngineerId: '',
   // productFunctionType: [],
   // productScenarioType: [],
   // productSensorType: [],
@@ -258,16 +257,17 @@ export default {
         productIds: { required: true, type: 'array', message: '产品型号不能为空', trigger: 'blur' },
         handleDetail: { required: true, message: '处理不能为空', trigger: 'blur' },
         handleOpinion: { required: true, message: '处理意见不能为空', trigger: 'blur' },
-        pm: { required: true, message: '项目经理不能为空', trigger: 'blur' },
-        planner: { required: true, message: '企划不能为空', trigger: 'blur' },
-        hardwareEngineer: { required: true, message: '电控硬件不能为空', trigger: 'blur' },
-        softwareEngineer: { required: true, message: '电控软件不能为空', trigger: 'blur' }
+        pmId: { required: true, type: 'number', message: '项目经理不能为空', trigger: 'blur' },
+        plannerId: { required: true, type: 'number', message: '企划不能为空', trigger: 'blur' },
+        hardwareEngineerId: { required: true, type: 'number', message: '电控硬件不能为空', trigger: 'blur' },
+        softwareEngineerId: { required: true, type: 'number', message: '电控软件不能为空', trigger: 'blur' }
       },
       allProductType: [],
       allProductModel: {},
       allUser: [],
       auditGroupList: [],
       groupIdToUserName: {},
+      groupIdToNickName: {},
       groupIdToUserIds: {},
       showAddProductModal: false,
       editProductId: -1,
@@ -413,6 +413,7 @@ export default {
         this.auditGroupList = res.data.result
         this.auditGroupList.forEach(value => {
           this.groupIdToUserName[value.id] = value.userNames
+          this.groupIdToNickName[value.id] = value.nickNames
           this.groupIdToUserIds[value.id] = value.userIds.toString()
         })
       }
