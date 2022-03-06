@@ -3,7 +3,7 @@
     :styles="styles"
     @on-close="closeDrawer"> -->
   <components
-    :is="isUpdate?'Drawer':'Modal'"
+    :is="type=='Modal'?'Modal':'Drawer'"
     v-model="visible"
     :title="modalTitle"
     width="820"
@@ -153,7 +153,7 @@
     </Form>
     <!-- <div> -->
     <div slot="footer">
-      <Button style="margin-right: 8px" @click="cancelSaveProduct">取消</Button>
+      <Button style="margin-right: 8px" @click="closeModal">取消</Button>
       <Button v-if="currentStep != 0" style="margin-right: 8px" @click="currentStep-=1">上一步</Button>
       <Button v-if="currentStep == 2" type="primary" @click="saveProduct">保存</Button>
       <Button v-else type="primary" @click="nextStep">下一步</Button>
@@ -167,12 +167,13 @@
       mask
       :mask-closable=false>
       <Select v-model="appCopySn8" placeholder="选择产品" filterable transfer>
-        <Option v-for="item in allProductModel[productType]" :value="item.sn8" :label="item.model" :key="item.sn8" >
+        <Option v-for="item in allProductModel[productType]" :value="item.sn8" :label="item.model" :key="item.id" >
           <span>{{ item.model }} ({{ item.sn8 }})</span>
           <span style="float:right;color:#ccc;margin-right:16px">{{ item.appStatus }}</span>
         </Option>
       </Select>
     </Modal>
+    <Spin size="large" fix v-if="spinShow"></Spin>
   </components>
 </template>
 
@@ -226,6 +227,10 @@ export default {
     value: {
       type: Boolean,
       default: false
+    },
+    type: {
+      type: String,
+      default: 'Modal'
     },
     productType: {
       type: String,
@@ -339,6 +344,7 @@ export default {
         ecologyEntranceIds: { required: true, type: 'array', message: '生态入口不能为空', trigger: 'blur' },
       },
       isUpdate: false,
+      spinShow: false,
     }
   },
   watch: {
@@ -459,13 +465,9 @@ export default {
       })
     },
     // 关闭产品编辑页面弹窗时，将该弹窗的数据清除
-    cancelSaveProduct () {
+    closeModal () {
       // this.productData = JSON.parse(JSON.stringify(initProductData))
       this.visible = false
-      this.$emit('input', false)
-    },
-    // 关闭产品编辑页面弹窗时，将该弹窗的数据清除
-    closeModal () {
       this.$emit('input', false)
     },
     getFunctionListByType (typeKey) {
@@ -474,6 +476,13 @@ export default {
     initProductTypeData () {
       initProductData.productType = this.productType
       this.productData = JSON.parse(JSON.stringify(initProductData))
+      if (this.isUpdate) {
+        this.spinShow = true
+        this.searchData({id:this.productId}).then(res=>{
+          this.spinShow = false
+          Object.assign(this.productData,res)
+        })
+      }
       // Object.assign(this.productData, this.propProductData)
       // 获取场景
       // getScenario(this.productType).then(res => {
@@ -567,6 +576,37 @@ export default {
       // let selectedItem = this.allWifiModuleTypeList.find(item => item.code === this.productData.wifiModuleCode)
       // this.productData.networkingMode = selectedItem.networkingMode
     },
+    // 条件查询产品
+    searchData (condition={}) {
+      return new Promise((resolve, reject) => {
+        // 搜索产品时，确认当前登录用户时候有权限
+        const token = getToken()
+        store.commit('setToken', token)
+        if (!token) {
+          this.$store.state.user.access = []
+        }
+        // 根据token获取当前登录用户
+        store.dispatch('getUserInfo').then(user => {
+          // 拉取用户信息，获取用户权限存储到this.$store.state.user.access;access必须是一个数组，如：['super_admin'] ['super_admin', 'admin']
+          this.$store.state.user.access = user.access
+          // 判断是否有该类型产品的权限{'id': this.productId}
+          if (this.accessProductType) {
+            queryProduct(condition).then(res => {
+              let result = res.data.result
+              if (result && result.length) {
+                resolve(result[0])
+              }
+            })
+          } else {
+            this.$Message.error('当前用户没有此类产品的权限！')
+          }
+        }).catch(() => {
+          setToken('')
+          this.$store.state.user.access = []
+          this.$Message.error('搜索失败！')
+        })
+      })
+    }
   },
   created () {
   },

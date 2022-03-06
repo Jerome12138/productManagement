@@ -42,14 +42,16 @@
               not-found-text="请先选择产品类型，并确认已选类型有产品">
               <Option v-for="item in allProductModel[taskData.productType]" :value="item.id" :label="item.model" :key="item.id" >
                 <span>{{ item.model }} ({{ item.sn8 }})</span>
-                <Button type="circle" size="small" @click.stop="setAddProductModal(item.id)">编辑</Button>
-                <span style="float:right;color:#ccc;margin-right:16px">{{ item.appStatus }}</span>
+                <Button style="float:right;margin-right:16px;font-size:16px;padding:0px;line-height:0.8" type="text" @click.stop="setAddProductModal(item.id)">
+                  <Icon type="ios-create-outline" class="line-height:1"></Icon>
+                </Button>
+                <span style="float:right;color:#ccc;margin-right:4px">{{ item.appStatus }}</span>
               </Option>
             </Select>
           </FormItem>
         </Col>
         <Col span="2" :gutter="0" style="margin-top:4px">
-          <Button shape="circle" size="small" @click="setAddProductModal">创建产品</Button>
+          <Button shape="circle" size="small" @click="setAddProductModal()">创建产品</Button>
         </Col>
       </Row>
       <Row :gutter="8">
@@ -364,6 +366,7 @@ export default {
         return
       }
       this.editProductId = productId
+      console.log(productId)
       // if (params.row.pic) {
       //   this.uploadList = [{
       //     name: params.row.pic,

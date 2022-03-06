@@ -93,8 +93,8 @@ def queryProduct(**condition):
         condition.pop('productType')
     if 'ecologyEntrance' in condition.keys():
         condition.pop('ecologyEntrance')
-    if 'id' in condition.keys(): # 只接受数字，暂时用不到先屏蔽
-        condition.pop('id')
+    # if 'id' in condition.keys(): # 只接受数字，暂时用不到先屏蔽
+    #     condition.pop('id')
     if 'function' in condition.keys():
         condition.pop('function')
     if 'scenario' in condition.keys():
@@ -117,12 +117,6 @@ def queryProduct(**condition):
         condition['code'] = condition['productCode']
         condition.pop('productCode')
     print("queryProduct转化后的条件: %s"%condition)
-    # productData = list(models.ProductData.objects.filter().values())
-    # for item in productData:
-    #     if item.get('functionIds'):
-    #         item['functionIds'] = eval(item['functionIds'])
-    #         item['functionsName'] = getFunctionNamesByIds(item['functionIds'])
-
     productData = models.FmProductInfo.objects.filter(**condition).values()[:10]
     for item in productData:
         productFunctionData = models.FmProductFunction.objects.filter(productSn8=item['sn8'], productCode=item['code']).values('functionId')
